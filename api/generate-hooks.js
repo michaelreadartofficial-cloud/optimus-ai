@@ -25,7 +25,7 @@ export default async function handler(req, res) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 512,
         messages: [{ role: "user", content: prompt }],
       }),
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const errText = await response.text();
       console.error("Anthropic API error:", errText);
-      return res.status(500).json({ error: "AI service error. Please try again." });
+      return res.status(500).json({ error: "AI error: " + errText.substring(0, 300) });
     }
 
     const data = await response.json();
@@ -55,3 +55,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Something went wrong. Please try again." });
   }
 }
+
