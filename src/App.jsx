@@ -315,28 +315,29 @@ const ScriptWriterPage = () => {
   const [input, setInput] = useState("");
   const [generatedScript, setGeneratedScript] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState(null);
+  const [duration, setDuration] = useState("Short (15-30s)");
+  const [tone, setTone] = useState("Energetic");
 
-  const sampleScripts = {
-    idea: {
-      hook: "Did you know that 73% of millionaires wake up before 6 AM? But it's not the waking up early that makes them rich...",
-      body: "Here's what actually happens in those early morning hours that nobody talks about.\n\nIt's not about the cold shower. It's not about the meditation. It's about one thing: protected time.\n\nWhile the rest of the world is sleeping, these people are making decisions with zero distractions. No emails. No calls. No notifications.\n\nWarren Buffett spends his first two hours reading. Not scrolling — reading. Jeff Bezos won't schedule a meeting before 10 AM.\n\nThe secret isn't the alarm clock. It's what you do when nobody's watching.",
-      cta: "Follow for more insights that actually work. Drop a 🔥 if this changed your perspective.",
-    },
-    polish: {
-      hook: "STOP scrolling. This 30-second trick will literally change how you think about money forever.",
-      body: "I used to think budgeting was about restriction. About saying no to things I wanted.\n\nThen a financial advisor told me something that flipped my entire perspective:\n\n'A budget isn't a cage. It's a map.'\n\nThink about it. When you go on a road trip, do you feel restricted by using GPS? No — it helps you get where you want to go faster.\n\nThat's what a budget does. It shows you exactly how to get from where you are to where you want to be.\n\nHere's the simple framework: 50% needs, 30% wants, 20% future you. That's it.",
-      cta: "Save this for later. Share it with someone who needs to hear this. Follow for Part 2.",
-    },
-    outline: {
-      hook: "Everything you've been told about productivity is a lie. And I can prove it in 45 seconds.",
-      body: "For years, productivity gurus have been selling us the same myth: do more, faster.\n\nBut here's what the research actually shows:\n\nPoint 1: Multitasking reduces your IQ by 15 points. That's more than smoking marijuana. Your brain literally cannot do two thinking tasks at once.\n\nPoint 2: The most productive people work in 52-minute bursts followed by 17-minute breaks. Not 8 hours straight.\n\nPoint 3: Saying 'no' is the highest-leverage productivity skill. Every time you say yes to something unimportant, you're saying no to something that matters.\n\nThe most productive people don't do more. They do less — but better.",
-      cta: "Comment 'FOCUS' and I'll send you my complete deep work framework for free.",
-    },
-  };
-
-  const generate = () => {
+  const generate = async () => {
+    if (!input.trim()) return;
     setIsGenerating(true);
-    setTimeout(() => { setGeneratedScript(sampleScripts[mode]); setIsGenerating(false); }, 2000);
+    setError(null);
+    setGeneratedScript(null);
+    try {
+      const res = await fetch("/api/generate-script", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode, input, duration, tone }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      setGeneratedScript(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -361,22 +362,23 @@ const ScriptWriterPage = () => {
         <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={mode === "idea" ? "Type your video idea... (e.g., 'Why most people will never be rich')" : mode === "outline" ? "Paste your outline here..." : "Paste your draft to polish..."} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none h-32" />
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
-            <select className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-300">
+            <select value={duration} onChange={(e) => setDuration(e.target.value)} className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-300">
               <option>Short (15-30s)</option>
               <option>Medium (30-45s)</option>
               <option>Long (45-60s)</option>
             </select>
-            <select className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-300">
+            <select value={tone} onChange={(e) => setTone(e.target.value)} className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-300">
               <option>Energetic</option>
               <option>Conversational</option>
               <option>Professional</option>
               <option>Storytelling</option>
             </select>
           </div>
-          <button onClick={generate} disabled={isGenerating} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
+          <button onClick={generate} disabled={isGenerating || !input.trim()} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
             {isGenerating ? <><RefreshCw size={14} className="animate-spin" /> Generating...</> : <><Sparkles size={14} /> Generate Script</>}
           </button>
         </div>
+        {error && <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
       </div>
       {generatedScript && (
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
@@ -412,21 +414,27 @@ const HooksPage = () => {
   const [customTopic, setCustomTopic] = useState("");
   const [generatedHooks, setGeneratedHooks] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState(null);
 
-  const generateCustomHooks = () => {
-    if (!customTopic) return;
+  const generateCustomHooks = async () => {
+    if (!customTopic.trim()) return;
     setIsGenerating(true);
-    setTimeout(() => {
-      setGeneratedHooks([
-        `What if everything you know about ${customTopic} is completely wrong?`,
-        `I spent 1,000 hours studying ${customTopic}. Here's what nobody tells you.`,
-        `STOP. Before you scroll, this will change how you think about ${customTopic}.`,
-        `The #1 mistake people make with ${customTopic} — and how to fix it in 30 seconds.`,
-        `A Harvard professor just revealed something shocking about ${customTopic}.`,
-        `I asked 50 experts about ${customTopic}. Their answers will surprise you.`,
-      ]);
+    setError(null);
+    setGeneratedHooks(null);
+    try {
+      const res = await fetch("/api/generate-hooks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: customTopic }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+      setGeneratedHooks(data.hooks);
+    } catch (err) {
+      setError(err.message);
+    } finally {
       setIsGenerating(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -443,6 +451,7 @@ const HooksPage = () => {
             {isGenerating ? <><RefreshCw size={14} className="animate-spin" /> Working...</> : <><Zap size={14} /> Generate</>}
           </button>
         </div>
+        {error && <div className="mt-3 bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
         {generatedHooks && (
           <div className="mt-4 space-y-2">
             {generatedHooks.map((hook, i) => (
