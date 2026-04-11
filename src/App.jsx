@@ -346,20 +346,21 @@ const ScriptWriterPage = () => {
         <h1 className="text-3xl font-extrabold text-gray-900">Script Writer</h1>
         <p className="text-gray-500 mt-1">Generate scroll-stopping short-form scripts in seconds.</p>
       </div>
-      <div className="flex gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
+          { key: "remix", label: "🔄 Remix Reel", desc: "Paste a viral reel transcript to rewrite" },
           { key: "idea", label: "💡 From Idea", desc: "Turn a single idea into a full script" },
           { key: "outline", label: "📋 From Outline", desc: "Expand an outline into a polished script" },
           { key: "polish", label: "✨ Polish Draft", desc: "Refine and improve an existing draft" },
         ].map(m => (
-          <button key={m.key} onClick={() => { setMode(m.key); setGeneratedScript(null); }} className={`flex-1 p-4 rounded-2xl border-2 text-left transition-all ${mode === m.key ? "border-pink-400 bg-pink-50 shadow-sm" : "border-gray-200 bg-white hover:border-pink-200"}`}>
+          <button key={m.key} onClick={() => { setMode(m.key); setGeneratedScript(null); }} className={`p-4 rounded-2xl border-2 text-left transition-all ${mode === m.key ? "border-pink-400 bg-pink-50 shadow-sm" : "border-gray-200 bg-white hover:border-pink-200"}`}>
             <div className="font-bold text-sm text-gray-900">{m.label}</div>
             <div className="text-xs text-gray-500 mt-0.5">{m.desc}</div>
           </button>
         ))}
       </div>
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
-        <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={mode === "idea" ? "Type your video idea... (e.g., 'Why most people will never be rich')" : mode === "outline" ? "Paste your outline here..." : "Paste your draft to polish..."} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none h-32" />
+        <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={mode === "remix" ? "Paste the transcript of a viral reel you want to remix..." : mode === "idea" ? "Type your video idea... (e.g., 'Why most people will never be rich')" : mode === "outline" ? "Paste your outline here..." : "Paste your draft to polish..."} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none h-32" />
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
             <select value={duration} onChange={(e) => setDuration(e.target.value)} className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-300">
@@ -385,8 +386,8 @@ const ScriptWriterPage = () => {
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-gray-900 flex items-center gap-2"><Sparkles size={16} className="text-pink-500" /> Your Script</h2>
             <div className="flex gap-2">
-              <button className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-50"><Copy size={14} /></button>
-              <button onClick={generate} className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-50"><RefreshCw size={14} /></button>
+              <button onClick={() => { const full = [generatedScript.hook, generatedScript.explain, generatedScript.illustrate, generatedScript.teach].filter(Boolean).join("\n\n"); navigator.clipboard.writeText(full); }} className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-50" title="Copy full script"><Copy size={14} /></button>
+              <button onClick={generate} className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-50" title="Regenerate"><RefreshCw size={14} /></button>
             </div>
           </div>
           <div className="space-y-3">
@@ -394,15 +395,34 @@ const ScriptWriterPage = () => {
               <div className="text-xs font-bold text-orange-600 mb-1">🎣 HOOK</div>
               <p className="text-gray-900 font-medium">{generatedScript.hook}</p>
             </div>
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-blue-600 mb-1">📝 BODY</div>
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.body}</p>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="text-xs font-bold text-blue-600 mb-1">💬 EXPLAIN</div>
+              <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.explain}</p>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+              <div className="text-xs font-bold text-purple-600 mb-1">💡 ILLUSTRATE</div>
+              <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.illustrate}</p>
             </div>
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-emerald-600 mb-1">📣 CALL TO ACTION</div>
-              <p className="text-gray-900 font-medium">{generatedScript.cta}</p>
+              <div className="text-xs font-bold text-emerald-600 mb-1">🎓 TEACH</div>
+              <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.teach}</p>
             </div>
           </div>
+          {mode === "remix" && generatedScript.analysis && (
+            <div className="border-t border-gray-100 pt-4 space-y-3">
+              <h3 className="font-bold text-sm text-gray-700">Remix Analysis</h3>
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <p className="text-gray-600 text-sm leading-relaxed">{generatedScript.analysis}</p>
+              </div>
+              <div className="flex gap-4 text-xs text-gray-500">
+                {generatedScript.original_word_count > 0 && <span>Original: {generatedScript.original_word_count} words</span>}
+                {generatedScript.rewritten_word_count > 0 && <span>Rewritten: {generatedScript.rewritten_word_count} words</span>}
+              </div>
+              {generatedScript.used_research && (
+                <div className="text-xs text-gray-500 italic">{generatedScript.used_research}</div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
