@@ -23,21 +23,46 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Step 1: Search for channels matching the niche
-    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(query + " shorts")}&maxResults=12&key=${youtubeKey}`;
-    const searchRes = await fetch(searchUrl);
-    const searchData = await searchRes.json();
+    // Strategy: Search for SHORT-FORM VIDEOS in this niche, then extract the unique creators
+    // This finds creators who actually MAKE content in the niche, not just channels with the word in their name
+    const searchQueries = [
+      query + " shorts",
+      query + " short form",
+      query,
+    ];
 
-    if (searchData.error) {
-      throw new Error(searchData.error.message || "YouTube API error");
+    const seenChannelIds = new Set();
+    const allChannelIds = [];
+
+    // Search for videos across multiple query variations to get diverse creators
+    for (const q of searchQueries) {
+      if (allChannelIds.length >= 30) break;
+      const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=short&q=${encodeURIComponent(q)}&maxResults=15&order=relevance&key=${youtubeKey}`;
+      const searchRes = await fetch(searchUrl);
+      const searchData = await searchRes.json();
+
+      if (searchData.error) {
+        throw new Error(searchData.error.message || "YouTube API error");
+      }
+
+      if (searchData.items) {
+        for (const item of searchData.items) {
+          const chId = item.snippet.channelId;
+          if (chId && !seenChannelIds.has(chId)) {
+            seenChannelIds.add(chId);
+            allChannelIds.push(chId);
+          }
+        }
+      }
     }
 
-    if (!searchData.items || searchData.items.length === 0) {
+    if (allChannelIds.length === 0) {
       return res.json({ creators: [] });
     }
 
-    // Step 2: Get detailed channel stats for all found channels
-    const channelIds = searchData.items.map(item => item.snippet.channelId || item.id.channelId).join(",");
+    // Step 2: Get detailed channel stats for all unique creators found
+    // YouTube API allows up to 50 IDs per request
+    const channelIds = allChannelIds.slice(0, 50).join(",");
     const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet,contentDetails&id=${channelIds}&key=${youtubeKey}`;
     const channelsRes = await fetch(channelsUrl);
     const channelsData = await channelsRes.json();
