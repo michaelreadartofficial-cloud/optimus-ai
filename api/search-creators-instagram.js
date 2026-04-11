@@ -18,46 +18,61 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Step 1: Search Instagram for users matching the query
-    const searchRes = await fetch(
-      "https://instagram-scraper-stable-api.p.rapidapi.com/search_ig.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "x-rapidapi-host": "instagram-scraper-stable-api.p.rapidapi.com",
-          "x-rapidapi-key": rapidApiKey,
-        },
-        body: `search_query=${encodeURIComponent(query)}`,
-      }
-    );
+    // Search with multiple query variations to get more diverse results
+    const searchTerms = [query.trim()];
 
-    const searchData = await searchRes.json();
-
-    if (!searchRes.ok) {
-      throw new Error(searchData.message || "Instagram search API error");
+    // Add variations if the query has multiple words
+    const words = query.trim().split(/\s+/);
+    if (words.length > 1) {
+      // Also search just the first word and a combined version
+      searchTerms.push(words[0]);
+      searchTerms.push(words.join(""));
+    } else {
+      // For single words, add common suffixes to find more creators
+      searchTerms.push(query.trim() + "coach");
+      searchTerms.push(query.trim() + "tips");
     }
 
-    // Extract user results from the response
-    // The API returns users in a "users" array
-    const users = searchData.users || [];
+    const allUsers = [];
+    const seenUsernames = new Set();
 
-    if (users.length === 0) {
+    // Run searches in parallel for speed
+    const searchPromises = searchTerms.map(term =>
+      fetchInstagramSearch(term, rapidApiKey).catch(() => [])
+    );
+    const results = await Promise.all(searchPromises);
+
+    for (const users of results) {
+      for (const item of users) {
+        const user = item.user || item;
+        const username = user.username || "";
+        if (username && !seenUsernames.has(username)) {
+          seenUsernames.add(username);
+          allUsers.push(user);
+        }
+      }
+    }
+
+    if (allUsers.length === 0) {
       return res.json({ creators: [] });
     }
 
-    // Step 2: Format results to match the same structure as YouTube creators
-    const creators = users.slice(0, 12).map((item) => {
-      const user = item.user || item;
+    // Format results — proxy the profile image URL so it actually loads
+    const creators = allUsers.slice(0, 24).map((user) => {
       const followersText = user.search_social_context || "";
       const followerCount = parseFollowers(followersText);
+      const rawPic = user.profile_pic_url || "";
+      // Proxy the image through our API to avoid CORS / CDN blocks
+      const thumbnail = rawPic
+        ? `/api/proxy-image?url=${encodeURIComponent(rawPic)}`
+        : "";
 
       return {
         id: user.pk || user.id || "",
         name: user.full_name || user.username || "",
         username: user.username || "",
         description: user.biography || followersText,
-        thumbnail: user.profile_pic_url || "",
+        thumbnail,
         platform: "Instagram Reels",
         subscribers: followersText || "N/A",
         subscriberCount: followerCount,
@@ -77,6 +92,25 @@ export default async function handler(req, res) {
       error: err.message || "Failed to search Instagram creators",
     });
   }
+}
+
+async function fetchInstagramSearch(query, apiKey) {
+  const searchRes = await fetch(
+    "https://instagram-scraper-stable-api.p.rapidapi.com/search_ig.php",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "x-rapidapi-host": "instagram-scraper-stable-api.p.rapidapi.com",
+        "x-rapidapi-key": apiKey,
+      },
+      body: `search_query=${encodeURIComponent(query)}`,
+    }
+  );
+
+  const data = await searchRes.json();
+  if (!searchRes.ok) return [];
+  return data.users || [];
 }
 
 // Parse follower count strings like "3M followers", "336K followers", "1,234 followers"
