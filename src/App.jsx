@@ -3,41 +3,41 @@ import { useState, useEffect } from "react";
 import { Search, TrendingUp, Zap, BookOpen, Archive, Settings, Eye, ThumbsUp, MessageCircle, Clock, Star, Copy, ChevronDown, Plus, Sparkles, RefreshCw, X, BarChart3, Users, Video, Bookmark, Flame, ArrowRight, Lightbulb, PenTool, Layers, Play } from "lucide-react";
 
 // ============================================================
-// SAMPLE DATA ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Short-Form Only (TikTok, Reels, Shorts)
+// SAMPLE DATA ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Short-Form Only (TikTok, Reels, Shorts)
 // ============================================================
 
 const SAMPLE_VIDEOS = [
-  { id: 1, title: "I Tried Living on $1 for 24 Hours", channel: "Ryan Trahan", platform: "YouTube Shorts", views: "48.2M", likes: "2.1M", comments: "45K", outlierScore: 28.5, uploadDate: "3 days ago", duration: "0:58", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¬", niche: "Lifestyle", hook: "What if I told you that you could survive an entire day on just one dollar?", transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ the dollar store..." },
-  { id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", platform: "TikTok", views: "12.7M", likes: "890K", comments: "23K", outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ ", niche: "Education", hook: "Stop using the word 'very'. Here's what smart people say instead.", transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'. Instead of 'very happy', say 'ecstatic'..." },
-  { id: 3, title: "POV: You Finally Quit Your 9-5", channel: "Alex Hormozi", platform: "Instagram Reels", views: "8.4M", likes: "620K", comments: "18K", outlierScore: 12.8, uploadDate: "5 days ago", duration: "0:45", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¼", niche: "Business", hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.", transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ I made zero dollars. Month two ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ still zero..." },
-  { id: 4, title: "The Psychology Behind Why You Can't Stop Scrolling", channel: "Ali Abdaal", platform: "YouTube Shorts", views: "22.1M", likes: "1.5M", comments: "34K", outlierScore: 19.3, uploadDate: "2 days ago", duration: "0:52", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ±", niche: "Psychology", hook: "Your phone is literally designed to be addictive. Here's the science behind it.", transcript: "Your phone is literally designed to be addictive. Here's the science behind it. It's called variable ratio reinforcement ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ the same psychology behind slot machines..." },
-  { id: 5, title: "I Asked 100 Millionaires Their #1 Habit", channel: "Mark Tilbury", platform: "TikTok", views: "31.5M", likes: "1.8M", comments: "52K", outlierScore: 24.1, uploadDate: "4 days ago", duration: "0:41", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°", niche: "Finance", hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.", transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing. It wasn't waking up at 5am. It wasn't cold showers. It was this one simple habit..." },
-  { id: 6, title: "Why Japan's Trains Are Never Late", channel: "Abroad in Japan", platform: "Instagram Reels", views: "15.8M", likes: "1.1M", comments: "28K", outlierScore: 16.7, uploadDate: "1 week ago", duration: "0:55", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ", niche: "Travel", hook: "In Japan, if a train is even 60 seconds late, the company issues a formal apology.", transcript: "In Japan, if a train is even 60 seconds late, the company issues a formal apology. But how do they maintain this insane level of punctuality? It comes down to three things..." },
-  { id: 7, title: "This Meal Prep Changed My Life (5 Mins)", channel: "Ethan Chlebowski", platform: "TikTok", views: "9.6M", likes: "740K", comments: "21K", outlierScore: 11.4, uploadDate: "6 days ago", duration: "0:48", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ³", niche: "Food", hook: "This 5-minute meal prep will save you $200 a month. And it actually tastes good.", transcript: "This 5-minute meal prep will save you $200 a month. And it actually tastes good. All you need are five ingredients..." },
-  { id: 8, title: "The Real Reason You're Always Tired", channel: "Dr. Mike", platform: "YouTube Shorts", views: "19.3M", likes: "1.3M", comments: "41K", outlierScore: 17.9, uploadDate: "3 days ago", duration: "0:39", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ´", niche: "Health", hook: "You're not tired because you're not sleeping enough. You're tired because of this.", transcript: "You're not tired because you're not sleeping enough. You're tired because of this. Most people don't realize that chronic fatigue comes from three hidden causes..." },
+  { id: 1, title: "I Tried Living on $1 for 24 Hours", channel: "Ryan Trahan", platform: "YouTube Shorts", views: "48.2M", likes: "2.1M", comments: "45K", outlierScore: 28.5, uploadDate: "3 days ago", duration: "0:58", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¬", niche: "Lifestyle", hook: "What if I told you that you could survive an entire day on just one dollar?", transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ the dollar store..." },
+  { id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", platform: "TikTok", views: "12.7M", likes: "890K", comments: "23K", outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ ", niche: "Education", hook: "Stop using the word 'very'. Here's what smart people say instead.", transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'. Instead of 'very happy', say 'ecstatic'..." },
+  { id: 3, title: "POV: You Finally Quit Your 9-5", channel: "Alex Hormozi", platform: "Instagram Reels", views: "8.4M", likes: "620K", comments: "18K", outlierScore: 12.8, uploadDate: "5 days ago", duration: "0:45", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¼", niche: "Business", hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.", transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ I made zero dollars. Month two ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ still zero..." },
+  { id: 4, title: "The Psychology Behind Why You Can't Stop Scrolling", channel: "Ali Abdaal", platform: "YouTube Shorts", views: "22.1M", likes: "1.5M", comments: "34K", outlierScore: 19.3, uploadDate: "2 days ago", duration: "0:52", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ±", niche: "Psychology", hook: "Your phone is literally designed to be addictive. Here's the science behind it.", transcript: "Your phone is literally designed to be addictive. Here's the science behind it. It's called variable ratio reinforcement ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ the same psychology behind slot machines..." },
+  { id: 5, title: "I Asked 100 Millionaires Their #1 Habit", channel: "Mark Tilbury", platform: "TikTok", views: "31.5M", likes: "1.8M", comments: "52K", outlierScore: 24.1, uploadDate: "4 days ago", duration: "0:41", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°", niche: "Finance", hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.", transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing. It wasn't waking up at 5am. It wasn't cold showers. It was this one simple habit..." },
+  { id: 6, title: "Why Japan's Trains Are Never Late", channel: "Abroad in Japan", platform: "Instagram Reels", views: "15.8M", likes: "1.1M", comments: "28K", outlierScore: 16.7, uploadDate: "1 week ago", duration: "0:55", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ", niche: "Travel", hook: "In Japan, if a train is even 60 seconds late, the company issues a formal apology.", transcript: "In Japan, if a train is even 60 seconds late, the company issues a formal apology. But how do they maintain this insane level of punctuality? It comes down to three things..." },
+  { id: 7, title: "This Meal Prep Changed My Life (5 Mins)", channel: "Ethan Chlebowski", platform: "TikTok", views: "9.6M", likes: "740K", comments: "21K", outlierScore: 11.4, uploadDate: "6 days ago", duration: "0:48", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ³", niche: "Food", hook: "This 5-minute meal prep will save you $200 a month. And it actually tastes good.", transcript: "This 5-minute meal prep will save you $200 a month. And it actually tastes good. All you need are five ingredients..." },
+  { id: 8, title: "The Real Reason You're Always Tired", channel: "Dr. Mike", platform: "YouTube Shorts", views: "19.3M", likes: "1.3M", comments: "41K", outlierScore: 17.9, uploadDate: "3 days ago", duration: "0:39", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ´", niche: "Health", hook: "You're not tired because you're not sleeping enough. You're tired because of this.", transcript: "You're not tired because you're not sleeping enough. You're tired because of this. Most people don't realize that chronic fatigue comes from three hidden causes..." },
 ];
 
 const SAMPLE_CHANNELS = [
-  { name: "Ryan Trahan", platform: "YouTube Shorts", subscribers: "12.4M", avgViews: "5.2M", videos: 342, niche: "Lifestyle", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¬" },
-  { name: "Ali Abdaal", platform: "YouTube Shorts", subscribers: "5.8M", avgViews: "1.8M", videos: 520, niche: "Productivity", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ" },
-  { name: "Alex Hormozi", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "2.1M", videos: 890, niche: "Business", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂª" },
-  { name: "Mark Tilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", videos: 1200, niche: "Finance", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°" },
-  { name: "Dr. Mike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", videos: 650, niche: "Health", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©ÃÂÃÂÃÂÃÂº" },
-  { name: "Jade Bowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", videos: 280, niche: "Education", emoji: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ " },
+  { name: "Ryan Trahan", platform: "YouTube Shorts", subscribers: "12.4M", avgViews: "5.2M", videos: 342, niche: "Lifestyle", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¬" },
+  { name: "Ali Abdaal", platform: "YouTube Shorts", subscribers: "5.8M", avgViews: "1.8M", videos: 520, niche: "Productivity", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ" },
+  { name: "Alex Hormozi", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "2.1M", videos: 890, niche: "Business", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂª" },
+  { name: "Mark Tilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", videos: 1200, niche: "Finance", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°" },
+  { name: "Dr. Mike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", videos: 650, niche: "Health", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂº" },
+  { name: "Jade Bowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", videos: 280, niche: "Education", emoji: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ " },
 ];
 
 const HOOK_TEMPLATES = [
-  { type: "Question", icon: "ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ", hooks: ["What if I told you [unexpected claim]?", "Did you know that [shocking statistic]?", "Why does nobody talk about [hidden truth]?", "Have you ever wondered why [common thing] works this way?"] },
-  { type: "Controversy", icon: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¥", hooks: ["Everyone is wrong about [topic]. Here's the truth.", "[Popular advice] is actually ruining your [area].", "I'm going to say something that might upset a lot of people.", "Stop doing [common habit]. It's destroying your [result]."] },
-  { type: "Story", icon: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ", hooks: ["I spent [time] doing [extreme thing]. Here's what happened.", "Nobody believed me when I said [claim]. Then this happened.", "Last week, something changed my mind completely about [topic].", "Three years ago I was [bad situation]. Today I [good outcome]."] },
-  { type: "Statistic", icon: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ", hooks: ["[X]% of people don't know this about [topic].", "I analyzed [large number] of [things] and found this pattern.", "According to [source], [surprising finding].", "Only [small number] of people will ever [achievement]. Here's why."] },
+  { type: "Question", icon: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ", hooks: ["What if I told you [unexpected claim]?", "Did you know that [shocking statistic]?", "Why does nobody talk about [hidden truth]?", "Have you ever wondered why [common thing] works this way?"] },
+  { type: "Controversy", icon: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¥", hooks: ["Everyone is wrong about [topic]. Here's the truth.", "[Popular advice] is actually ruining your [area].", "I'm going to say something that might upset a lot of people.", "Stop doing [common habit]. It's destroying your [result]."] },
+  { type: "Story", icon: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ", hooks: ["I spent [time] doing [extreme thing]. Here's what happened.", "Nobody believed me when I said [claim]. Then this happened.", "Last week, something changed my mind completely about [topic].", "Three years ago I was [bad situation]. Today I [good outcome]."] },
+  { type: "Statistic", icon: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ", hooks: ["[X]% of people don't know this about [topic].", "I analyzed [large number] of [things] and found this pattern.", "According to [source], [surprising finding].", "Only [small number] of people will ever [achievement]. Here's why."] },
 ];
 
 const VAULT_ITEMS = [
   { id: 1, type: "hook", content: "What if I told you that everything you know about [topic] is wrong?", source: "Ryan Trahan", tags: ["question", "curiosity gap"], saved: "2 days ago" },
   { id: 2, type: "style", content: "Fast-paced cuts with text overlays, jump cuts every 2-3 seconds, high energy voiceover", source: "Ali Abdaal", tags: ["editing", "pacing"], saved: "1 week ago" },
   { id: 3, type: "hook", content: "I spent $10,000 testing this so you don't have to.", source: "Mark Tilbury", tags: ["story", "investment"], saved: "3 days ago" },
-  { id: 4, type: "structure", content: "Hook (3s) ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Context (5s) ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ 3 Key Points (20s) ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Twist (5s) ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ CTA (3s)", source: "Jade Bowler", tags: ["framework", "short-form"], saved: "5 days ago" },
+  { id: 4, type: "structure", content: "Hook (3s) ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Context (5s) ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ 3 Key Points (20s) ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Twist (5s) ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ CTA (3s)", source: "Jade Bowler", tags: ["framework", "short-form"], saved: "5 days ago" },
 ];
 
 // ============================================================
@@ -77,7 +77,7 @@ const OutlierBadge = ({ score }) => {
 const DashboardPage = ({ setPage }) => (
   <div className="space-y-8">
     <div>
-      <h1 className="text-3xl font-extrabold text-gray-900">Welcome back, Michael ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ</h1>
+      <h1 className="text-3xl font-extrabold text-gray-900">Welcome back, Michael ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ</h1>
       <p className="text-gray-500 mt-1">Here's what's blowing up in short-form right now.</p>
     </div>
 
@@ -101,12 +101,12 @@ const DashboardPage = ({ setPage }) => (
 
     {/* Top Outlier */}
     <div className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 rounded-2xl p-6 text-white">
-      <h2 className="text-sm font-bold uppercase tracking-wider opacity-80">ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Top Outlier Today</h2>
+      <h2 className="text-sm font-bold uppercase tracking-wider opacity-80">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Top Outlier Today</h2>
       <div className="mt-3 flex items-start gap-4">
         <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-3xl">{SAMPLE_VIDEOS[0].emoji}</div>
         <div className="flex-1">
           <h3 className="text-xl font-bold">{SAMPLE_VIDEOS[0].title}</h3>
-          <p className="text-white/70 text-sm mt-1">{SAMPLE_VIDEOS[0].channel} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· {SAMPLE_VIDEOS[0].views} views ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· {SAMPLE_VIDEOS[0].outlierScore}x outlier</p>
+          <p className="text-white/70 text-sm mt-1">{SAMPLE_VIDEOS[0].channel} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· {SAMPLE_VIDEOS[0].views} views ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· {SAMPLE_VIDEOS[0].outlierScore}x outlier</p>
           <button onClick={() => setPage("videos")} className="mt-3 bg-white text-pink-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1">
             View analysis <ArrowRight size={14} />
           </button>
@@ -116,14 +116,14 @@ const DashboardPage = ({ setPage }) => (
 
     {/* Trending */}
     <div>
-      <h2 className="text-lg font-bold text-gray-900 mb-4">ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¥ Trending Short-Form Outliers</h2>
+      <h2 className="text-lg font-bold text-gray-900 mb-4">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¥ Trending Short-Form Outliers</h2>
       <div className="grid gap-3">
         {SAMPLE_VIDEOS.slice(0, 5).map(v => (
           <div key={v.id} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer group" onClick={() => setPage("videos")}>
             <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">{v.emoji}</div>
             <div className="flex-1 min-w-0">
               <h3 className="text-gray-900 text-sm font-semibold truncate group-hover:text-pink-600 transition-colors">{v.title}</h3>
-              <p className="text-gray-400 text-xs mt-0.5">{v.channel} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· {v.platform}</p>
+              <p className="text-gray-400 text-xs mt-0.5">{v.channel} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· {v.platform}</p>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm font-semibold text-gray-600">{v.views}</span>
@@ -399,12 +399,12 @@ const CreatorDetailPage = ({ creator, setPage, setPageState }) => {
   if (selectedVideo) {
     return (
       <div className="space-y-6">
-        <button onClick={() => setSelectedVideo(null)} className="text-sm text-gray-400 hover:text-gray-900 font-medium flex items-center gap-1 transition-colors">ÃÂÃÂÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¿ÃÂÃÂÃÂÃÂ½ Back to {creator.name}'s videos</button>
+        <button onClick={() => setSelectedVideo(null)} className="text-sm text-gray-400 hover:text-gray-900 font-medium flex items-center gap-1 transition-colors">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¿ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ½ Back to {creator.name}'s videos</button>
         <div className="flex items-start gap-5">
           <img src={selectedVideo.thumbnail} alt={selectedVideo.title} className="w-40 h-24 rounded-xl object-cover bg-gray-100" />
           <div className="flex-1">
             <h1 className="text-xl font-extrabold text-gray-900">{selectedVideo.title}</h1>
-            <p className="text-gray-500 text-sm mt-1">{creator.name} ÃÂÃÂÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¿ÃÂÃÂÃÂÃÂ½ {new Date(selectedVideo.publishedAt).toLocaleDateString()} ÃÂÃÂÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¿ÃÂÃÂÃÂÃÂ½ {selectedVideo.durationFormatted}</p>
+            <p className="text-gray-500 text-sm mt-1">{creator.name} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¿ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ½ {new Date(selectedVideo.publishedAt).toLocaleDateString()} ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¿ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ½ {selectedVideo.durationFormatted}</p>
             <div className="flex items-center gap-2 mt-2">
               <OutlierBadge score={selectedVideo.outlierScore} />
               <PlatformBadge platform="YouTube Shorts" />
@@ -452,7 +452,7 @@ const CreatorDetailPage = ({ creator, setPage, setPageState }) => {
 
   return (
     <div className="space-y-6">
-      <button onClick={() => setPage("videos")} className="text-sm text-gray-400 hover:text-gray-900 font-medium flex items-center gap-1 transition-colors">ÃÂÃÂÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¿ÃÂÃÂÃÂÃÂ½ Back to Discover</button>
+      <button onClick={() => setPage("videos")} className="text-sm text-gray-400 hover:text-gray-900 font-medium flex items-center gap-1 transition-colors">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¿ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ½ Back to Discover</button>
       <div className="flex items-center gap-5">
         <img src={creator.thumbnail} alt={creator.name} className="w-20 h-20 rounded-full object-cover bg-gray-100" onError={(e) => { e.target.style.display = "none"; }} />
         <div>
@@ -529,28 +529,39 @@ const ChannelsPage = ({ setPage, setSelectedCreator }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [trackedCreators, setTrackedCreators] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const addCreatorByUrl = async () => {
+  const searchCreators = async () => {
     if (!urlInput.trim()) return;
     setIsLoading(true);
     setError(null);
+    setSearchResults([]);
+    setHasSearched(true);
     try {
-      const res = await fetch("/api/search-creators", {
+      const results = [];
+      // Search YouTube
+      const ytRes = await fetch("/api/search-creators", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: urlInput.replace(/https?:\/\/.*youtube\.com\/@?/,'').replace(/\/.*$/,''), platform: "YouTube Shorts" }),
+        body: JSON.stringify({ query: urlInput }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to find creator");
-      if (data.creators && data.creators.length > 0) {
-        const creator = data.creators[0];
-        if (!trackedCreators.find(c => c.id === creator.id)) {
-          setTrackedCreators(prev => [...prev, creator]);
-        }
-        setUrlInput("");
-      } else {
-        throw new Error("Creator not found");
-      }
+      const ytData = await ytRes.json();
+      if (ytRes.ok && ytData.creators) results.push(...ytData.creators);
+
+      // Search Instagram
+      const igRes = await fetch("/api/search-creators-instagram", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: urlInput }),
+      });
+      const igData = await igRes.json();
+      if (igRes.ok && igData.creators) results.push(...igData.creators);
+
+      // Sort by follower count
+      results.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
+      setSearchResults(results);
+      if (results.length === 0) setError("No creators found. Try a different search term.");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -558,61 +569,134 @@ const ChannelsPage = ({ setPage, setSelectedCreator }) => {
     }
   };
 
+  const addCreator = (creator) => {
+    if (!trackedCreators.find(c => c.id === creator.id && c.platform === creator.platform)) {
+      setTrackedCreators(prev => [...prev, creator]);
+    }
+  };
+
+  const isTracked = (creator) => trackedCreators.some(c => c.id === creator.id && c.platform === creator.platform);
+
   const handleCreatorClick = (creator) => {
     setSelectedCreator(creator);
     setPage("creator-detail");
+  };
+
+  const platformIcon = (platform) => {
+    if (!platform) return null;
+    if (platform.includes("Instagram")) return (
+      <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{background: "radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)"}}>
+        <svg viewBox="0 0 24 24" fill="white" className="w-3 h-3"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      </span>
+    );
+    if (platform.includes("YouTube")) return (
+      <span className="w-5 h-5 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
+        <svg viewBox="0 0 24 24" fill="white" className="w-2.5 h-2.5"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.546 12 3.546 12 3.546s-7.505 0-9.377.504A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.504 9.376.504 9.376.504s7.505 0 9.377-.504a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      </span>
+    );
+    if (platform.includes("TikTok")) return (
+      <span className="w-5 h-5 rounded-full bg-black flex items-center justify-center flex-shrink-0">
+        <svg viewBox="0 0 24 24" fill="white" className="w-2.5 h-2.5"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.4a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 005.58 2.17v-3.35z"/></svg>
+      </span>
+    );
+    return null;
   };
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-extrabold text-gray-900">Tracked Creators</h1>
-        <p className="text-gray-500 mt-1">Add creators to track and analyze their viral patterns over time.</p>
+        <p className="text-gray-500 mt-1">Search for creators across YouTube and Instagram to track and analyze.</p>
       </div>
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
         <div className="flex gap-3">
-          <input type="text" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addCreatorByUrl()} placeholder="Paste a YouTube channel URL or type a creator name..." className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300" />
-          <button onClick={addCreatorByUrl} disabled={isLoading || !urlInput.trim()} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
-            {isLoading ? <><RefreshCw size={14} className="animate-spin" /> Finding...</> : <><Plus size={14} /> Add Creator</>}
+          <input type="text" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && searchCreators()} placeholder="Search for a creator by name or niche..." className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300" />
+          <button onClick={searchCreators} disabled={isLoading || !urlInput.trim()} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
+            {isLoading ? <><RefreshCw size={14} className="animate-spin" /> Searching...</> : <><Search size={14} /> Search</>}
           </button>
         </div>
         {error && <div className="mt-3 bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
-      </div>
-      {trackedCreators.length > 0 ? (
-        <div className="grid gap-3">
-          {trackedCreators.map((creator, i) => (
-            <div key={creator.id || i} onClick={() => handleCreatorClick(creator)} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:border-pink-200 transition-all cursor-pointer group">
-              <div className="flex items-center gap-4">
-                <img src={creator.thumbnail} alt={creator.name} className="w-14 h-14 rounded-full object-cover bg-gray-100" onError={(e) => { e.target.style.display = "none"; }} />
-                <div className="flex-1">
-                  <h3 className="text-gray-900 font-bold group-hover:text-pink-600 transition-colors">{creator.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <PlatformBadge platform={creator.platform} />
+
+        {/* Search Results */}
+        {isLoading && (
+          <div className="text-center py-8">
+            <RefreshCw size={18} className="animate-spin text-gray-400 mx-auto mb-2" />
+            <p className="text-gray-400 text-sm">Searching YouTube and Instagram...</p>
+          </div>
+        )}
+        {!isLoading && searchResults.length > 0 && (
+          <div className="mt-4 space-y-2 max-h-80 overflow-y-auto">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Results - click to track</p>
+            {searchResults.map((creator, i) => (
+              <div key={creator.id + (creator.platform || "") + i} onClick={() => addCreator(creator)} className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${isTracked(creator) ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-100 hover:bg-gray-100 hover:border-gray-200"}`}>
+                <img src={creator.thumbnail} alt={creator.name} className="w-10 h-10 rounded-full object-cover bg-gray-200" onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' rx='20' fill='%23f3f4f6'/%3E%3Ctext x='20' y='25' text-anchor='middle' font-size='14' fill='%239ca3af'%3E%3F%3C/text%3E%3C/svg%3E"; }} />
+                <div className="flex items-center gap-2">
+                  {platformIcon(creator.platform)}
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">{creator.username || creator.name}</p>
+                    <p className="text-xs text-gray-400">{creator.subscribers || "N/A"}{(creator.subscribers && creator.subscribers.toString().toLowerCase().includes("followers")) ? "" : " followers"}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-6 text-center">
-                  {[["Subscribers", creator.subscribers], ["Videos", creator.videoCount]].map(([label, val], j) => (
-                    <div key={j}>
-                      <div className="text-gray-900 font-extrabold text-sm">{val}</div>
-                      <div className="text-gray-400 text-xs">{label}</div>
-                    </div>
-                  ))}
+                <div className="ml-auto">
+                  {isTracked(creator) ? (
+                    <span className="text-green-600 text-xs font-semibold flex items-center gap-1"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Tracked</span>
+                  ) : (
+                    <span className="text-gray-400 text-xs font-medium">+ Add</span>
+                  )}
                 </div>
-                <button onClick={(e) => { e.stopPropagation(); setTrackedCreators(prev => prev.filter(c => c.id !== creator.id)); }} className="text-gray-300 hover:text-red-400 p-2 rounded-lg hover:bg-gray-50"><X size={14} /></button>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        )}
+        {!isLoading && hasSearched && searchResults.length === 0 && !error && (
+          <div className="text-center py-6">
+            <p className="text-gray-400 text-sm">No creators found. Try a different search.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Tracked Creators List */}
+      {trackedCreators.length > 0 && (
+        <div>
+          <h2 className="text-lg font-bold text-gray-900 mb-3">Your Tracked Creators ({trackedCreators.length})</h2>
+          <div className="grid gap-3">
+            {trackedCreators.map((creator, i) => (
+              <div key={creator.id + (creator.platform || "") + i} onClick={() => handleCreatorClick(creator)} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:border-pink-200 transition-all cursor-pointer group">
+                <div className="flex items-center gap-4">
+                  <img src={creator.thumbnail} alt={creator.name} className="w-14 h-14 rounded-full object-cover bg-gray-100" onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Crect width='56' height='56' rx='28' fill='%23f3f4f6'/%3E%3Ctext x='28' y='33' text-anchor='middle' font-size='20' fill='%239ca3af'%3E%3F%3C/text%3E%3C/svg%3E"; }} />
+                  <div className="flex-1">
+                    <h3 className="text-gray-900 font-bold group-hover:text-pink-600 transition-colors">{creator.username || creator.name}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      {platformIcon(creator.platform)}
+                      <span className="text-xs text-gray-400">{creator.platform}</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-6 text-center">
+                    <div>
+                      <div className="text-gray-900 font-extrabold text-sm">{creator.subscribers || "N/A"}</div>
+                      <div className="text-gray-400 text-xs">{creator.platform && creator.platform.includes("Instagram") ? "Followers" : "Subscribers"}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-900 font-extrabold text-sm">{creator.videoCount || "N/A"}</div>
+                      <div className="text-gray-400 text-xs">Videos</div>
+                    </div>
+                  </div>
+                  <button onClick={(e) => { e.stopPropagation(); setTrackedCreators(prev => prev.filter(c => !(c.id === creator.id && c.platform === creator.platform))); }} className="text-gray-300 hover:text-red-400 p-2 rounded-lg hover:bg-gray-50"><X size={14} /></button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      ) : (
+      )}
+      {trackedCreators.length === 0 && !hasSearched && (
         <div className="text-center py-16">
-          <div className="text-6xl mb-4">=e</div>
+          <Users size={40} className="text-gray-300 mx-auto mb-3" />
           <h3 className="text-lg font-bold text-gray-900 mb-2">No creators tracked yet</h3>
-          <p className="text-gray-400 text-sm max-w-md mx-auto">Add creators by pasting their YouTube channel URL or searching by name above. You can also find creators on the Discover page.</p>
+          <p className="text-gray-400 text-sm max-w-md mx-auto">Search for creators above to find and track them. Results will include both YouTube and Instagram creators.</p>
         </div>
       )}
     </div>
   );
-};
 
 const ScriptWriterPage = ({ pageState, setPageState }) => {
   const [mode, setMode] = useState(pageState?.remixTranscript ? "remix" : "idea");
@@ -652,10 +736,10 @@ const ScriptWriterPage = ({ pageState, setPageState }) => {
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { key: "remix", label: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Remix Reel", desc: "Paste a viral reel transcript to rewrite" },
-          { key: "idea", label: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ From Idea", desc: "Turn a single idea into a full script" },
-          { key: "outline", label: "ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ From Outline", desc: "Expand an outline into a polished script" },
-          { key: "polish", label: "ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¨ Polish Draft", desc: "Refine and improve an existing draft" },
+          { key: "remix", label: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ Remix Reel", desc: "Paste a viral reel transcript to rewrite" },
+          { key: "idea", label: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ From Idea", desc: "Turn a single idea into a full script" },
+          { key: "outline", label: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ From Outline", desc: "Expand an outline into a polished script" },
+          { key: "polish", label: "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¨ Polish Draft", desc: "Refine and improve an existing draft" },
         ].map(m => (
           <button key={m.key} onClick={() => { setMode(m.key); setGeneratedScript(null); }} className={`p-4 rounded-2xl border-2 text-left transition-all ${mode === m.key ? "border-pink-400 bg-pink-50 shadow-sm" : "border-gray-200 bg-white hover:border-pink-200"}`}>
             <div className="font-bold text-sm text-gray-900">{m.label}</div>
@@ -696,19 +780,19 @@ const ScriptWriterPage = ({ pageState, setPageState }) => {
           </div>
           <div className="space-y-3">
             <div className="bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-orange-600 mb-1">ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ£ HOOK</div>
+              <div className="text-xs font-bold text-orange-600 mb-1">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ£ HOOK</div>
               <p className="text-gray-900 font-medium">{generatedScript.hook}</p>
             </div>
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-blue-600 mb-1">ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¬ EXPLAIN</div>
+              <div className="text-xs font-bold text-blue-600 mb-1">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¬ EXPLAIN</div>
               <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.explain}</p>
             </div>
             <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-purple-600 mb-1">ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ ILLUSTRATE</div>
+              <div className="text-xs font-bold text-purple-600 mb-1">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¡ ILLUSTRATE</div>
               <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.illustrate}</p>
             </div>
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-emerald-600 mb-1">ÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ TEACH</div>
+              <div className="text-xs font-bold text-emerald-600 mb-1">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ°ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ TEACH</div>
               <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.teach}</p>
             </div>
           </div>
@@ -826,7 +910,7 @@ const VaultPage = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-extrabold text-gray-900">Content Vault</h1>
-          <p className="text-gray-500 mt-1">Your saved hooks, styles, and frameworks ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ ready to use anytime.</p>
+          <p className="text-gray-500 mt-1">Your saved hooks, styles, and frameworks ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ ready to use anytime.</p>
         </div>
         <button className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-md">
           <Plus size={16} /> Add to Vault
@@ -847,7 +931,7 @@ const VaultPage = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${item.type === "hook" ? "bg-pink-100 text-pink-600" : item.type === "style" ? "bg-cyan-100 text-cyan-600" : "bg-amber-100 text-amber-600"}`}>{item.type}</span>
                   <span className="text-xs text-gray-400">from {item.source}</span>
-                  <span className="text-xs text-gray-300">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· {item.saved}</span>
+                  <span className="text-xs text-gray-300">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· {item.saved}</span>
                 </div>
                 <p className="text-gray-700 text-sm">{item.content}</p>
                 <div className="flex gap-2 mt-2">
@@ -892,7 +976,7 @@ const SettingsPage = () => (
       <div className="bg-gradient-to-r from-orange-50 to-pink-50 border border-pink-200 rounded-xl p-5 flex items-center justify-between">
         <div>
           <div className="text-gray-900 font-extrabold text-lg">Pro Plan</div>
-          <div className="text-gray-500 text-sm">50 creators ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· Unlimited saves ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· Full access to all tools</div>
+          <div className="text-gray-500 text-sm">50 creators ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· Unlimited saves ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ· Full access to all tools</div>
         </div>
         <div className="text-2xl font-extrabold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text" style={{ WebkitTextFillColor: "transparent" }}>$39/mo</div>
       </div>
