@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { query, platform } = req.body;
+  const { query, platform, minSubs, maxSubs } = req.body;
 
   if (!query || !query.trim()) {
     return res.status(400).json({ error: "Please provide a search query" });
@@ -11,37 +11,39 @@ export default async function handler(req, res) {
 
   const youtubeKey = process.env.YOUTUBE_API_KEY;
 
-  // Currently supporting YouTube — TikTok and Instagram coming soon
-  if (platform === "TikTok" || platform === "Instagram Reels") {
-    return res.status(400).json({
-      error: `${platform} search is coming soon. YouTube Shorts is available now.`
-    });
-  }
-
   if (!youtubeKey) {
-    return res.status(500).json({ error: "YouTube API key not configured. Add YOUTUBE_API_KEY in Vercel environment variables." });
+    return res.status(500).json({ error: "YouTube API key not configured." });
   }
 
   try {
-    // Strategy: Search for SHORT-FORM VIDEOS in this niche, then extract the unique creators
-    // This finds creators who actually MAKE content in the niche, not just channels with the word in their name
-    const searchQueries = [
-      query + " shorts",
-      query + " short form",
-      query,
-    ];
-
     const seenChannelIds = new Set();
     const allChannelIds = [];
 
-    // Search for videos across multiple query variations to get diverse creators
+    // Strategy: Use MANY diverse search queries to maximize unique creators found
+    // Each query variation pulls different creators from YouTube's index
+    const searchQueries = [
+      query + " shorts",
+      query + " tips shorts",
+      query + " tutorial shorts",
+      query + " motivation shorts",
+      query + " beginner",
+      query + " advice",
+      query + " how to",
+      query + " day in the life",
+      query,
+    ];
+
+    // Search across multiple query variations to find diverse creators
     for (const q of searchQueries) {
-      if (allChannelIds.length >= 30) break;
-      const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=short&q=${encodeURIComponent(q)}&maxResults=15&order=relevance&key=${youtubeKey}`;
+      if (allChannelIds.length >= 80) break;
+
+      const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=short&q=${encodeURIComponent(q)}&maxResults=50&order=relevance&key=${youtubeKey}`;
       const searchRes = await fetch(searchUrl);
       const searchData = await searchRes.json();
 
       if (searchData.error) {
+        // If quota exceeded on later queries, use what we have
+        if (allChannelIds.length > 0) break;
         throw new Error(searchData.error.message || "YouTube API error");
       }
 
@@ -60,34 +62,52 @@ export default async function handler(req, res) {
       return res.json({ creators: [] });
     }
 
-    // Step 2: Get detailed channel stats for all unique creators found
-    // YouTube API allows up to 50 IDs per request
-    const channelIds = allChannelIds.slice(0, 50).join(",");
-    const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet,contentDetails&id=${channelIds}&key=${youtubeKey}`;
-    const channelsRes = await fetch(channelsUrl);
-    const channelsData = await channelsRes.json();
+    // Get detailed channel stats — YouTube allows up to 50 IDs per request
+    // So we batch them if we have more than 50
+    let allChannelData = [];
+    for (let i = 0; i < allChannelIds.length; i += 50) {
+      const batch = allChannelIds.slice(i, i + 50).join(",");
+      const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet,contentDetails&id=${batch}&key=${youtubeKey}`;
+      const channelsRes = await fetch(channelsUrl);
+      const channelsData = await channelsRes.json();
 
-    if (channelsData.error) {
-      throw new Error(channelsData.error.message || "YouTube API error");
+      if (channelsData.error) {
+        if (allChannelData.length > 0) break;
+        throw new Error(channelsData.error.message || "YouTube API error");
+      }
+
+      if (channelsData.items) {
+        allChannelData.push(...channelsData.items);
+      }
     }
 
-    // Step 3: Format the results
-    const creators = (channelsData.items || []).map(ch => {
+    // Format the results
+    let creators = allChannelData.map(ch => {
       const stats = ch.statistics;
       const snippet = ch.snippet;
+      const subCount = parseInt(stats.subscriberCount) || 0;
       return {
         id: ch.id,
         name: snippet.title,
+        username: snippet.customUrl || snippet.title,
         description: snippet.description ? snippet.description.substring(0, 200) : "",
         thumbnail: snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url || "",
         platform: "YouTube Shorts",
-        subscribers: formatNumber(parseInt(stats.subscriberCount) || 0),
-        subscriberCount: parseInt(stats.subscriberCount) || 0,
+        subscribers: formatNumber(subCount),
+        subscriberCount: subCount,
         totalViews: formatNumber(parseInt(stats.viewCount) || 0),
         videoCount: parseInt(stats.videoCount) || 0,
         uploadsPlaylistId: ch.contentDetails?.relatedPlaylists?.uploads || null,
       };
     });
+
+    // Apply subscriber filters if provided
+    if (minSubs) {
+      creators = creators.filter(c => c.subscriberCount >= parseInt(minSubs));
+    }
+    if (maxSubs) {
+      creators = creators.filter(c => c.subscriberCount <= parseInt(maxSubs));
+    }
 
     // Sort by subscriber count descending
     creators.sort((a, b) => b.subscriberCount - a.subscriberCount);
