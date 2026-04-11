@@ -228,13 +228,13 @@ const DiscoverPage = ({ setPage, setSelectedCreator }) => {
                     <p className="text-gray-400 text-xs mt-0.5 truncate">{creator.description}</p>
                     <div className="flex items-center gap-3 mt-2">
                       <PlatformBadge platform={creator.platform} />
-                      <span className="text-xs text-gray-500 font-medium">{creator.subscribers} {creator.platform === "Instagram Reels" ? "followers" : "subscribers"}</span>
+                      <span className="text-xs text-gray-500 font-medium">{creator.platform === "Instagram Reels" ? creator.subscribers : `${creator.subscribers} subscribers`}</span>
                       {creator.videoCount > 0 && <span className="text-xs text-gray-400">{creator.videoCount} videos</span>}
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="text-lg font-extrabold text-gray-900">{creator.subscribers}</div>
-                    <div className="text-xs text-gray-400">subscribers</div>
+                    <div className="text-xs text-gray-400">{creator.platform === "Instagram Reels" ? "followers" : "subscribers"}</div>
                   </div>
                 </div>
               </div>
