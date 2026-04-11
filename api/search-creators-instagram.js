@@ -28,7 +28,7 @@ export default async function handler(req, res) {
           "x-rapidapi-host": "instagram-scraper-stable-api.p.rapidapi.com",
           "x-rapidapi-key": rapidApiKey,
         },
-        body: `search_query=${encodeURIComponent(query + " reels")}`,
+        body: `search_query=${encodeURIComponent(query)}`,
       }
     );
 
