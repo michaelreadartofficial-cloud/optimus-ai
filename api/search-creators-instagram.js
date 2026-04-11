@@ -95,22 +95,41 @@ export default async function handler(req, res) {
 }
 
 async function fetchInstagramSearch(query, apiKey) {
-  const searchRes = await fetch(
-    "https://instagram-scraper-stable-api.p.rapidapi.com/search_ig.php",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "x-rapidapi-host": "instagram-scraper-stable-api.p.rapidapi.com",
-        "x-rapidapi-key": apiKey,
-      },
-      body: `search_query=${encodeURIComponent(query)}`,
-    }
-  );
+  try {
+    const searchRes = await fetch(
+      "https://instagram-scraper-stable-api.p.rapidapi.com/search_ig.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "x-rapidapi-host": "instagram-scraper-stable-api.p.rapidapi.com",
+          "x-rapidapi-key": apiKey,
+        },
+        body: `search_query=${encodeURIComponent(query)}`,
+      }
+    );
 
-  const data = await searchRes.json();
-  if (!searchRes.ok) return [];
-  return data.users || [];
+    const text = await searchRes.text();
+    console.log("Instagram API response status:", searchRes.status, "body length:", text.length);
+
+    if (!searchRes.ok) {
+      console.error("Instagram API error:", text.substring(0, 300));
+      return [];
+    }
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      console.error("Instagram API returned non-JSON:", text.substring(0, 300));
+      return [];
+    }
+
+    return data.users || [];
+  } catch (e) {
+    console.error("Instagram fetch failed:", e.message);
+    return [];
+  }
 }
 
 // Parse follower count strings like "3M followers", "336K followers", "1,234 followers"
