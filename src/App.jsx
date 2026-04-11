@@ -7,7 +7,7 @@ import { Search, TrendingUp, Zap, BookOpen, Archive, Settings, Eye, ThumbsUp, Me
 
 const SAMPLE_VIDEOS = [
   { id: 1, title: "I Tried Living on $1 for 24 Hours", channel: "Ryan Trahan", platform: "YouTube Shorts", views: "48.2M", likes: "2.1M", comments: "45K", outlierScore: 28.5, uploadDate: "3 days ago", duration: "0:58", emoji: "🎬", niche: "Lifestyle", hook: "What if I told you that you could survive an entire day on just one dollar?", transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop — the dollar store..." },
-  { id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", platform: "TikTok", views: "12.7M", likes: "890K", comments: "23K", outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", emoji: "🧠", niche: "Education", hook: "Stop using the word 'very'. Here's what smart people say instead.", transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'. Instead of 'very happy', say 'ecstatic'..." },
+  { id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", platform: "TikTok", views: "12.7M", likes: "890K", comments: "23K", outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", emoji: "🧀", niche: "Education", hook: "Stop using the word 'very'. Here's what smart people say instead.", transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'. Instead of 'very happy', say 'ecstatic'..." },
   { id: 3, title: "POV: You Finally Quit Your 9-5", channel: "Alex Hormozi", platform: "Instagram Reels", views: "8.4M", likes: "620K", comments: "18K", outlierScore: 12.8, uploadDate: "5 days ago", duration: "0:45", emoji: "💼", niche: "Business", hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.", transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one — I made zero dollars. Month two — still zero..." },
   { id: 4, title: "The Psychology Behind Why You Can't Stop Scrolling", channel: "Ali Abdaal", platform: "YouTube Shorts", views: "22.1M", likes: "1.5M", comments: "34K", outlierScore: 19.3, uploadDate: "2 days ago", duration: "0:52", emoji: "📱", niche: "Psychology", hook: "Your phone is literally designed to be addictive. Here's the science behind it.", transcript: "Your phone is literally designed to be addictive. Here's the science behind it. It's called variable ratio reinforcement — the same psychology behind slot machines..." },
   { id: 5, title: "I Asked 100 Millionaires Their #1 Habit", channel: "Mark Tilbury", platform: "TikTok", views: "31.5M", likes: "1.8M", comments: "52K", outlierScore: 24.1, uploadDate: "4 days ago", duration: "0:41", emoji: "💰", niche: "Finance", hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.", transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing. It wasn't waking up at 5am. It wasn't cold showers. It was this one simple habit..." },
@@ -137,50 +137,30 @@ const DashboardPage = ({ setPage }) => (
 
 const DiscoverPage = ({ setPage, setSelectedCreator }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [creators, setCreators] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
-  const [platformFilter, setPlatformFilter] = useState("All platforms");
-  const [accountSize, setAccountSize] = useState("All sizes");
-  const [watchlist, setWatchlist] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [savedVideos, setSavedVideos] = useState([]);
 
-  const searchCreators = async () => {
+  const discoverVideos = async () => {
     if (!searchTerm.trim()) return;
     setIsSearching(true);
     setError(null);
-    setCreators([]);
+    setVideos([]);
     setHasSearched(true);
+    setSelectedVideo(null);
     try {
-      const results = [];
-      // Search YouTube
-      if (platformFilter === "All platforms" || platformFilter === "YouTube") {
-        const ytRes = await fetch("/api/search-creators", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: searchTerm }),
-        });
-        const ytData = await ytRes.json();
-        if (ytRes.ok && ytData.creators) results.push(...ytData.creators);
-      }
-      // Search Instagram
-      if (platformFilter === "All platforms" || platformFilter === "Instagram") {
-        const igRes = await fetch("/api/search-creators-instagram", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: searchTerm }),
-        });
-        const igData = await igRes.json();
-        if (igRes.ok && igData.creators) results.push(...igData.creators);
-      }
-      // Filter by account size
-      let filtered = results;
-      if (accountSize === "< 10K") filtered = results.filter(c => c.subscriberCount < 10000);
-      else if (accountSize === "10K - 100K") filtered = results.filter(c => c.subscriberCount >= 10000 && c.subscriberCount < 100000);
-      else if (accountSize === "100K - 1M") filtered = results.filter(c => c.subscriberCount >= 100000 && c.subscriberCount < 1000000);
-      else if (accountSize === "> 1M") filtered = results.filter(c => c.subscriberCount >= 1000000);
-      filtered.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
-      setCreators(filtered);
+      const res = await fetch("/api/discover-videos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: searchTerm }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Search failed");
+      setVideos(data.videos || []);
+      if (data.videos && data.videos.length === 0) setError("No short-form videos found for this niche. Try a different search term.");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -188,173 +168,194 @@ const DiscoverPage = ({ setPage, setSelectedCreator }) => {
     }
   };
 
-  const toggleWatchlist = (creator) => {
-    setWatchlist(prev => {
-      const exists = prev.find(c => c.id === creator.id && c.platform === creator.platform);
-      if (exists) return prev.filter(c => !(c.id === creator.id && c.platform === creator.platform));
-      return [...prev, creator];
+  const toggleSave = (video) => {
+    setSavedVideos(prev => {
+      const exists = prev.find(v => v.id === video.id);
+      if (exists) return prev.filter(v => v.id !== video.id);
+      return [...prev, video];
     });
   };
+  const isSaved = (video) => savedVideos.some(v => v.id === video.id);
 
-  const isInWatchlist = (creator) => watchlist.some(c => c.id === creator.id && c.platform === creator.platform);
-
-  const platformIcon = (platform) => {
-    if (!platform) return null;
-    if (platform.includes("Instagram")) return (
-      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{background: "radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)"}}>
-        <svg viewBox="0 0 24 24" fill="white" className="w-3 h-3"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-      </span>
-    );
-    if (platform.includes("TikTok")) return (
-      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-black flex items-center justify-center border border-gray-200">
-        <svg viewBox="0 0 24 24" fill="white" className="w-2.5 h-2.5"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.4a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 005.58 2.17v-3.35z"/></svg>
-      </span>
-    );
-    if (platform.includes("YouTube")) return (
-      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-red-600 flex items-center justify-center border border-gray-200">
-        <svg viewBox="0 0 24 24" fill="white" className="w-2.5 h-2.5"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.546 12 3.546 12 3.546s-7.505 0-9.377.504A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.504 9.376.504 9.376.504s7.505 0 9.377-.504a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-      </span>
-    );
-    return null;
+  const outlierColor = (score) => {
+    if (score >= 20) return "from-orange-400 to-pink-500";
+    if (score >= 10) return "from-yellow-400 to-orange-400";
+    if (score >= 5) return "from-blue-400 to-cyan-400";
+    return "from-gray-300 to-gray-400";
   };
 
-  const handleCreatorClick = (creator) => {
-    setSelectedCreator(creator);
-    setPage("creator-detail");
+  const outlierLabel = (score) => {
+    if (score >= 20) return "Viral";
+    if (score >= 10) return "Outlier";
+    if (score >= 5) return "Above Avg";
+    return "Normal";
   };
 
   return (
-    <div className="flex gap-6">
-      {/* Main Content */}
-      <div className="flex-1 min-w-0">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Channels</h1>
-          <p className="text-gray-400 text-sm mt-1">Pick which channels to include in your videos feed</p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="mb-4">
-          <div className="relative">
-            <input type="text" placeholder="Describe your content, or search for a channel by handle" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={(e) => e.key === "Enter" && searchCreators()} className="w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all" />
-          </div>
-        </div>
-
-        {/* Filters Row */}
-        <div className="flex items-center gap-3 mb-6">
-          <select value={platformFilter} onChange={(e) => setPlatformFilter(e.target.value)} className="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-600 focus:outline-none hover:border-gray-300 cursor-pointer appearance-none pr-8" style={{backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center"}}>
-            <option>Platform</option>
-            <option value="All platforms">All platforms</option>
-            <option value="YouTube">YouTube</option>
-            <option value="Instagram">Instagram</option>
-          </select>
-          <select value={accountSize} onChange={(e) => setAccountSize(e.target.value)} className="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-600 focus:outline-none hover:border-gray-300 cursor-pointer appearance-none pr-8" style={{backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center"}}>
-            <option>Account size</option>
-            <option value="All sizes">All sizes</option>
-            <option value="< 10K">{"< 10K"}</option>
-            <option value="10K - 100K">10K - 100K</option>
-            <option value="100K - 1M">100K - 1M</option>
-            <option value="> 1M">{"> 1M"}</option>
-          </select>
-          <div className="flex-1" />
-          <button onClick={searchCreators} disabled={isSearching || !searchTerm.trim()} className="text-gray-900 hover:text-gray-600 disabled:opacity-40 px-4 py-2 text-sm font-medium flex items-center gap-2 transition-all">
-            {isSearching ? <><RefreshCw size={14} className="animate-spin" /> Searching...</> : <>Search <ArrowRight size={14} /></>}
-          </button>
-        </div>
-
-        {/* Error */}
-        {error && <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-3 text-sm mb-4">{error}</div>}
-
-        {/* Loading */}
-        {isSearching && (
-          <div className="text-center py-16">
-            <RefreshCw size={20} className="animate-spin text-gray-400 mx-auto mb-3" />
-            <p className="text-gray-400 text-sm">Searching for "{searchTerm}" creators...</p>
-          </div>
-        )}
-
-        {/* No Results */}
-        {!isSearching && hasSearched && creators.length === 0 && !error && (
-          <div className="text-center py-16">
-            <p className="text-gray-400 text-sm">No creators found for "{searchTerm}". Try a different niche or adjust filters.</p>
-          </div>
-        )}
-
-        {/* Suggestions Label */}
-        {creators.length > 0 && !isSearching && (
-          <div className="mb-4">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Suggestions</p>
-          </div>
-        )}
-
-        {/* Creator Grid — 2 columns like Sandcastles */}
-        {creators.length > 0 && !isSearching && (
-          <div className="grid grid-cols-2 gap-3">
-            {creators.map((creator, i) => (
-              <div key={creator.id || i} className="flex items-center gap-4 bg-white border border-gray-200 rounded-2xl px-5 py-4 hover:shadow-sm hover:border-gray-300 transition-all cursor-pointer group" onClick={() => handleCreatorClick(creator)}>
-                <div className="relative flex-shrink-0">
-                  <img src={creator.thumbnail} alt={creator.name} className="w-14 h-14 rounded-full object-cover bg-gray-100" onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Crect width='56' height='56' rx='28' fill='%23f3f4f6'/%3E%3Ctext x='28' y='33' text-anchor='middle' font-size='20' fill='%239ca3af'%3E%3F%3C/text%3E%3C/svg%3E"; }} />
-                  {platformIcon(creator.platform)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-bold text-gray-900 truncate">{creator.username || creator.name}</span>
-                    {creator.isVerified && <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="#3b82f6"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>}
-                  </div>
-                  <p className="text-sm text-gray-500 mt-0.5">{creator.subscribers || "N/A"}{(creator.subscribers && creator.subscribers.toString().toLowerCase().includes("followers")) ? "" : " followers"}</p>
-                </div>
-                <button onClick={(e) => { e.stopPropagation(); toggleWatchlist(creator); }} className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all ${isInWatchlist(creator) ? "bg-pink-100 text-pink-500" : "bg-gray-100 text-gray-400 opacity-0 group-hover:opacity-100"}`}>
-                  <Plus size={16} className={isInWatchlist(creator) ? "rotate-45" : ""} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!hasSearched && !isSearching && (
-          <div className="text-center py-20">
-            <Users size={32} className="text-gray-300 mx-auto mb-3" />
-            <h3 className="text-base font-semibold text-gray-900 mb-1">Find channels to follow</h3>
-            <p className="text-gray-400 text-sm max-w-sm mx-auto">Describe your content niche or search for a specific creator handle to discover channels for your feed.</p>
-          </div>
-        )}
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-extrabold text-gray-900">Discover</h1>
+        <p className="text-gray-500 mt-1">Find viral short-form videos in any niche. See what's blowing up and why.</p>
       </div>
 
-      {/* Watchlist Sidebar */}
-      <div className="w-64 flex-shrink-0">
-        <div className="bg-white border border-gray-100 rounded-xl p-4 sticky top-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-gray-900">Your Watchlist</h3>
-            <span className="text-xs text-gray-400">{watchlist.length} channels</span>
+      {/* Search Bar */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+        <div className="flex gap-3">
+          <div className="flex-1 relative">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={(e) => e.key === "Enter" && discoverVideos()} placeholder="Search a niche... e.g. fitness, cooking, finance, productivity" className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300" />
           </div>
-          {watchlist.length === 0 ? (
-            <p className="text-xs text-gray-400 text-center py-6">Click + on a creator card to add them to your watchlist</p>
-          ) : (
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-              {watchlist.map((creator, i) => (
-                <div key={i} className="flex items-center gap-2.5">
-                  <div className="relative flex-shrink-0">
-                    <img src={creator.thumbnail} alt={creator.username || creator.name} className="w-8 h-8 rounded-full object-cover bg-gray-100" onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Crect width='32' height='32' rx='16' fill='%23f3f4f6'/%3E%3Ctext x='16' y='20' text-anchor='middle' font-size='12' fill='%239ca3af'%3E%3F%3C/text%3E%3C/svg%3E"; }} />
-                    {platformIcon(creator.platform)}
+          <button onClick={discoverVideos} disabled={isSearching || !searchTerm.trim()} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
+            {isSearching ? <><RefreshCw size={14} className="animate-spin" /> Searching...</> : <><Search size={14} /> Discover</>}
+          </button>
+        </div>
+        <div className="flex gap-2 mt-3">
+          {["fitness", "cooking", "finance", "productivity", "travel", "tech"].map(tag => (
+            <button key={tag} onClick={() => { setSearchTerm(tag); }} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-medium rounded-full transition-colors">{tag}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Error */}
+      {error && <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
+
+      {/* Loading */}
+      {isSearching && (
+        <div className="text-center py-16">
+          <RefreshCw size={24} className="animate-spin text-pink-400 mx-auto mb-3" />
+          <p className="text-gray-500 text-sm font-medium">Discovering viral "{searchTerm}" videos...</p>
+          <p className="text-gray-400 text-xs mt-1">Analyzing outlier scores across channels</p>
+        </div>
+      )}
+
+      {/* Results */}
+      {!isSearching && videos.length > 0 && (
+        <div className="flex gap-6">
+          {/* Video List */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{videos.length} videos found — sorted by outlier score</p>
+            </div>
+            <div className="space-y-3">
+              {videos.map((video, i) => (
+                <div key={video.id} onClick={() => setSelectedVideo(video)} className={`flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer group ${selectedVideo?.id === video.id ? "bg-pink-50 border-pink-200 shadow-sm" : "bg-white border-gray-100 hover:border-gray-200 hover:shadow-sm"}`}>
+                  {/* Rank */}
+                  <div className="flex-shrink-0 w-8 text-center">
+                    <span className={`text-lg font-extrabold ${i < 3 ? "bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text" : "text-gray-300"}`} style={i < 3 ? { WebkitTextFillColor: "transparent" } : {}}>#{i + 1}</span>
                   </div>
+                  {/* Thumbnail */}
+                  <div className="relative flex-shrink-0 w-28 h-20 rounded-xl overflow-hidden bg-gray-100">
+                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
+                    <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">{video.durationFormatted}</div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+                      <Play size={20} className="text-white" />
+                    </div>
+                  </div>
+                  {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-gray-900 truncate">{creator.username || creator.name}</p>
-                    <p className="text-[10px] text-gray-400">{creator.subscribers || "N/A"}{(creator.subscribers && creator.subscribers.toString().toLowerCase().includes("followers")) ? "" : " followers"}</p>
+                    <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight">{video.title}</h3>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      {video.channel.thumbnail && <img src={video.channel.thumbnail} alt="" className="w-4 h-4 rounded-full" />}
+                      <span className="text-xs text-gray-500">{video.channel.name}</span>
+                      <span className="text-gray-300 text-xs">&middot;</span>
+                      <span className="text-xs text-gray-400">{video.channel.subscribers} subs</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className="text-xs font-semibold text-gray-600"><Eye size={11} className="inline mr-1" />{video.viewsFormatted}</span>
+                      <span className="text-xs text-gray-400"><ThumbsUp size={11} className="inline mr-1" />{video.likesFormatted}</span>
+                      <span className="text-xs text-gray-400"><MessageCircle size={11} className="inline mr-1" />{video.commentsFormatted}</span>
+                      <span className="text-xs text-gray-400">{video.timeAgo}</span>
+                    </div>
                   </div>
-                  <button onClick={() => toggleWatchlist(creator)} className="text-gray-300 hover:text-red-400 transition-colors flex-shrink-0">
-                    <X size={12} />
+                  {/* Outlier Score */}
+                  <div className="flex-shrink-0 flex flex-col items-center gap-1">
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r ${outlierColor(video.outlierScore)}`}>
+                      <TrendingUp size={11} className="inline mr-1" />{video.outlierScore}x
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-medium">{outlierLabel(video.outlierScore)}</span>
+                  </div>
+                  {/* Save */}
+                  <button onClick={(e) => { e.stopPropagation(); toggleSave(video); }} className={`flex-shrink-0 p-2 rounded-lg transition-all ${isSaved(video) ? "text-pink-500 bg-pink-50" : "text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100"}`}>
+                    <Bookmark size={16} className={isSaved(video) ? "fill-current" : ""} />
                   </button>
                 </div>
               ))}
             </div>
-          )}
-          {watchlist.length > 0 && (
-            <button className="w-full mt-4 bg-gray-900 hover:bg-gray-800 text-white text-xs font-semibold py-2.5 rounded-lg transition-all">
-              Save Watchlist
-            </button>
-          )}
+          </div>
+
+          {/* Detail Panel */}
+          <div className="w-80 flex-shrink-0">
+            <div className="bg-white border border-gray-100 rounded-2xl p-5 sticky top-4 shadow-sm">
+              {selectedVideo ? (
+                <div>
+                  <div className="relative rounded-xl overflow-hidden mb-4">
+                    <img src={selectedVideo.thumbnail} alt={selectedVideo.title} className="w-full aspect-video object-cover" />
+                    <a href={selectedVideo.url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors">
+                      <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center"><Play size={20} className="text-gray-900 ml-0.5" /></div>
+                    </a>
+                    <div className={`absolute top-2 right-2 px-2.5 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${outlierColor(selectedVideo.outlierScore)}`}>{selectedVideo.outlierScore}x outlier</div>
+                  </div>
+                  <h3 className="font-bold text-gray-900 text-sm leading-tight">{selectedVideo.title}</h3>
+                  <div className="flex items-center gap-2 mt-2">
+                    {selectedVideo.channel.thumbnail && <img src={selectedVideo.channel.thumbnail} alt="" className="w-6 h-6 rounded-full" />}
+                    <div>
+                      <p className="text-xs font-semibold text-gray-900">{selectedVideo.channel.name}</p>
+                      <p className="text-[10px] text-gray-400">{selectedVideo.channel.subscribers} subscribers</p>
+                    </div>
+                  </div>
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-3 gap-2 mt-4">
+                    <div className="bg-gray-50 rounded-lg p-2.5 text-center">
+                      <p className="text-xs font-bold text-gray-900">{selectedVideo.viewsFormatted}</p>
+                      <p className="text-[10px] text-gray-400">Views</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-2.5 text-center">
+                      <p className="text-xs font-bold text-gray-900">{selectedVideo.likesFormatted}</p>
+                      <p className="text-[10px] text-gray-400">Likes</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-2.5 text-center">
+                      <p className="text-xs font-bold text-gray-900">{selectedVideo.commentsFormatted}</p>
+                      <p className="text-[10px] text-gray-400">Comments</p>
+                    </div>
+                  </div>
+                  {/* Hook */}
+                  <div className="mt-4 bg-gradient-to-r from-orange-50 to-pink-50 border border-pink-100 rounded-xl p-3">
+                    <p className="text-[10px] font-bold text-pink-600 uppercase tracking-wider mb-1"><Zap size={10} className="inline mr-1" />Hook</p>
+                    <p className="text-xs text-gray-700 leading-relaxed">"{selectedVideo.hook}"</p>
+                  </div>
+                  {/* Actions */}
+                  <div className="flex gap-2 mt-4">
+                    <button onClick={() => toggleSave(selectedVideo)} className={`flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${isSaved(selectedVideo) ? "bg-pink-100 text-pink-600 border border-pink-200" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                      <Bookmark size={13} className={isSaved(selectedVideo) ? "fill-current" : ""} /> {isSaved(selectedVideo) ? "Saved" : "Save"}
+                    </button>
+                    <button onClick={() => { setSelectedCreator({ id: selectedVideo.channel.id, name: selectedVideo.channel.name, thumbnail: selectedVideo.channel.thumbnail, platform: "YouTube Shorts", subscribers: selectedVideo.channel.subscribers, subscriberCount: selectedVideo.channel.subscriberCount }); setPage("creator-detail"); }} className="flex-1 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all">
+                      <Users size={13} /> View Creator
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Eye size={24} className="text-gray-300 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-400">Click a video to see details</p>
+                  <p className="text-xs text-gray-300 mt-1">View hooks, stats, and outlier analysis</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Empty State */}
+      {!hasSearched && !isSearching && (
+        <div className="text-center py-20">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <TrendingUp size={28} className="text-white" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Discover Viral Content</h3>
+          <p className="text-gray-400 text-sm max-w-md mx-auto">Search any niche to find short-form videos that are massively outperforming their channel average. Learn what hooks, formats, and topics are going viral right now.</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -539,23 +540,33 @@ const ChannelsPage = ({ setPage, setSelectedCreator }) => {
     setHasSearched(true);
     try {
       const results = [];
-      // Search YouTube
-      const ytRes = await fetch("/api/search-creators", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: urlInput }),
-      });
-      const ytData = await ytRes.json();
-      if (ytRes.ok && ytData.creators) results.push(...ytData.creators);
+      // Search YouTube and Instagram in parallel for speed
+      const [ytRes, igRes] = await Promise.all([
+        fetch("/api/search-creators", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: urlInput }),
+        }).catch(e => null),
+        fetch("/api/search-creators-instagram", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: urlInput }),
+        }).catch(e => null),
+      ]);
 
-      // Search Instagram
-      const igRes = await fetch("/api/search-creators-instagram", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: urlInput }),
-      });
-      const igData = await igRes.json();
-      if (igRes.ok && igData.creators) results.push(...igData.creators);
+      if (ytRes) {
+        try {
+          const ytData = await ytRes.json();
+          if (ytRes.ok && ytData.creators) results.push(...ytData.creators);
+        } catch(e) { console.error("YouTube parse error:", e); }
+      }
+
+      if (igRes) {
+        try {
+          const igData = await igRes.json();
+          if (igRes.ok && igData.creators) results.push(...igData.creators);
+        } catch(e) { console.error("Instagram parse error:", e); }
+      }
 
       // Sort by follower count
       results.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
