@@ -486,6 +486,22 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
         }
       }
 
+      // Search TikTok
+      if (platformFilter === "all" || platformFilter === "TikTok") {
+        try {
+          const tkRes = await fetch("/api/search-creators-tiktok", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: query.trim() }),
+          });
+          const tkData = await tkRes.json();
+          if (tkData.creators) results.push(...tkData.creators);
+          if (tkData.error) console.warn("TikTok:", tkData.error);
+        } catch (e) {
+          console.warn("TikTok search failed:", e);
+        }
+      }
+
       // Sort by subscriber count
       results.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
       setCreators(results);
@@ -563,7 +579,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                 </button>
                 {platformDropdownOpen && (
                   <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
-                    {["all", "YouTube Shorts", "Instagram Reels"].map(p => (
+                    {["all", "YouTube Shorts", "Instagram Reels", "TikTok"].map(p => (
                       <button
                         key={p}
                         onClick={() => { setPlatformFilter(p); setPlatformDropdownOpen(false); }}
