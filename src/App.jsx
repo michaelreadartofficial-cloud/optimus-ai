@@ -169,26 +169,59 @@ const SAMPLE_VIDEOS = [
 ];
 
 const SAMPLE_CHANNELS = [
-  { id: 1, name: "Ryan Trahan", handle: "ryantrahan", platform: "YouTube Shorts", subscribers: "12.4M", avgViews: "5.2M", followers: "12.4M", videos: 342, niche: "Lifestyle", emoji: "🎬", size: "large" },
-  { id: 2, name: "Ali Abdaal", handle: "aliabdaal", platform: "YouTube Shorts", subscribers: "5.8M", avgViews: "1.8M", followers: "5.8M", videos: 520, niche: "Productivity", emoji: "📚", size: "large" },
-  { id: 3, name: "Alex Hormozi", handle: "alexhormozi", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "2.1M", followers: "3.2M", videos: 890, niche: "Business", emoji: "💪", size: "large" },
-  { id: 4, name: "Mark Tilbury", handle: "marktilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", followers: "8.1M", videos: 1200, niche: "Finance", emoji: "💰", size: "large" },
-  { id: 5, name: "Dr. Mike", handle: "doctormike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", followers: "11.2M", videos: 650, niche: "Health", emoji: "🩺", size: "large" },
-  { id: 6, name: "Jade Bowler", handle: "jadebowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", followers: "1.9M", videos: 280, niche: "Education", emoji: "🧠", size: "large" },
-  { id: 7, name: "falkefit", handle: "falkefit", platform: "Instagram Reels", subscribers: "339K", avgViews: "120K", followers: "339K", videos: 412, niche: "Fitness", emoji: "💪", size: "medium" },
-  { id: 8, name: "thedolcediet", handle: "thedolcediet", platform: "Instagram Reels", subscribers: "247K", avgViews: "85K", followers: "247K", videos: 310, niche: "Health", emoji: "🥗", size: "medium" },
-  { id: 9, name: "jonmango", handle: "jonmango", platform: "TikTok", subscribers: "36K", avgViews: "15K", followers: "36K", videos: 189, niche: "Lifestyle", emoji: "🎯", size: "small" },
-  { id: 10, name: "k.squared.fitness", handle: "k.squared.fitness", platform: "Instagram Reels", subscribers: "64K", avgViews: "22K", followers: "64K", videos: 245, niche: "Fitness", emoji: "🏋️", size: "small" },
-  { id: 11, name: "thebeastwithin9", handle: "thebeastwithin9", platform: "TikTok", subscribers: "52K", avgViews: "18K", followers: "52K", videos: 320, niche: "Fitness", emoji: "🔥", size: "small" },
-  { id: 12, name: "anthonyanisimov", handle: "anthonyanisimov", platform: "Instagram Reels", subscribers: "216K", avgViews: "72K", followers: "216K", videos: 198, niche: "Business", emoji: "📈", size: "medium" },
-  { id: 13, name: "alexdeajue", handle: "alexdeajue", platform: "TikTok", subscribers: "50K", avgViews: "20K", followers: "50K", videos: 156, niche: "Fitness", emoji: "🏃", size: "small" },
-  { id: 14, name: "atrevinostrength", handle: "atrevinostrength", platform: "Instagram Reels", subscribers: "95K", avgViews: "32K", followers: "95K", videos: 278, niche: "Fitness", emoji: "💪", size: "small" },
-  { id: 15, name: "coach_jramfit", handle: "coach_jramfit", platform: "TikTok", subscribers: "38K", avgViews: "14K", followers: "38K", videos: 210, niche: "Fitness", emoji: "🏆", size: "small" },
-  { id: 16, name: "ryan_fitch07", handle: "ryan_fitch07", platform: "Instagram Reels", subscribers: "43K", avgViews: "16K", followers: "43K", videos: 167, niche: "Fitness", emoji: "⚡", size: "small" },
-  { id: 17, name: "tombaileypt", handle: "tombaileypt", platform: "TikTok", subscribers: "89K", avgViews: "30K", followers: "89K", videos: 345, niche: "Fitness", emoji: "🎯", size: "small" },
-  { id: 18, name: "ollierhoda", handle: "ollierhoda", platform: "Instagram Reels", subscribers: "243K", avgViews: "80K", followers: "243K", videos: 290, niche: "Fitness", emoji: "💥", size: "medium" },
+  // Large creators
+  { id: 1, name: "Ryan Trahan", handle: "ryantrahan", platform: "YouTube Shorts", subscribers: "12.4M", avgViews: "5.2M", followers: "12.4M", followersNum: 12400000, videos: 342, niche: "Lifestyle", avatar: "from-yellow-400 to-orange-500", size: "large" },
+  { id: 2, name: "Ali Abdaal", handle: "aliabdaal", platform: "YouTube Shorts", subscribers: "5.8M", avgViews: "1.8M", followers: "5.8M", followersNum: 5800000, videos: 520, niche: "Productivity", avatar: "from-blue-400 to-indigo-500", size: "large" },
+  { id: 3, name: "Alex Hormozi", handle: "alexhormozi", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "2.1M", followers: "3.2M", followersNum: 3200000, videos: 890, niche: "Business", avatar: "from-gray-700 to-gray-900", size: "large" },
+  { id: 4, name: "Mark Tilbury", handle: "marktilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", followers: "8.1M", followersNum: 8100000, videos: 1200, niche: "Finance", avatar: "from-green-400 to-emerald-600", size: "large" },
+  { id: 5, name: "Dr. Mike", handle: "doctormike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", followers: "11.2M", followersNum: 11200000, videos: 650, niche: "Health", avatar: "from-teal-400 to-cyan-600", size: "large" },
+  { id: 6, name: "Jade Bowler", handle: "jadebowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", followers: "1.9M", followersNum: 1900000, videos: 280, niche: "Education", avatar: "from-purple-400 to-pink-500", size: "large" },
+  // Fitness — large
+  { id: 20, name: "Vladimir Fitness", handle: "vladimirfitness", platform: "YouTube Shorts", subscribers: "9.4M", avgViews: "3.8M", followers: "9.4M", followersNum: 9400000, videos: 890, niche: "Fitness", avatar: "from-red-500 to-orange-500", size: "large" },
+  { id: 21, name: "Fitness Blender", handle: "fitnessblender", platform: "YouTube Shorts", subscribers: "6.6M", avgViews: "2.5M", followers: "6.6M", followersNum: 6600000, videos: 1200, niche: "Fitness", avatar: "from-blue-500 to-teal-400", size: "large" },
+  { id: 22, name: "Sascha Fitness", handle: "saschafitness", platform: "Instagram Reels", subscribers: "5.8M", avgViews: "1.9M", followers: "5.8M", followersNum: 5800000, videos: 780, niche: "Fitness", avatar: "from-pink-400 to-rose-500", size: "large" },
+  { id: 23, name: "Jordan Yeoh Fitness", handle: "jordanyeohfitness", platform: "Instagram Reels", subscribers: "4.5M", avgViews: "1.6M", followers: "4.5M", followersNum: 4500000, videos: 650, niche: "Fitness", avatar: "from-amber-500 to-orange-600", size: "large" },
+  { id: 24, name: "Aussie Fitness", handle: "_aussiefitness", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "1.1M", followers: "3.2M", followersNum: 3200000, videos: 520, niche: "Fitness", avatar: "from-green-500 to-lime-400", size: "large" },
+  { id: 25, name: "Marpe Fitness", handle: "marpefitness_", platform: "Instagram Reels", subscribers: "2.5M", avgViews: "890K", followers: "2.5M", followersNum: 2500000, videos: 410, niche: "Fitness", avatar: "from-violet-500 to-purple-600", size: "large" },
+  { id: 26, name: "Little Fitness", handle: "littlefitness", platform: "Instagram Reels", subscribers: "2.5M", avgViews: "850K", followers: "2.5M", followersNum: 2500000, videos: 390, niche: "Fitness", avatar: "from-sky-400 to-blue-500", size: "large" },
+  { id: 27, name: "The Fitness Chef", handle: "thefitnesschef_", platform: "Instagram Reels", subscribers: "2.3M", avgViews: "780K", followers: "2.3M", followersNum: 2300000, videos: 560, niche: "Fitness", avatar: "from-orange-400 to-red-500", size: "large" },
+  { id: 28, name: "Jordan Yeoh", handle: "jordanyeohfitness2", platform: "TikTok", subscribers: "2.3M", avgViews: "750K", followers: "2.3M", followersNum: 2300000, videos: 340, niche: "Fitness", avatar: "from-amber-400 to-yellow-500", size: "large" },
+  { id: 29, name: "S Casey Fitness", handle: "scaseyfitness", platform: "Instagram Reels", subscribers: "2.2M", avgViews: "720K", followers: "2.2M", followersNum: 2200000, videos: 480, niche: "Fitness", avatar: "from-emerald-400 to-teal-500", size: "large" },
+  { id: 30, name: "Fitness FAQs", handle: "fitnessfaqs", platform: "YouTube Shorts", subscribers: "2.2M", avgViews: "700K", followers: "2.2M", followersNum: 2200000, videos: 620, niche: "Fitness", avatar: "from-indigo-400 to-blue-600", size: "large" },
+  { id: 31, name: "Jeff Nippard Fitness", handle: "jeffnippardfitness", platform: "YouTube Shorts", subscribers: "2.2M", avgViews: "680K", followers: "2.2M", followersNum: 2200000, videos: 450, niche: "Fitness", avatar: "from-slate-500 to-gray-700", size: "large" },
+  { id: 32, name: "Fitness By Maddy", handle: "fitnessbymaddy_", platform: "Instagram Reels", subscribers: "2.1M", avgViews: "650K", followers: "2.1M", followersNum: 2100000, videos: 380, niche: "Fitness", avatar: "from-pink-500 to-fuchsia-500", size: "large" },
+  { id: 33, name: "Eric Janicki Fitness", handle: "ericjanickifitness", platform: "Instagram Reels", subscribers: "2M", avgViews: "620K", followers: "2M", followersNum: 2000000, videos: 510, niche: "Fitness", avatar: "from-cyan-500 to-blue-500", size: "large" },
+  { id: 34, name: "Ulrich Fitness", handle: "ulrich_fitness", platform: "TikTok", subscribers: "1.9M", avgViews: "580K", followers: "1.9M", followersNum: 1900000, videos: 290, niche: "Fitness", avatar: "from-rose-400 to-pink-600", size: "large" },
+  { id: 35, name: "Koboko Fitness", handle: "kobokofitness", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "560K", followers: "1.9M", followersNum: 1900000, videos: 340, niche: "Fitness", avatar: "from-amber-600 to-yellow-500", size: "large" },
+  { id: 36, name: "Scotty K Fitness", handle: "scottykfitness", platform: "TikTok", subscribers: "1.8M", avgViews: "540K", followers: "1.8M", followersNum: 1800000, videos: 420, niche: "Fitness", avatar: "from-red-400 to-rose-600", size: "large" },
+  { id: 37, name: "MDJ Fitness", handle: "mdj_fitness", platform: "TikTok", subscribers: "1.7M", avgViews: "520K", followers: "1.7M", followersNum: 1700000, videos: 310, niche: "Fitness", avatar: "from-blue-600 to-indigo-700", size: "large" },
+  // Fitness — medium (100K–1M)
+  { id: 40, name: "Macro Daddy", handle: "_macro_daddy", platform: "Instagram Reels", subscribers: "773K", avgViews: "280K", followers: "773K", followersNum: 773000, videos: 490, niche: "Fitness", avatar: "from-orange-500 to-amber-600", size: "medium" },
+  { id: 41, name: "Alexa Stancofit", handle: "alexastancofit", platform: "Instagram Reels", subscribers: "409K", avgViews: "150K", followers: "409K", followersNum: 409000, videos: 320, niche: "Fitness", avatar: "from-pink-400 to-rose-500", size: "medium" },
+  { id: 42, name: "Alex Gamble Coach", handle: "alexgamblecoach", platform: "Instagram Reels", subscribers: "428K", avgViews: "160K", followers: "428K", followersNum: 428000, videos: 280, niche: "Fitness", avatar: "from-teal-500 to-cyan-600", size: "medium" },
+  { id: 43, name: "Alley Raymond", handle: "alleyraymond", platform: "Instagram Reels", subscribers: "184K", avgViews: "65K", followers: "184K", followersNum: 184000, videos: 210, niche: "Fitness", avatar: "from-violet-400 to-purple-500", size: "medium" },
+  { id: 44, name: "Audrey Adams Fit", handle: "audreyyadamsfit", platform: "Instagram Reels", subscribers: "237K", avgViews: "85K", followers: "237K", followersNum: 237000, videos: 310, niche: "Fitness", avatar: "from-fuchsia-400 to-pink-500", size: "medium" },
+  { id: 45, name: "Cesare Shapable", handle: "cesare_shapable", platform: "Instagram Reels", subscribers: "260K", avgViews: "95K", followers: "260K", followersNum: 260000, videos: 340, niche: "Fitness", avatar: "from-gray-500 to-slate-600", size: "medium" },
+  { id: 46, name: "Coach Dango", handle: "coachdango", platform: "Instagram Reels", subscribers: "1.4M", avgViews: "480K", followers: "1.4M", followersNum: 1400000, videos: 520, niche: "Fitness", avatar: "from-green-500 to-emerald-600", size: "large" },
+  { id: 47, name: "Devin Fit Official", handle: "devinfitofficial", platform: "Instagram Reels", subscribers: "639K", avgViews: "230K", followers: "639K", followersNum: 639000, videos: 380, niche: "Fitness", avatar: "from-blue-500 to-sky-500", size: "medium" },
+  { id: 48, name: "Julian Sollai", handle: "julian.sollai", platform: "Instagram Reels", subscribers: "95K", avgViews: "35K", followers: "95K", followersNum: 95000, videos: 190, niche: "Fitness", avatar: "from-amber-400 to-orange-500", size: "small" },
+  { id: 49, name: "Karen Mattar", handle: "karenmattar", platform: "Instagram Reels", subscribers: "423K", avgViews: "155K", followers: "423K", followersNum: 423000, videos: 290, niche: "Fitness", avatar: "from-rose-500 to-red-500", size: "medium" },
+  { id: 50, name: "Kelsey Poulter", handle: "kelseypoulter", platform: "Instagram Reels", subscribers: "312K", avgViews: "110K", followers: "312K", followersNum: 312000, videos: 260, niche: "Fitness", avatar: "from-lime-400 to-green-500", size: "medium" },
+  { id: 7, name: "Falke Fit", handle: "falkefit", platform: "Instagram Reels", subscribers: "339K", avgViews: "120K", followers: "339K", followersNum: 339000, videos: 412, niche: "Fitness", avatar: "from-orange-300 to-pink-400", size: "medium" },
+  { id: 18, name: "Ollie Rhoda", handle: "ollierhoda", platform: "Instagram Reels", subscribers: "243K", avgViews: "80K", followers: "243K", followersNum: 243000, videos: 290, niche: "Fitness", avatar: "from-purple-400 to-indigo-500", size: "medium" },
+  { id: 8, name: "The Dolce Diet", handle: "thedolcediet", platform: "Instagram Reels", subscribers: "247K", avgViews: "85K", followers: "247K", followersNum: 247000, videos: 310, niche: "Health", avatar: "from-green-400 to-teal-500", size: "medium" },
+  // Other niches
+  { id: 9, name: "Jon Mango", handle: "jonmango", platform: "TikTok", subscribers: "36K", avgViews: "15K", followers: "36K", followersNum: 36000, videos: 189, niche: "Lifestyle", avatar: "from-yellow-400 to-amber-500", size: "small" },
+  { id: 12, name: "Anthony Anisimov", handle: "anthonyanisimov", platform: "Instagram Reels", subscribers: "216K", avgViews: "72K", followers: "216K", followersNum: 216000, videos: 198, niche: "Business", avatar: "from-slate-400 to-gray-600", size: "medium" },
+  // More fitness small
+  { id: 10, name: "K Squared Fitness", handle: "k.squared.fitness", platform: "Instagram Reels", subscribers: "64K", avgViews: "22K", followers: "64K", followersNum: 64000, videos: 245, niche: "Fitness", avatar: "from-cyan-400 to-blue-500", size: "small" },
+  { id: 11, name: "The Beast Within", handle: "thebeastwithin9", platform: "TikTok", subscribers: "52K", avgViews: "18K", followers: "52K", followersNum: 52000, videos: 320, niche: "Fitness", avatar: "from-red-600 to-orange-500", size: "small" },
+  { id: 13, name: "Alex De Ajue", handle: "alexdeajue", platform: "TikTok", subscribers: "50K", avgViews: "20K", followers: "50K", followersNum: 50000, videos: 156, niche: "Fitness", avatar: "from-indigo-400 to-violet-500", size: "small" },
+  { id: 14, name: "Atrevino Strength", handle: "atrevinostrength", platform: "Instagram Reels", subscribers: "95K", avgViews: "32K", followers: "95K", followersNum: 95000, videos: 278, niche: "Fitness", avatar: "from-emerald-500 to-green-600", size: "small" },
+  { id: 15, name: "Coach JRam Fit", handle: "coach_jramfit", platform: "TikTok", subscribers: "38K", avgViews: "14K", followers: "38K", followersNum: 38000, videos: 210, niche: "Fitness", avatar: "from-blue-400 to-cyan-400", size: "small" },
+  { id: 16, name: "Ryan Fitch", handle: "ryan_fitch07", platform: "Instagram Reels", subscribers: "43K", avgViews: "16K", followers: "43K", followersNum: 43000, videos: 167, niche: "Fitness", avatar: "from-orange-400 to-red-400", size: "small" },
+  { id: 17, name: "Tom Bailey PT", handle: "tombaileypt", platform: "TikTok", subscribers: "89K", avgViews: "30K", followers: "89K", followersNum: 89000, videos: 345, niche: "Fitness", avatar: "from-sky-500 to-indigo-500", size: "small" },
 ];
-
 const SAMPLE_WATCHLISTS = [
   { id: 1, name: "AI & Tech", channels: [1, 2, 3] },
   { id: 2, name: "Finance & Business", channels: [3, 4] },
@@ -399,7 +432,8 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
 // ============================================================
 
 const ChannelsPage = ({ watchlists, setWatchlists }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("fitness");
+  const [searchQuery, setSearchQuery] = useState("fitness");
   const [platformFilter, setPlatformFilter] = useState("all");
   const [sizeFilter, setSizeFilter] = useState("all");
   const [myChannels, setMyChannels] = useState(() => {
@@ -413,13 +447,21 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
   const platformIcon = (platform) => {
     if (platform === "YouTube Shorts") return { color: "bg-red-500", icon: "▶" };
     if (platform === "TikTok") return { color: "bg-black", icon: "♪" };
-    if (platform === "Instagram Reels") return { color: "bg-gradient-to-br from-purple-500 to-pink-500", icon: "📷" };
+    if (platform === "Instagram Reels" || platform === "Instagram") return { color: "bg-gradient-to-br from-purple-500 to-pink-500", icon: "📷" };
     return { color: "bg-gray-400", icon: "?" };
   };
 
+  const handleSearch = () => {
+    setSearchQuery(searchTerm);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleSearch();
+  };
+
   const filteredChannels = SAMPLE_CHANNELS.filter(c => {
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
+    if (searchQuery) {
+      const term = searchQuery.toLowerCase();
       const matches = c.name.toLowerCase().includes(term) ||
         c.handle.toLowerCase().includes(term) ||
         c.niche.toLowerCase().includes(term);
@@ -428,7 +470,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
     if (platformFilter !== "all" && c.platform !== platformFilter) return false;
     if (sizeFilter !== "all" && c.size !== sizeFilter) return false;
     return true;
-  });
+  }).sort((a, b) => (b.followersNum || 0) - (a.followersNum || 0));
 
   const toggleChannel = (channelId) => {
     setMyChannels(prev =>
@@ -444,6 +486,18 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
   };
 
   const watchlistChannelData = myChannels.map(id => SAMPLE_CHANNELS.find(c => c.id === id)).filter(Boolean);
+
+  const formatFollowers = (channel) => {
+    const num = channel.followersNum;
+    if (!num) return channel.followers + " followers";
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M followers";
+    if (num >= 1000) return Math.round(num / 1000) + "K followers";
+    return num + " followers";
+  };
+
+  const getInitials = (name) => {
+    return name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+  };
 
   return (
     <div className="space-y-5">
@@ -461,6 +515,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Describe your content, or find a channel by handle"
               className="w-full bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
             />
@@ -471,7 +526,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                   onClick={() => { setPlatformDropdownOpen(!platformDropdownOpen); setSizeDropdownOpen(false); }}
                   className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  Platform
+                  {platformFilter === "all" ? "Platform" : platformFilter}
                   <ChevronDown size={14} className={`transition-transform ${platformDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
                 {platformDropdownOpen && (
@@ -495,7 +550,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                   onClick={() => { setSizeDropdownOpen(!sizeDropdownOpen); setPlatformDropdownOpen(false); }}
                   className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  Account size
+                  {sizeFilter === "all" ? "Account size" : sizeFilter === "large" ? "Large (1M+)" : sizeFilter === "medium" ? "Medium (100K-1M)" : "Small (<100K)"}
                   <ChevronDown size={14} className={`transition-transform ${sizeDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
                 {sizeDropdownOpen && (
@@ -520,8 +575,8 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
 
               <div className="flex-1" />
               <button
-                onClick={() => {}}
-                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                onClick={handleSearch}
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
               >
                 Search <ArrowRight size={14} />
               </button>
@@ -538,7 +593,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
               </button>
             </div>
 
-            {/* Channels Grid — Sandcastles style */}
+            {/* Channels Grid */}
             <div className="grid grid-cols-2 gap-3">
               {filteredChannels.map(channel => {
                 const pi = platformIcon(channel.platform);
@@ -547,24 +602,29 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                   <button
                     key={channel.id}
                     onClick={() => toggleChannel(channel.id)}
-                    className={`flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${isAdded ? "border-pink-400 bg-pink-50" : "border-gray-100 bg-white hover:border-gray-200"}`}
+                    className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all hover:shadow-sm ${isAdded ? "border-pink-400 bg-pink-50/50" : "border-gray-100 bg-white hover:border-gray-200"}`}
                   >
                     <div className="relative flex-shrink-0">
-                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-300 to-pink-400 flex items-center justify-center text-lg">
-                        {channel.emoji}
+                      <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${channel.avatar || "from-gray-300 to-gray-400"} flex items-center justify-center text-white text-xs font-bold`}>
+                        {getInitials(channel.name)}
                       </div>
                       <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${pi.color} rounded-full flex items-center justify-center border-2 border-white`}>
                         <span className="text-white text-[7px]">{pi.icon}</span>
                       </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{channel.handle || channel.name}</p>
-                      <p className="text-xs text-gray-500">{channel.followers} followers</p>
+                      <p className="text-sm font-semibold text-gray-900 truncate">{channel.handle}</p>
+                      <p className="text-xs text-gray-500">{formatFollowers(channel)}</p>
                     </div>
                     {isAdded && <Check size={16} className="text-pink-500 flex-shrink-0" />}
                   </button>
                 );
               })}
+              {filteredChannels.length === 0 && (
+                <div className="col-span-2 py-12 text-center text-gray-400 text-sm">
+                  No channels found. Try a different search term.
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -587,23 +647,23 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
               </div>
             </div>
 
-            <div className="space-y-1 max-h-[calc(100vh-280px)] overflow-y-auto">
+            <div className="space-y-0.5 max-h-[calc(100vh-280px)] overflow-y-auto">
               {watchlistChannelData.length > 0 ? (
                 watchlistChannelData.map(channel => {
                   const pi = platformIcon(channel.platform);
                   return (
                     <div key={channel.id} className="flex items-center gap-3 py-2 px-1 hover:bg-gray-50 rounded-lg transition-colors group">
                       <div className="relative flex-shrink-0">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-300 to-pink-400 flex items-center justify-center text-sm">
-                          {channel.emoji}
+                        <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${channel.avatar || "from-gray-300 to-gray-400"} flex items-center justify-center text-white text-[10px] font-bold`}>
+                          {getInitials(channel.name)}
                         </div>
                         <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 ${pi.color} rounded-full flex items-center justify-center border-2 border-white`}>
                           <span className="text-white text-[6px]">{pi.icon}</span>
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{channel.handle || channel.name}</p>
-                        <p className="text-xs text-gray-500">{channel.followers} followers</p>
+                        <p className="text-sm font-medium text-gray-900 truncate">{channel.handle}</p>
+                        <p className="text-xs text-gray-500">{formatFollowers(channel)}</p>
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); toggleChannel(channel.id); }}
@@ -624,11 +684,6 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
     </div>
   );
 };
-
-// ============================================================
-// VIDEOS PAGE (Feed & Vault)
-// ============================================================
-
 const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoDetail }) => {
   const [activeTab, setActiveTab] = useState("feed");
   const [viewsFilter, setViewsFilter] = useState("all");
@@ -831,8 +886,8 @@ const VideoDetailPage = ({ video, setSelectedVideoDetail, savedVideos, setSavedV
 
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-xl">
-                {SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.emoji}
+              <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.avatar || "from-gray-300 to-gray-400"} flex items-center justify-center text-white text-sm font-bold`}>
+                {(() => { const ch = SAMPLE_CHANNELS.find(c => c.id === video.channelId); return ch ? ch.name.split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase() : "?"; })()}
               </div>
               <div className="flex-1">
                 <h2 className="font-bold text-gray-900">{video.channel}</h2>
