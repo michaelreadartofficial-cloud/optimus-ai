@@ -7,7 +7,7 @@ import { Search, TrendingUp, Zap, BookOpen, Archive, Settings, Eye, ThumbsUp, Me
 
 const SAMPLE_VIDEOS = [
   { id: 1, title: "I Tried Living on $1 for 24 Hours", channel: "Ryan Trahan", platform: "YouTube Shorts", views: "48.2M", likes: "2.1M", comments: "45K", outlierScore: 28.5, uploadDate: "3 days ago", duration: "0:58", emoji: "🎬", niche: "Lifestyle", hook: "What if I told you that you could survive an entire day on just one dollar?", transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop — the dollar store..." },
-  { id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", platform: "TikTok", views: "12.7M", likes: "890K", comments: "23K", outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", emoji: "🧀", niche: "Education", hook: "Stop using the word 'very'. Here's what smart people say instead.", transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'. Instead of 'very happy', say 'ecstatic'..." },
+  { id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", platform: "TikTok", views: "12.7M", likes: "890K", comments: "23K", outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", emoji: "🧠", niche: "Education", hook: "Stop using the word 'very'. Here's what smart people say instead.", transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'. Instead of 'very happy', say 'ecstatic'..." },
   { id: 3, title: "POV: You Finally Quit Your 9-5", channel: "Alex Hormozi", platform: "Instagram Reels", views: "8.4M", likes: "620K", comments: "18K", outlierScore: 12.8, uploadDate: "5 days ago", duration: "0:45", emoji: "💼", niche: "Business", hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.", transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one — I made zero dollars. Month two — still zero..." },
   { id: 4, title: "The Psychology Behind Why You Can't Stop Scrolling", channel: "Ali Abdaal", platform: "YouTube Shorts", views: "22.1M", likes: "1.5M", comments: "34K", outlierScore: 19.3, uploadDate: "2 days ago", duration: "0:52", emoji: "📱", niche: "Psychology", hook: "Your phone is literally designed to be addictive. Here's the science behind it.", transcript: "Your phone is literally designed to be addictive. Here's the science behind it. It's called variable ratio reinforcement — the same psychology behind slot machines..." },
   { id: 5, title: "I Asked 100 Millionaires Their #1 Habit", channel: "Mark Tilbury", platform: "TikTok", views: "31.5M", likes: "1.8M", comments: "52K", outlierScore: 24.1, uploadDate: "4 days ago", duration: "0:41", emoji: "💰", niche: "Finance", hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.", transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing. It wasn't waking up at 5am. It wasn't cold showers. It was this one simple habit..." },
@@ -525,53 +525,55 @@ const CreatorDetailPage = ({ creator, setPage, setPageState }) => {
 };
 
 const ChannelsPage = ({ setPage, setSelectedCreator }) => {
-  const [urlInput, setUrlInput] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [trackedCreators, setTrackedCreators] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
+  const [watchlist, setWatchlist] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [activeTab, setActiveTab] = useState("suggestions");
+  const [visibleCount, setVisibleCount] = useState(20);
+  const [accountSize, setAccountSize] = useState("all");
+  const [showSizeDropdown, setShowSizeDropdown] = useState(false);
 
-  const searchCreators = async () => {
-    if (!urlInput.trim()) return;
+  const searchCreators = async (q) => {
+    const query = q || searchInput;
+    if (!query.trim()) return;
     setIsLoading(true);
     setError(null);
-    setSearchResults([]);
+    setSuggestions([]);
     setHasSearched(true);
+    setActiveTab("suggestions");
+    setVisibleCount(20);
     try {
       const results = [];
-      // Search YouTube and Instagram in parallel for speed
       const [ytRes, igRes] = await Promise.all([
         fetch("/api/search-creators", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: urlInput }),
+          body: JSON.stringify({ query }),
         }).catch(e => null),
         fetch("/api/search-creators-instagram", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: urlInput }),
+          body: JSON.stringify({ query }),
         }).catch(e => null),
       ]);
-
       if (ytRes) {
         try {
           const ytData = await ytRes.json();
           if (ytRes.ok && ytData.creators) results.push(...ytData.creators);
-        } catch(e) { console.error("YouTube parse error:", e); }
+        } catch(e) {}
       }
-
       if (igRes) {
         try {
           const igData = await igRes.json();
           if (igRes.ok && igData.creators) results.push(...igData.creators);
-        } catch(e) { console.error("Instagram parse error:", e); }
+        } catch(e) {}
       }
-
-      // Sort by follower count
       results.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
-      setSearchResults(results);
-      if (results.length === 0) setError("No creators found. Try a different search term.");
+      setSuggestions(results);
+      if (results.length === 0) setError("No creators found. Try a different niche or handle.");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -579,18 +581,17 @@ const ChannelsPage = ({ setPage, setSelectedCreator }) => {
     }
   };
 
-  const addCreator = (creator) => {
-    if (!trackedCreators.find(c => c.id === creator.id && c.platform === creator.platform)) {
-      setTrackedCreators(prev => [...prev, creator]);
+  const addToWatchlist = (creator) => {
+    if (!watchlist.find(c => c.id === creator.id && c.platform === creator.platform)) {
+      setWatchlist(prev => [...prev, creator]);
     }
   };
 
-  const isTracked = (creator) => trackedCreators.some(c => c.id === creator.id && c.platform === creator.platform);
-
-  const handleCreatorClick = (creator) => {
-    setSelectedCreator(creator);
-    setPage("creator-detail");
+  const removeFromWatchlist = (creator) => {
+    setWatchlist(prev => prev.filter(c => !(c.id === creator.id && c.platform === creator.platform)));
   };
+
+  const isInWatchlist = (creator) => watchlist.some(c => c.id === creator.id && c.platform === creator.platform);
 
   const platformIcon = (platform) => {
     if (!platform) return null;
@@ -612,99 +613,212 @@ const ChannelsPage = ({ setPage, setSelectedCreator }) => {
     return null;
   };
 
+  const sizeRanges = {
+    all: { label: "All sizes", min: 0, max: Infinity },
+    nano: { label: "Nano (1K-10K)", min: 1000, max: 10000 },
+    micro: { label: "Micro (10K-100K)", min: 10000, max: 100000 },
+    mid: { label: "Mid (100K-500K)", min: 100000, max: 500000 },
+    macro: { label: "Macro (500K-1M)", min: 500000, max: 1000000 },
+    mega: { label: "Mega (1M+)", min: 1000000, max: Infinity },
+  };
+
+  const filteredSuggestions = suggestions.filter(c => {
+    if (accountSize === "all") return true;
+    const range = sizeRanges[accountSize];
+    return c.subscriberCount >= range.min && c.subscriberCount < range.max;
+  });
+
+  const fallbackImg = (size) => `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'%3E%3Crect width='${size}' height='${size}' rx='${size/2}' fill='%23374151'/%3E%3Ctext x='${size/2}' y='${size*0.62}' text-anchor='middle' font-size='${size*0.38}' fill='%236b7280'%3E%3F%3C/text%3E%3C/svg%3E`;
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-extrabold text-gray-900">Tracked Creators</h1>
-        <p className="text-gray-500 mt-1">Search for creators across YouTube and Instagram to track and analyze.</p>
-      </div>
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-        <div className="flex gap-3">
-          <input type="text" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && searchCreators()} placeholder="Search for a creator by name or niche..." className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300" />
-          <button onClick={searchCreators} disabled={isLoading || !urlInput.trim()} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
-            {isLoading ? <><RefreshCw size={14} className="animate-spin" /> Searching...</> : <><Search size={14} /> Search</>}
+    <div className="flex gap-6">
+      {/* Main Content — Left Panel */}
+      <div className="flex-1 min-w-0">
+        <div className="mb-5">
+          <h1 className="text-3xl font-extrabold text-gray-900">Channels</h1>
+          <p className="text-gray-500 mt-1">Pick which channels to include in your videos feed</p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm mb-5">
+          <input
+            type="text" value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && searchCreators()}
+            placeholder="Describe your content, or find a channel by handle"
+            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 mb-3"
+          />
+          <div className="flex items-center gap-2">
+            {/* Account Size Filter */}
+            <div className="relative">
+              <button onClick={() => setShowSizeDropdown(!showSizeDropdown)} className="bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
+                {sizeRanges[accountSize].label} <ChevronDown size={12} />
+              </button>
+              {showSizeDropdown && (
+                <div className="absolute top-full left-0 mt-1 bg-white rounded-xl border border-gray-200 shadow-lg z-20 py-1 w-48">
+                  {Object.entries(sizeRanges).map(([key, val]) => (
+                    <button key={key} onClick={() => { setAccountSize(key); setShowSizeDropdown(false); }} className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors ${accountSize === key ? "text-pink-600 font-bold bg-pink-50" : "text-gray-600"}`}>
+                      {val.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button onClick={() => searchCreators()} disabled={isLoading || !searchInput.trim()} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ml-auto">
+              {isLoading ? <><RefreshCw size={12} className="animate-spin" /> Searching...</> : <><Search size={12} /> Search</>}
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs: Suggestions / Watchlist */}
+        <div className="flex items-center gap-1 mb-4">
+          <button onClick={() => setActiveTab("suggestions")} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "suggestions" ? "bg-white text-gray-900 shadow-sm border border-gray-200" : "text-gray-400 hover:text-gray-600"}`}>
+            Suggestions {hasSearched && suggestions.length > 0 && <span className="ml-1 text-xs text-gray-400">({filteredSuggestions.length})</span>}
+          </button>
+          <button onClick={() => setActiveTab("watchlist")} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "watchlist" ? "bg-white text-gray-900 shadow-sm border border-gray-200" : "text-gray-400 hover:text-gray-600"}`}>
+            Watchlist {watchlist.length > 0 && <span className="ml-1 text-xs text-gray-400">({watchlist.length})</span>}
           </button>
         </div>
-        {error && <div className="mt-3 bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
 
-        {/* Search Results */}
-        {isLoading && (
-          <div className="text-center py-8">
-            <RefreshCw size={18} className="animate-spin text-gray-400 mx-auto mb-2" />
-            <p className="text-gray-400 text-sm">Searching YouTube and Instagram...</p>
-          </div>
-        )}
-        {!isLoading && searchResults.length > 0 && (
-          <div className="mt-4 space-y-2 max-h-80 overflow-y-auto">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Results - click to track</p>
-            {searchResults.map((creator, i) => (
-              <div key={creator.id + (creator.platform || "") + i} onClick={() => addCreator(creator)} className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${isTracked(creator) ? "bg-green-50 border-green-200" : "bg-gray-50 border-gray-100 hover:bg-gray-100 hover:border-gray-200"}`}>
-                <img src={creator.thumbnail} alt={creator.name} className="w-10 h-10 rounded-full object-cover bg-gray-200" onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect width='40' height='40' rx='20' fill='%23f3f4f6'/%3E%3Ctext x='20' y='25' text-anchor='middle' font-size='14' fill='%239ca3af'%3E%3F%3C/text%3E%3C/svg%3E"; }} />
-                <div className="flex items-center gap-2">
-                  {platformIcon(creator.platform)}
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">{creator.username || creator.name}</p>
-                    <p className="text-xs text-gray-400">{creator.subscribers || "N/A"}{(creator.subscribers && creator.subscribers.toString().toLowerCase().includes("followers")) ? "" : " followers"}</p>
-                  </div>
+        {error && <div className="mb-4 bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
+
+        {/* SUGGESTIONS TAB */}
+        {activeTab === "suggestions" && (
+          <>
+            {isLoading && (
+              <div className="text-center py-12">
+                <RefreshCw size={24} className="animate-spin text-pink-400 mx-auto mb-3" />
+                <p className="text-gray-400 text-sm">Discovering creators in this niche...</p>
+                <p className="text-gray-300 text-xs mt-1">Searching YouTube & Instagram</p>
+              </div>
+            )}
+            {!isLoading && filteredSuggestions.length > 0 && (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  {filteredSuggestions.slice(0, visibleCount).map((creator, i) => (
+                    <div key={creator.id + (creator.platform || "") + i}
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${isInWatchlist(creator) ? "bg-green-50 border-green-200" : "bg-white border-gray-100 hover:border-pink-200 hover:shadow-sm"}`}
+                      onClick={() => addToWatchlist(creator)}
+                    >
+                      <img src={creator.thumbnail} alt={creator.name} className="w-10 h-10 rounded-full object-cover bg-gray-700 flex-shrink-0"
+                        onError={(e) => { e.target.src = fallbackImg(40); }} />
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        {platformIcon(creator.platform)}
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-gray-900 truncate">{creator.username || creator.name}</p>
+                          <p className="text-xs text-gray-400">{creator.subscribers} {creator.platform?.includes("YouTube") ? "subscribers" : "followers"}</p>
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0 ml-auto">
+                        {isInWatchlist(creator) ? (
+                          <span className="text-green-500 text-xs font-semibold">Added</span>
+                        ) : (
+                          <span className="text-gray-300 group-hover:text-pink-400 transition-colors"><Plus size={16} /></span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="ml-auto">
-                  {isTracked(creator) ? (
-                    <span className="text-green-600 text-xs font-semibold flex items-center gap-1"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Tracked</span>
-                  ) : (
-                    <span className="text-gray-400 text-xs font-medium">+ Add</span>
-                  )}
+                {visibleCount < filteredSuggestions.length && (
+                  <div className="text-center mt-4">
+                    <button onClick={() => setVisibleCount(prev => prev + 20)} className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2 rounded-xl text-sm font-medium transition-colors">
+                      Load more ({filteredSuggestions.length - visibleCount} remaining)
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+            {!isLoading && hasSearched && filteredSuggestions.length === 0 && !error && (
+              <div className="text-center py-10">
+                <Users size={32} className="text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-400 text-sm">No creators found matching that filter. Try a different size or niche.</p>
+              </div>
+            )}
+            {!hasSearched && (
+              <div className="text-center py-16">
+                <Search size={40} className="text-gray-300 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Find creators in any niche</h3>
+                <p className="text-gray-400 text-sm max-w-md mx-auto mb-6">Describe your content or search by niche to discover channels making viral short-form content.</p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {["fitness", "cooking", "finance", "tech", "travel", "beauty", "gaming", "motivation"].map(niche => (
+                    <button key={niche} onClick={() => { setSearchInput(niche); searchCreators(niche); }} className="bg-gray-100 hover:bg-pink-50 hover:text-pink-600 text-gray-500 px-4 py-2 rounded-full text-sm font-medium transition-all capitalize">
+                      {niche}
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
-        {!isLoading && hasSearched && searchResults.length === 0 && !error && (
-          <div className="text-center py-6">
-            <p className="text-gray-400 text-sm">No creators found. Try a different search.</p>
-          </div>
+
+        {/* WATCHLIST TAB (main panel view) */}
+        {activeTab === "watchlist" && (
+          <>
+            {watchlist.length > 0 ? (
+              <div className="grid grid-cols-2 gap-3">
+                {watchlist.map((creator, i) => (
+                  <div key={creator.id + (creator.platform || "") + i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:border-pink-200 hover:shadow-sm transition-all cursor-pointer group">
+                    <img src={creator.thumbnail} alt={creator.name} className="w-10 h-10 rounded-full object-cover bg-gray-700 flex-shrink-0" onError={(e) => { e.target.src = fallbackImg(40); }} />
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      {platformIcon(creator.platform)}
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-gray-900 truncate">{creator.username || creator.name}</p>
+                        <p className="text-xs text-gray-400">{creator.subscribers} {creator.platform?.includes("YouTube") ? "subscribers" : "followers"}</p>
+                      </div>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); removeFromWatchlist(creator); }} className="text-gray-300 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-50 flex-shrink-0 transition-colors"><X size={14} /></button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <Bookmark size={40} className="text-gray-300 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Your watchlist is empty</h3>
+                <p className="text-gray-400 text-sm max-w-md mx-auto">Search for creators and click them to add to your watchlist. Their content will appear in your videos feed.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Tracked Creators List */}
-      {trackedCreators.length > 0 && (
-        <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-3">Your Tracked Creators ({trackedCreators.length})</h2>
-          <div className="grid gap-3">
-            {trackedCreators.map((creator, i) => (
-              <div key={creator.id + (creator.platform || "") + i} onClick={() => handleCreatorClick(creator)} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:border-pink-200 transition-all cursor-pointer group">
-                <div className="flex items-center gap-4">
-                  <img src={creator.thumbnail} alt={creator.name} className="w-14 h-14 rounded-full object-cover bg-gray-100" onError={(e) => { e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Crect width='56' height='56' rx='28' fill='%23f3f4f6'/%3E%3Ctext x='28' y='33' text-anchor='middle' font-size='20' fill='%239ca3af'%3E%3F%3C/text%3E%3C/svg%3E"; }} />
-                  <div className="flex-1">
-                    <h3 className="text-gray-900 font-bold group-hover:text-pink-600 transition-colors">{creator.username || creator.name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      {platformIcon(creator.platform)}
-                      <span className="text-xs text-gray-400">{creator.platform}</span>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-6 text-center">
-                    <div>
-                      <div className="text-gray-900 font-extrabold text-sm">{creator.subscribers || "N/A"}</div>
-                      <div className="text-gray-400 text-xs">{creator.platform && creator.platform.includes("Instagram") ? "Followers" : "Subscribers"}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-900 font-extrabold text-sm">{creator.videoCount || "N/A"}</div>
-                      <div className="text-gray-400 text-xs">Videos</div>
-                    </div>
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); setTrackedCreators(prev => prev.filter(c => !(c.id === creator.id && c.platform === creator.platform))); }} className="text-gray-300 hover:text-red-400 p-2 rounded-lg hover:bg-gray-50"><X size={14} /></button>
-                </div>
-              </div>
-            ))}
+      {/* Right Sidebar — Your Watchlist */}
+      <div className="w-72 flex-shrink-0 hidden lg:block">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm sticky top-4">
+          <div className="p-4 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-gray-900">Your Watchlist</h3>
+              {watchlist.length > 0 && (
+                <button onClick={() => setWatchlist([])} className="text-xs text-gray-400 hover:text-red-400 transition-colors">Remove all</button>
+              )}
+            </div>
           </div>
+          <div className="max-h-[calc(100vh-220px)] overflow-y-auto p-2">
+            {watchlist.length > 0 ? watchlist.map((creator, i) => (
+              <div key={creator.id + (creator.platform || "") + i} className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 transition-colors group">
+                <img src={creator.thumbnail} alt={creator.name} className="w-9 h-9 rounded-full object-cover bg-gray-700 flex-shrink-0" onError={(e) => { e.target.src = fallbackImg(36); }} />
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                  {platformIcon(creator.platform)}
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-gray-900 truncate">{creator.username || creator.name}</p>
+                    <p className="text-xs text-gray-400">{creator.subscribers} {creator.platform?.includes("YouTube") ? "subscribers" : "followers"}</p>
+                  </div>
+                </div>
+                <button onClick={() => removeFromWatchlist(creator)} className="text-gray-200 hover:text-red-400 p-1 rounded opacity-0 group-hover:opacity-100 transition-all"><X size={12} /></button>
+              </div>
+            )) : (
+              <div className="text-center py-8 px-3">
+                <Users size={20} className="text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-400 text-xs">Search for creators and add them to your watchlist</p>
+              </div>
+            )}
+          </div>
+          {watchlist.length > 0 && (
+            <div className="p-3 border-t border-gray-100">
+              <p className="text-xs text-gray-400 text-center">{watchlist.length} / 100 channels</p>
+            </div>
+          )}
         </div>
-      )}
-      {trackedCreators.length === 0 && !hasSearched && (
-        <div className="text-center py-16">
-          <Users size={40} className="text-gray-300 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-gray-900 mb-2">No creators tracked yet</h3>
-          <p className="text-gray-400 text-sm max-w-md mx-auto">Search for creators above to find and track them. Results will include both YouTube and Instagram creators.</p>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
