@@ -169,12 +169,24 @@ const SAMPLE_VIDEOS = [
 ];
 
 const SAMPLE_CHANNELS = [
-  { id: 1, name: "Ryan Trahan", platform: "YouTube Shorts", subscribers: "12.4M", avgViews: "5.2M", videos: 342, niche: "Lifestyle", emoji: "🎬" },
-  { id: 2, name: "Ali Abdaal", platform: "YouTube Shorts", subscribers: "5.8M", avgViews: "1.8M", videos: 520, niche: "Productivity", emoji: "📚" },
-  { id: 3, name: "Alex Hormozi", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "2.1M", videos: 890, niche: "Business", emoji: "💪" },
-  { id: 4, name: "Mark Tilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", videos: 1200, niche: "Finance", emoji: "💰" },
-  { id: 5, name: "Dr. Mike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", videos: 650, niche: "Health", emoji: "🩺" },
-  { id: 6, name: "Jade Bowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", videos: 280, niche: "Education", emoji: "🧠" },
+  { id: 1, name: "Ryan Trahan", handle: "ryantrahan", platform: "YouTube Shorts", subscribers: "12.4M", avgViews: "5.2M", followers: "12.4M", videos: 342, niche: "Lifestyle", emoji: "🎬", size: "large" },
+  { id: 2, name: "Ali Abdaal", handle: "aliabdaal", platform: "YouTube Shorts", subscribers: "5.8M", avgViews: "1.8M", followers: "5.8M", videos: 520, niche: "Productivity", emoji: "📚", size: "large" },
+  { id: 3, name: "Alex Hormozi", handle: "alexhormozi", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "2.1M", followers: "3.2M", videos: 890, niche: "Business", emoji: "💪", size: "large" },
+  { id: 4, name: "Mark Tilbury", handle: "marktilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", followers: "8.1M", videos: 1200, niche: "Finance", emoji: "💰", size: "large" },
+  { id: 5, name: "Dr. Mike", handle: "doctormike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", followers: "11.2M", videos: 650, niche: "Health", emoji: "🩺", size: "large" },
+  { id: 6, name: "Jade Bowler", handle: "jadebowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", followers: "1.9M", videos: 280, niche: "Education", emoji: "🧠", size: "large" },
+  { id: 7, name: "falkefit", handle: "falkefit", platform: "Instagram Reels", subscribers: "339K", avgViews: "120K", followers: "339K", videos: 412, niche: "Fitness", emoji: "💪", size: "medium" },
+  { id: 8, name: "thedolcediet", handle: "thedolcediet", platform: "Instagram Reels", subscribers: "247K", avgViews: "85K", followers: "247K", videos: 310, niche: "Health", emoji: "🥗", size: "medium" },
+  { id: 9, name: "jonmango", handle: "jonmango", platform: "TikTok", subscribers: "36K", avgViews: "15K", followers: "36K", videos: 189, niche: "Lifestyle", emoji: "🎯", size: "small" },
+  { id: 10, name: "k.squared.fitness", handle: "k.squared.fitness", platform: "Instagram Reels", subscribers: "64K", avgViews: "22K", followers: "64K", videos: 245, niche: "Fitness", emoji: "🏋️", size: "small" },
+  { id: 11, name: "thebeastwithin9", handle: "thebeastwithin9", platform: "TikTok", subscribers: "52K", avgViews: "18K", followers: "52K", videos: 320, niche: "Fitness", emoji: "🔥", size: "small" },
+  { id: 12, name: "anthonyanisimov", handle: "anthonyanisimov", platform: "Instagram Reels", subscribers: "216K", avgViews: "72K", followers: "216K", videos: 198, niche: "Business", emoji: "📈", size: "medium" },
+  { id: 13, name: "alexdeajue", handle: "alexdeajue", platform: "TikTok", subscribers: "50K", avgViews: "20K", followers: "50K", videos: 156, niche: "Fitness", emoji: "🏃", size: "small" },
+  { id: 14, name: "atrevinostrength", handle: "atrevinostrength", platform: "Instagram Reels", subscribers: "95K", avgViews: "32K", followers: "95K", videos: 278, niche: "Fitness", emoji: "💪", size: "small" },
+  { id: 15, name: "coach_jramfit", handle: "coach_jramfit", platform: "TikTok", subscribers: "38K", avgViews: "14K", followers: "38K", videos: 210, niche: "Fitness", emoji: "🏆", size: "small" },
+  { id: 16, name: "ryan_fitch07", handle: "ryan_fitch07", platform: "Instagram Reels", subscribers: "43K", avgViews: "16K", followers: "43K", videos: 167, niche: "Fitness", emoji: "⚡", size: "small" },
+  { id: 17, name: "tombaileypt", handle: "tombaileypt", platform: "TikTok", subscribers: "89K", avgViews: "30K", followers: "89K", videos: 345, niche: "Fitness", emoji: "🎯", size: "small" },
+  { id: 18, name: "ollierhoda", handle: "ollierhoda", platform: "Instagram Reels", subscribers: "243K", avgViews: "80K", followers: "243K", videos: 290, niche: "Fitness", emoji: "💥", size: "medium" },
 ];
 
 const SAMPLE_WATCHLISTS = [
@@ -388,201 +400,225 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
 
 const ChannelsPage = ({ watchlists, setWatchlists }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedChannel, setSelectedChannel] = useState(null);
-  const [newWatchlistName, setNewWatchlistName] = useState("");
-  const [showNewWatchlist, setShowNewWatchlist] = useState(false);
-  const [selectedWatchlist, setSelectedWatchlist] = useState(null);
+  const [platformFilter, setPlatformFilter] = useState("all");
+  const [sizeFilter, setSizeFilter] = useState("all");
+  const [myChannels, setMyChannels] = useState(() => {
+    const ids = new Set();
+    watchlists.forEach(w => w.channels.forEach(id => ids.add(id)));
+    return [...ids];
+  });
+  const [platformDropdownOpen, setPlatformDropdownOpen] = useState(false);
+  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
 
-  const filteredChannels = SAMPLE_CHANNELS.filter(c =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.niche.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleAddChannelToWatchlist = (watchlistId, channelId) => {
-    setWatchlists(watchlists.map(w =>
-      w.id === watchlistId
-        ? { ...w, channels: [...new Set([...w.channels, channelId])] }
-        : w
-    ));
-    setSelectedChannel(null);
+  const platformIcon = (platform) => {
+    if (platform === "YouTube Shorts") return { color: "bg-red-500", icon: "▶" };
+    if (platform === "TikTok") return { color: "bg-black", icon: "♪" };
+    if (platform === "Instagram Reels") return { color: "bg-gradient-to-br from-purple-500 to-pink-500", icon: "📷" };
+    return { color: "bg-gray-400", icon: "?" };
   };
 
-  const handleCreateWatchlist = () => {
-    if (newWatchlistName.trim()) {
-      setWatchlists([...watchlists, { id: Date.now(), name: newWatchlistName, channels: [] }]);
-      setNewWatchlistName("");
-      setShowNewWatchlist(false);
+  const filteredChannels = SAMPLE_CHANNELS.filter(c => {
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      const matches = c.name.toLowerCase().includes(term) ||
+        c.handle.toLowerCase().includes(term) ||
+        c.niche.toLowerCase().includes(term);
+      if (!matches) return false;
     }
+    if (platformFilter !== "all" && c.platform !== platformFilter) return false;
+    if (sizeFilter !== "all" && c.size !== sizeFilter) return false;
+    return true;
+  });
+
+  const toggleChannel = (channelId) => {
+    setMyChannels(prev =>
+      prev.includes(channelId) ? prev.filter(id => id !== channelId) : [...prev, channelId]
+    );
   };
 
-  const watchlistChannels = selectedWatchlist
-    ? SAMPLE_CHANNELS.filter(c => selectedWatchlist.channels.includes(c.id))
-    : [];
+  const handleSave = () => {
+    setWatchlists(prev => {
+      if (prev.length === 0) return [{ id: 1, name: "My Watchlist", channels: [...myChannels] }];
+      return prev.map((w, i) => i === 0 ? { ...w, channels: [...myChannels] } : w);
+    });
+  };
+
+  const watchlistChannelData = myChannels.map(id => SAMPLE_CHANNELS.find(c => c.id === id)).filter(Boolean);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-3xl font-extrabold text-gray-900">Channels</h1>
-        <p className="text-gray-500 mt-1">Discover creators and organize them into watchlists to track their content.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Channels</h1>
+        <p className="text-gray-500 mt-1 text-sm">Pick which channels to include in your videos feed</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        {/* Search & Results */}
-        <div className="col-span-2 space-y-6">
+      <div className="flex gap-6">
+        {/* Main Content */}
+        <div className="flex-1 space-y-5">
           {/* Search Bar */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-            <div className="relative">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by creator name or niche..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300"
-              />
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Describe your content, or find a channel by handle"
+              className="w-full bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+            />
+            <div className="flex items-center gap-3 mt-3">
+              {/* Platform Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => { setPlatformDropdownOpen(!platformDropdownOpen); setSizeDropdownOpen(false); }}
+                  className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Platform
+                  <ChevronDown size={14} className={`transition-transform ${platformDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+                {platformDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
+                    {["all", "YouTube Shorts", "TikTok", "Instagram Reels"].map(p => (
+                      <button
+                        key={p}
+                        onClick={() => { setPlatformFilter(p); setPlatformDropdownOpen(false); }}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${platformFilter === p ? "text-pink-600 font-medium bg-pink-50" : "text-gray-700"}`}
+                      >
+                        {p === "all" ? "All Platforms" : p}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Account Size Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => { setSizeDropdownOpen(!sizeDropdownOpen); setPlatformDropdownOpen(false); }}
+                  className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Account size
+                  <ChevronDown size={14} className={`transition-transform ${sizeDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+                {sizeDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
+                    {[
+                      { value: "all", label: "All Sizes" },
+                      { value: "small", label: "Small (< 100K)" },
+                      { value: "medium", label: "Medium (100K - 1M)" },
+                      { value: "large", label: "Large (1M+)" },
+                    ].map(s => (
+                      <button
+                        key={s.value}
+                        onClick={() => { setSizeFilter(s.value); setSizeDropdownOpen(false); }}
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${sizeFilter === s.value ? "text-pink-600 font-medium bg-pink-50" : "text-gray-700"}`}
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1" />
+              <button
+                onClick={() => {}}
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Search <ArrowRight size={14} />
+              </button>
             </div>
           </div>
 
-          {/* Channels Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {filteredChannels.map(channel => (
-              <div
-                key={channel.id}
-                onClick={() => setSelectedChannel(channel)}
-                className={`bg-white rounded-2xl border-2 p-4 cursor-pointer transition-all ${selectedChannel?.id === channel.id ? "border-pink-500 shadow-md" : "border-gray-100 hover:border-gray-200"}`}
-              >
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-xl">{channel.emoji}</div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 text-sm">{channel.name}</h3>
-                    <p className="text-xs text-gray-500">{channel.niche}</p>
-                  </div>
-                </div>
-                <PlatformBadge platform={channel.platform} />
-                <div className="mt-3 text-xs text-gray-600 space-y-1">
-                  <p><Users size={11} className="inline mr-1" />{channel.subscribers} subscribers</p>
-                  <p><Eye size={11} className="inline mr-1" />{channel.avgViews} avg views</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Watchlists & Channel Detail */}
-        <div className="space-y-6">
-          {/* Watchlists */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-gray-900">Your Watchlists</h2>
-              <button
-                onClick={() => setShowNewWatchlist(!showNewWatchlist)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Plus size={16} />
+          {/* Suggestions Label */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Suggestions</p>
+              <button className="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-600 transition-colors">
+                <AlertCircle size={13} />
+                How to add channels to Optimus
               </button>
             </div>
 
-            {showNewWatchlist && (
-              <div className="mb-4 pb-4 border-b border-gray-100">
-                <input
-                  type="text"
-                  value={newWatchlistName}
-                  onChange={(e) => setNewWatchlistName(e.target.value)}
-                  placeholder="Watchlist name..."
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2"
-                />
-                <div className="flex gap-2">
+            {/* Channels Grid — Sandcastles style */}
+            <div className="grid grid-cols-2 gap-3">
+              {filteredChannels.map(channel => {
+                const pi = platformIcon(channel.platform);
+                const isAdded = myChannels.includes(channel.id);
+                return (
                   <button
-                    onClick={handleCreateWatchlist}
-                    className="flex-1 bg-pink-500 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-pink-600"
+                    key={channel.id}
+                    onClick={() => toggleChannel(channel.id)}
+                    className={`flex items-center gap-3 p-3 rounded-xl border-2 text-left transition-all ${isAdded ? "border-pink-400 bg-pink-50" : "border-gray-100 bg-white hover:border-gray-200"}`}
                   >
-                    Create
+                    <div className="relative flex-shrink-0">
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-300 to-pink-400 flex items-center justify-center text-lg">
+                        {channel.emoji}
+                      </div>
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${pi.color} rounded-full flex items-center justify-center border-2 border-white`}>
+                        <span className="text-white text-[7px]">{pi.icon}</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">{channel.handle || channel.name}</p>
+                      <p className="text-xs text-gray-500">{channel.followers} followers</p>
+                    </div>
+                    {isAdded && <Check size={16} className="text-pink-500 flex-shrink-0" />}
                   </button>
-                  <button
-                    onClick={() => { setShowNewWatchlist(false); setNewWatchlistName(""); }}
-                    className="flex-1 bg-gray-100 text-gray-600 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-gray-200"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              {watchlists.map(wl => (
-                <button
-                  key={wl.id}
-                  onClick={() => setSelectedWatchlist(wl)}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-all ${selectedWatchlist?.id === wl.id ? "bg-pink-50 border border-pink-200" : "hover:bg-gray-50 border border-transparent"}`}
-                >
-                  <p className="text-sm font-semibold text-gray-900">{wl.name}</p>
-                  <p className="text-xs text-gray-500">{wl.channels.length} channels</p>
-                </button>
-              ))}
+                );
+              })}
             </div>
           </div>
+        </div>
 
-          {/* Channel Detail or Watchlist View */}
-          {selectedChannel && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-              <div className="mb-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-2xl mb-3">{selectedChannel.emoji}</div>
-                <h3 className="font-bold text-gray-900">{selectedChannel.name}</h3>
-                <p className="text-sm text-gray-500 mt-1">{selectedChannel.subscribers} subscribers</p>
-              </div>
-
-              <div className="space-y-3 mb-4 pb-4 border-b border-gray-100 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Platform</span>
-                  <PlatformBadge platform={selectedChannel.platform} />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-gray-700 mb-2">Add to watchlist:</label>
-                {watchlists.map(wl => (
-                  <button
-                    key={wl.id}
-                    onClick={() => handleAddChannelToWatchlist(wl.id, selectedChannel.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${wl.channels.includes(selectedChannel.id) ? "bg-green-50 border border-green-200 text-green-700" : "bg-gray-50 border border-gray-200 hover:border-pink-300"}`}
-                  >
-                    <span className="font-medium">{wl.name}</span>
-                    {wl.channels.includes(selectedChannel.id) && <Check size={14} className="inline ml-2" />}
-                  </button>
-                ))}
+        {/* Right Sidebar — Your Watchlist */}
+        <div className="w-72 flex-shrink-0">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-gray-900">Your Watchlist</h2>
+              <div className="flex items-center gap-2">
+                <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
+                  <ExternalLink size={15} />
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors"
+                >
+                  Save
+                </button>
               </div>
             </div>
-          )}
 
-          {selectedWatchlist && !selectedChannel && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-              <h3 className="font-bold text-gray-900 mb-3">{selectedWatchlist.name}</h3>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {watchlistChannels.length > 0 ? (
-                  watchlistChannels.map(c => (
-                    <div key={c.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg text-sm">
-                      <span className="text-lg">{c.emoji}</span>
-                      <span className="font-medium text-gray-900 flex-1">{c.name}</span>
+            <div className="space-y-1 max-h-[calc(100vh-280px)] overflow-y-auto">
+              {watchlistChannelData.length > 0 ? (
+                watchlistChannelData.map(channel => {
+                  const pi = platformIcon(channel.platform);
+                  return (
+                    <div key={channel.id} className="flex items-center gap-3 py-2 px-1 hover:bg-gray-50 rounded-lg transition-colors group">
+                      <div className="relative flex-shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-300 to-pink-400 flex items-center justify-center text-sm">
+                          {channel.emoji}
+                        </div>
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 ${pi.color} rounded-full flex items-center justify-center border-2 border-white`}>
+                          <span className="text-white text-[6px]">{pi.icon}</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{channel.handle || channel.name}</p>
+                        <p className="text-xs text-gray-500">{channel.followers} followers</p>
+                      </div>
                       <button
-                        onClick={() => {
-                          setWatchlists(watchlists.map(w =>
-                            w.id === selectedWatchlist.id
-                              ? { ...w, channels: w.channels.filter(ch => ch !== c.id) }
-                              : w
-                          ));
-                        }}
-                        className="text-gray-400 hover:text-red-500"
+                        onClick={(e) => { e.stopPropagation(); toggleChannel(channel.id); }}
+                        className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all"
                       >
                         <X size={14} />
                       </button>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-xs text-gray-500 py-4 text-center">No channels yet. Add one above.</p>
-                )}
-              </div>
+                  );
+                })
+              ) : (
+                <p className="text-xs text-gray-400 py-8 text-center">Click channels on the left to add them to your watchlist</p>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
@@ -845,7 +881,7 @@ const VideoDetailPage = ({ video, setSelectedVideoDetail, savedVideos, setSavedV
                     { label: "Engagement Rate", value: `${video.engagement}%`, icon: ThumbsUp, color: "from-green-400 to-emerald-400" },
                     { label: "Likes", value: video.likes, icon: Heart, color: "from-red-400 to-pink-400" },
                     { label: "Comments", value: video.comments, icon: MessageCircle, color: "from-purple-400 to-blue-400" },
-                       { label: "Channel Followers", value: SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.subscribers || "N/A", icon: Users, color: "from-yellow-400 to-orange-400" },
+                    { label: "Channel Followers", value: SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.subscribers || "N/A", icon: Users, color: "from-yellow-400 to-orange-400" },
                   ].map((metric, i) => (
                     <div key={i} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
                       <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${metric.color} flex items-center justify-center mb-2`}>
