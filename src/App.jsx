@@ -445,133 +445,10 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
     return [...ids];
   });
   const [hasSearched, setHasSearched] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState(null);
 
-  const doSearch = async (query) => {
-    if (!query.trim()) return;
-    setLoading(true);
-    setError("");
-    setHasSearched(true);
-    try {
-      const results = [];
-
-      // Search YouTube
-      if (platformFilter === "all" || platformFilter === "YouTube Shorts") {
-        try {
-          const ytRes = await fetch("/api/search-creators", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: query.trim() }),
-          });
-          const ytData = await ytRes.json();
-          if (ytData.creators) results.push(...ytData.creators);
-          if (ytData.error) console.warn("YouTube:", ytData.error);
-        } catch (e) {
-          console.warn("YouTube search failed:", e);
-        }
-      }
-
-      // Search Instagram
-      if (platformFilter === "all" || platformFilter === "Instagram Reels") {
-        try {
-          const igRes = await fetch("/api/search-creators-instagram", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: query.trim() }),
-          });
-          const igData = await igRes.json();
-          if (igData.creators) results.push(...igData.creators);
-          if (igData.error) console.warn("Instagram:", igData.error);
-        } catch (e) {
-          console.warn("Instagram search failed:", e);
-        }
-      }
-
-      // Search TikTok
-      if (platformFilter === "all" || platformFilter === "TikTok") {
-        try {
-          const tkRes = await fetch("/api/search-creators-tiktok", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: query.trim() }),
-          });
-          const tkData = await tkRes.json();
-          if (tkData.creators) results.push(...tkData.creators);
-          if (tkData.error) console.warn("TikTok:", tkData.error);
-        } catch (e) {
-          console.warn("TikTok search failed:", e);
-        }
-      }
-
-      // Sort by subscriber count
-      results.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
-      setCreators(results);
-      if (results.length === 0) setError("No creators found. Try a different search term.");
-    } catch (err) {
-      setError("Search failed: " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    doSearch("fitness");
-  }, []);
-
-  const handleSearch = () => doSearch(searchTerm);
-  const handleKeyDown = (e) => { if (e.key === "Enter") handleSearch(); };
-
-  const platformIcon = (platform) => {
-    if (platform === "YouTube Shorts") return { color: "bg-red-500", icon: "\u25B6" };
-    if (platform === "TikTok") return { color: "bg-black", icon: "\u266A" };
-    if (platform === "Instagram Reels" || platform === "Instagram") return { color: "bg-gradient-to-br from-purple-500 to-pink-500", icon: "\uD83D\uDCF7" };
-    return { color: "bg-gray-400", icon: "?" };
-  };
-
-  const toggleChannel = (creator) => {
-    const cid = creator.id;
-    if (myChannels.includes(cid)) {
-      setMyChannels(prev => prev.filter(id => id !== cid));
-    } else {
-      setMyChannels(prev => [...prev, cid]);
-    }
-  };
-
-  const handleSave = () => {
-    setWatchlists(prev => {
-      if (prev.length === 0) return [{ id: 1, name: "My Watchlist", channels: [...myChannels] }];
-      return prev.map((w, i) => i === 0 ? { ...w, channels: [...myChannels] } : w);
-    });
-  };
-
-  const getInitials = (name) => name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
-
-  const watchlistCreators = myChannels.map(id => creators.find(c => c.id === id)).filter(Boolean);
-
-  return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Channels</h1>
-        <p className="text-gray-500 mt-1 text-sm">Search real creators across YouTube, Instagram & TikTok</p>
-      </div>
-
-      <div className="flex gap-6">
-        {/* Main Content */}
-        <div className="flex-1 space-y-5">
-          {/* Search Bar */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Search for creators by niche, name, or handle..."
-              className="w-full bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
-            />
-            <div className="flex items-center gap-3 mt-3">
-              {/* Platform Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setPlatformDropdownOpen(!platformDropdownOpen)}
+  const doSearch = aen)}
                   className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   {platformFilter === "all" ? "All Platforms" : platformFilter}
@@ -609,7 +486,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                 {loading ? "Searching platforms..." : hasSearched ? `${creators.length} creators found` : "SUGGESTIONS"}
               </p>
-              <button className="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-600 transition-colors">
+              <button onClick={() => setShowInfoModal(true)} className="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-600 transition-colors">
                 <AlertCircle size={13} />
                 How to add channels to Optimus
               </button>
@@ -642,10 +519,11 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                   const pi = platformIcon(creator.platform);
                   const isAdded = myChannels.includes(creator.id);
                   return (
-                    <button
+                    <div
                       key={creator.id}
-                      onClick={() => toggleChannel(creator)}
-                      className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all hover:shadow-sm ${isAdded ? "border-pink-400 bg-pink-50/50" : "border-gray-100 bg-white hover:border-gray-200"}`}
+                      onMouseEnter={() => setHoveredCard(creator.id)}
+                      onMouseLeave={() => setHoveredCard(null)}
+                      className={`relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all hover:shadow-sm ${isAdded ? "border-pink-400 bg-pink-50/50" : "border-gray-100 bg-white hover:border-gray-200"}`}
                     >
                       <div className="relative flex-shrink-0">
                         {creator.thumbnail ? (
@@ -667,8 +545,36 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                         <p className="text-sm font-semibold text-gray-900 truncate">{creator.username || creator.name}</p>
                         <p className="text-xs text-gray-500">{creator.subscribers} followers</p>
                       </div>
-                      {isAdded && <Check size={16} className="text-pink-500 flex-shrink-0" />}
-                    </button>
+                      {/* Hover action icons */}
+                      <div className={`flex items-center gap-1 transition-opacity ${hoveredCard === creator.id ? "opacity-100" : "opacity-0"}`}>
+                        <button
+                          onClick={() => findSimilar(creator)}
+                          title="Find similar creators"
+                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <RefreshCw size={15} />
+                        </button>
+                        {isAdded ? (
+                          <button
+                            onClick={() => toggleChannel(creator)}
+                            title="Remove from watchlist"
+                            className="p-1.5 rounded-lg hover:bg-red-50 text-pink-500 hover:text-red-500 transition-colors"
+                          >
+                            <Check size={15} />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => addToWatchlist(creator)}
+                            title="Add to watchlist"
+                            className="p-1.5 rounded-lg hover:bg-pink-50 text-gray-400 hover:text-pink-500 transition-colors"
+                          >
+                            <Plus size={15} />
+                          </button>
+                        )}
+                      </div>
+                      {/* Show check when added but not hovered */}
+                      {isAdded && hoveredCard !== creator.id && <Check size={16} className="text-pink-500 flex-shrink-0" />}
+                    </div>
                   );
                 })}
               </div>
@@ -726,12 +632,44 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                   );
                 })
               ) : (
-                <p className="text-xs text-gray-400 py-8 text-center">Click creators on the left to add them to your watchlist</p>
+                <p className="text-xs text-gray-400 py-8 text-center">Click the + icon on a creator card to add them to your watchlist</p>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Info Modal */}
+      {showInfoModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowInfoModal(false)}>
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 mb-4">How to add channels to Optimus</h3>
+            <p className="text-gray-600 text-sm mb-3">
+              Search for any creator by name, niche, or handle using the search bar above. Results are pulled live from YouTube, Instagram, and TikTok.
+            </p>
+            <p className="text-gray-600 text-sm mb-3">
+              Hover over any creator card and click the <span className="inline-flex items-center mx-0.5 text-pink-500 font-semibold">+</span> icon to add them to your watchlist. Use the <span className="inline-flex items-center mx-0.5 text-gray-600 font-semibold">&#8635;</span> icon to discover similar creators.
+            </p>
+            <p className="text-gray-600 text-sm mb-5">
+              Your watchlist is saved automatically. Channels you add will appear in the watchlist sidebar and feed.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowInfoModal(false)}
+                className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => { setShowInfoModal(false); document.querySelector('input[placeholder*="Search for creators"]')?.focus(); }}
+                className="px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Add a channel now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1580,6 +1518,96 @@ const SettingsPage = () => {
               </div>
 
               <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <h2 className="font-bold text-gray-900 mb-4">Usage Stats</h2>
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { label: "Channels tracked", value: "6", limit: "50" },
+                    { label: "Scripts this month", value: "0", limit: "100" },
+                    { label: "Vault items", value: "6", limit: "500" },
+                  ].map((stat, i) => (
+                    <div key={i} className="bg-gray-50 rounded-xl p-4">
+                      <p className="text-2xl font-bold text-gray-900">{stat.value}<span className="text-sm text-gray-400 font-normal">/{stat.limit}</span></p>
+                      <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+                      <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-orange-400 to-pink-500 rounded-full" style={{ width: `${(parseInt(stat.value) / parseInt(stat.limit)) * 100}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeSection === "notifications" && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="font-bold text-gray-900 mb-6">Notification Preferences</h2>
+              <div className="space-y-5">
+                {[
+                  { label: "Viral alerts", desc: "Get notified when outliers hit >20x", defaultOn: true },
+                  { label: "Weekly digest", desc: "Receive a weekly summary of top-performing videos", defaultOn: true },
+                  { label: "New uploads", desc: "Alerts when watchlisted channels post new videos", defaultOn: true },
+                  { label: "Trending hooks", desc: "Discover new high-performing hooks for your niche", defaultOn: false },
+                  { label: "Script suggestions", desc: "AI-powered content ideas based on your interests", defaultOn: false },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                    <div>
+                      <p className="font-medium text-gray-900">{item.label}</p>
+                      <p className="text-sm text-gray-500">{item.desc}</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked={item.defaultOn} className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeSection === "content" && (
+            <>
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <h2 className="font-bold text-gray-900 mb-4">Favorite Niches</h2>
+                <p className="text-sm text-gray-500 mb-4">Select the niches you're interested in for better recommendations.</p>
+                <div className="flex flex-wrap gap-2">
+                  {["Finance", "Business", "Health", "Travel", "Lifestyle", "Education", "Tech", "Food", "Fitness", "Psychology"].map((niche, i) => (
+                    <button key={niche} className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all ${i < 4 ? "bg-pink-100 text-pink-700 hover:bg-pink-200" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                      {niche} {i < 4 && <X size={12} />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <h2 className="font-bold text-gray-900 mb-4">Platform Preferences</h2>
+                <div className="space-y-3">
+                  {["YouTube Shorts", "TikTok", "Instagram Reels"].map(platform => (
+                    <div key={platform} className="flex items-center justify-between py-2">
+                      <PlatformBadge platform={platform} />
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" defaultChecked className="sr-only peer" />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <h2 className="font-bold text-gray-900 mb-4">Outlier Threshold</h2>
+                <p className="text-sm text-gray-500 mb-4">Minimum outlier score for alerts and feed highlighting.</p>
+                <div className="flex items-center gap-4">
+                  <input type="range" min="1" max="30" defaultValue="10" className="flex-1" />
+                  <span className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">10x</span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeSection === "api" && (
+            <>
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+lassName="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <h2 className="font-bold text-gray-900 mb-4">Usage Stats</h2>
                 <div className="grid grid-cols-3 gap-4">
                   {[
