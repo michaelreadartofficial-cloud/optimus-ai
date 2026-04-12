@@ -222,6 +222,7 @@ const SAMPLE_CHANNELS = [
   { id: 16, name: "Ryan Fitch", handle: "ryan_fitch07", platform: "Instagram Reels", subscribers: "43K", avgViews: "16K", followers: "43K", followersNum: 43000, videos: 167, niche: "Fitness", avatar: "from-orange-400 to-red-400", size: "small" },
   { id: 17, name: "Tom Bailey PT", handle: "tombaileypt", platform: "TikTok", subscribers: "89K", avgViews: "30K", followers: "89K", followersNum: 89000, videos: 345, niche: "Fitness", avatar: "from-sky-500 to-indigo-500", size: "small" },
 ];
+
 const SAMPLE_WATCHLISTS = [
   { id: 1, name: "AI & Tech", channels: [1, 2, 3] },
   { id: 2, name: "Finance & Business", channels: [3, 4] },
@@ -433,49 +434,90 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
 
 const ChannelsPage = ({ watchlists, setWatchlists }) => {
   const [searchTerm, setSearchTerm] = useState("fitness");
-  const [searchQuery, setSearchQuery] = useState("fitness");
+  const [creators, setCreators] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [platformFilter, setPlatformFilter] = useState("all");
-  const [sizeFilter, setSizeFilter] = useState("all");
+  const [platformDropdownOpen, setPlatformDropdownOpen] = useState(false);
   const [myChannels, setMyChannels] = useState(() => {
     const ids = new Set();
     watchlists.forEach(w => w.channels.forEach(id => ids.add(id)));
     return [...ids];
   });
-  const [platformDropdownOpen, setPlatformDropdownOpen] = useState(false);
-  const [sizeDropdownOpen, setSizeDropdownOpen] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const doSearch = async (query) => {
+    if (!query.trim()) return;
+    setLoading(true);
+    setError("");
+    setHasSearched(true);
+    try {
+      const results = [];
+
+      // Search YouTube
+      if (platformFilter === "all" || platformFilter === "YouTube Shorts") {
+        try {
+          const ytRes = await fetch("/api/search-creators", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: query.trim() }),
+          });
+          const ytData = await ytRes.json();
+          if (ytData.creators) results.push(...ytData.creators);
+          if (ytData.error) console.warn("YouTube:", ytData.error);
+        } catch (e) {
+          console.warn("YouTube search failed:", e);
+        }
+      }
+
+      // Search Instagram
+      if (platformFilter === "all" || platformFilter === "Instagram Reels") {
+        try {
+          const igRes = await fetch("/api/search-creators-instagram", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: query.trim() }),
+          });
+          const igData = await igRes.json();
+          if (igData.creators) results.push(...igData.creators);
+          if (igData.error) console.warn("Instagram:", igData.error);
+        } catch (e) {
+          console.warn("Instagram search failed:", e);
+        }
+      }
+
+      // Sort by subscriber count
+      results.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
+      setCreators(results);
+      if (results.length === 0) setError("No creators found. Try a different search term.");
+    } catch (err) {
+      setError("Search failed: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    doSearch("fitness");
+  }, []);
+
+  const handleSearch = () => doSearch(searchTerm);
+  const handleKeyDown = (e) => { if (e.key === "Enter") handleSearch(); };
 
   const platformIcon = (platform) => {
-    if (platform === "YouTube Shorts") return { color: "bg-red-500", icon: "▶" };
-    if (platform === "TikTok") return { color: "bg-black", icon: "♪" };
-    if (platform === "Instagram Reels" || platform === "Instagram") return { color: "bg-gradient-to-br from-purple-500 to-pink-500", icon: "📷" };
+    if (platform === "YouTube Shorts") return { color: "bg-red-500", icon: "\u25B6" };
+    if (platform === "TikTok") return { color: "bg-black", icon: "\u266A" };
+    if (platform === "Instagram Reels" || platform === "Instagram") return { color: "bg-gradient-to-br from-purple-500 to-pink-500", icon: "\uD83D\uDCF7" };
     return { color: "bg-gray-400", icon: "?" };
   };
 
-  const handleSearch = () => {
-    setSearchQuery(searchTerm);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") handleSearch();
-  };
-
-  const filteredChannels = SAMPLE_CHANNELS.filter(c => {
-    if (searchQuery) {
-      const term = searchQuery.toLowerCase();
-      const matches = c.name.toLowerCase().includes(term) ||
-        c.handle.toLowerCase().includes(term) ||
-        c.niche.toLowerCase().includes(term);
-      if (!matches) return false;
+  const toggleChannel = (creator) => {
+    const cid = creator.id;
+    if (myChannels.includes(cid)) {
+      setMyChannels(prev => prev.filter(id => id !== cid));
+    } else {
+      setMyChannels(prev => [...prev, cid]);
     }
-    if (platformFilter !== "all" && c.platform !== platformFilter) return false;
-    if (sizeFilter !== "all" && c.size !== sizeFilter) return false;
-    return true;
-  }).sort((a, b) => (b.followersNum || 0) - (a.followersNum || 0));
-
-  const toggleChannel = (channelId) => {
-    setMyChannels(prev =>
-      prev.includes(channelId) ? prev.filter(id => id !== channelId) : [...prev, channelId]
-    );
   };
 
   const handleSave = () => {
@@ -485,25 +527,15 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
     });
   };
 
-  const watchlistChannelData = myChannels.map(id => SAMPLE_CHANNELS.find(c => c.id === id)).filter(Boolean);
+  const getInitials = (name) => name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
 
-  const formatFollowers = (channel) => {
-    const num = channel.followersNum;
-    if (!num) return channel.followers + " followers";
-    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M followers";
-    if (num >= 1000) return Math.round(num / 1000) + "K followers";
-    return num + " followers";
-  };
-
-  const getInitials = (name) => {
-    return name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
-  };
+  const watchlistCreators = myChannels.map(id => creators.find(c => c.id === id)).filter(Boolean);
 
   return (
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Channels</h1>
-        <p className="text-gray-500 mt-1 text-sm">Pick which channels to include in your videos feed</p>
+        <p className="text-gray-500 mt-1 text-sm">Search real creators across YouTube, Instagram & TikTok</p>
       </div>
 
       <div className="flex gap-6">
@@ -516,22 +548,22 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Describe your content, or find a channel by handle"
+              placeholder="Search for creators by niche, name, or handle..."
               className="w-full bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
             />
             <div className="flex items-center gap-3 mt-3">
               {/* Platform Dropdown */}
               <div className="relative">
                 <button
-                  onClick={() => { setPlatformDropdownOpen(!platformDropdownOpen); setSizeDropdownOpen(false); }}
+                  onClick={() => setPlatformDropdownOpen(!platformDropdownOpen)}
                   className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  {platformFilter === "all" ? "Platform" : platformFilter}
+                  {platformFilter === "all" ? "All Platforms" : platformFilter}
                   <ChevronDown size={14} className={`transition-transform ${platformDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
                 {platformDropdownOpen && (
                   <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
-                    {["all", "YouTube Shorts", "TikTok", "Instagram Reels"].map(p => (
+                    {["all", "YouTube Shorts", "Instagram Reels"].map(p => (
                       <button
                         key={p}
                         onClick={() => { setPlatformFilter(p); setPlatformDropdownOpen(false); }}
@@ -544,88 +576,87 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                 )}
               </div>
 
-              {/* Account Size Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => { setSizeDropdownOpen(!sizeDropdownOpen); setPlatformDropdownOpen(false); }}
-                  className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  {sizeFilter === "all" ? "Account size" : sizeFilter === "large" ? "Large (1M+)" : sizeFilter === "medium" ? "Medium (100K-1M)" : "Small (<100K)"}
-                  <ChevronDown size={14} className={`transition-transform ${sizeDropdownOpen ? "rotate-180" : ""}`} />
-                </button>
-                {sizeDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
-                    {[
-                      { value: "all", label: "All Sizes" },
-                      { value: "small", label: "Small (< 100K)" },
-                      { value: "medium", label: "Medium (100K - 1M)" },
-                      { value: "large", label: "Large (1M+)" },
-                    ].map(s => (
-                      <button
-                        key={s.value}
-                        onClick={() => { setSizeFilter(s.value); setSizeDropdownOpen(false); }}
-                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${sizeFilter === s.value ? "text-pink-600 font-medium bg-pink-50" : "text-gray-700"}`}
-                      >
-                        {s.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               <div className="flex-1" />
               <button
                 onClick={handleSearch}
-                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                disabled={loading}
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors cursor-pointer disabled:opacity-50"
               >
-                Search <ArrowRight size={14} />
+                {loading ? "Searching..." : "Search"} <ArrowRight size={14} />
               </button>
             </div>
           </div>
 
-          {/* Suggestions Label */}
+          {/* Results */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Suggestions</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                {loading ? "Searching platforms..." : hasSearched ? `${creators.length} creators found` : "SUGGESTIONS"}
+              </p>
               <button className="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-600 transition-colors">
                 <AlertCircle size={13} />
                 How to add channels to Optimus
               </button>
             </div>
 
+            {/* Loading State */}
+            {loading && (
+              <div className="grid grid-cols-2 gap-3">
+                {[1,2,3,4,5,6].map(i => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white animate-pulse">
+                    <div className="w-11 h-11 rounded-full bg-gray-200" />
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-1.5" />
+                      <div className="h-3 bg-gray-100 rounded w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
+              <div className="py-12 text-center text-gray-400 text-sm">{error}</div>
+            )}
+
             {/* Channels Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              {filteredChannels.map(channel => {
-                const pi = platformIcon(channel.platform);
-                const isAdded = myChannels.includes(channel.id);
-                return (
-                  <button
-                    key={channel.id}
-                    onClick={() => toggleChannel(channel.id)}
-                    className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all hover:shadow-sm ${isAdded ? "border-pink-400 bg-pink-50/50" : "border-gray-100 bg-white hover:border-gray-200"}`}
-                  >
-                    <div className="relative flex-shrink-0">
-                      <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${channel.avatar || "from-gray-300 to-gray-400"} flex items-center justify-center text-white text-xs font-bold`}>
-                        {getInitials(channel.name)}
+            {!loading && creators.length > 0 && (
+              <div className="grid grid-cols-2 gap-3">
+                {creators.map(creator => {
+                  const pi = platformIcon(creator.platform);
+                  const isAdded = myChannels.includes(creator.id);
+                  return (
+                    <button
+                      key={creator.id}
+                      onClick={() => toggleChannel(creator)}
+                      className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all hover:shadow-sm ${isAdded ? "border-pink-400 bg-pink-50/50" : "border-gray-100 bg-white hover:border-gray-200"}`}
+                    >
+                      <div className="relative flex-shrink-0">
+                        {creator.thumbnail ? (
+                          <img
+                            src={creator.thumbnail}
+                            alt={creator.name}
+                            className="w-11 h-11 rounded-full object-cover"
+                            onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+                          />
+                        ) : null}
+                        <div className={`w-11 h-11 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 items-center justify-center text-white text-xs font-bold ${creator.thumbnail ? "hidden" : "flex"}`}>
+                          {getInitials(creator.name)}
+                        </div>
+                        <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${pi.color} rounded-full flex items-center justify-center border-2 border-white`}>
+                          <span className="text-white text-[7px]">{pi.icon}</span>
+                        </div>
                       </div>
-                      <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${pi.color} rounded-full flex items-center justify-center border-2 border-white`}>
-                        <span className="text-white text-[7px]">{pi.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{creator.username || creator.name}</p>
+                        <p className="text-xs text-gray-500">{creator.subscribers} followers</p>
                       </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{channel.handle}</p>
-                      <p className="text-xs text-gray-500">{formatFollowers(channel)}</p>
-                    </div>
-                    {isAdded && <Check size={16} className="text-pink-500 flex-shrink-0" />}
-                  </button>
-                );
-              })}
-              {filteredChannels.length === 0 && (
-                <div className="col-span-2 py-12 text-center text-gray-400 text-sm">
-                  No channels found. Try a different search term.
-                </div>
-              )}
-            </div>
+                      {isAdded && <Check size={16} className="text-pink-500 flex-shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
@@ -648,25 +679,29 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
             </div>
 
             <div className="space-y-0.5 max-h-[calc(100vh-280px)] overflow-y-auto">
-              {watchlistChannelData.length > 0 ? (
-                watchlistChannelData.map(channel => {
-                  const pi = platformIcon(channel.platform);
+              {watchlistCreators.length > 0 ? (
+                watchlistCreators.map(creator => {
+                  const pi = platformIcon(creator.platform);
                   return (
-                    <div key={channel.id} className="flex items-center gap-3 py-2 px-1 hover:bg-gray-50 rounded-lg transition-colors group">
+                    <div key={creator.id} className="flex items-center gap-3 py-2 px-1 hover:bg-gray-50 rounded-lg transition-colors group">
                       <div className="relative flex-shrink-0">
-                        <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${channel.avatar || "from-gray-300 to-gray-400"} flex items-center justify-center text-white text-[10px] font-bold`}>
-                          {getInitials(channel.name)}
-                        </div>
+                        {creator.thumbnail ? (
+                          <img src={creator.thumbnail} alt={creator.name} className="w-9 h-9 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-white text-[10px] font-bold">
+                            {getInitials(creator.name)}
+                          </div>
+                        )}
                         <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 ${pi.color} rounded-full flex items-center justify-center border-2 border-white`}>
                           <span className="text-white text-[6px]">{pi.icon}</span>
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{channel.handle}</p>
-                        <p className="text-xs text-gray-500">{formatFollowers(channel)}</p>
+                        <p className="text-sm font-medium text-gray-900 truncate">{creator.username || creator.name}</p>
+                        <p className="text-xs text-gray-500">{creator.subscribers} followers</p>
                       </div>
                       <button
-                        onClick={(e) => { e.stopPropagation(); toggleChannel(channel.id); }}
+                        onClick={(e) => { e.stopPropagation(); toggleChannel(creator); }}
                         className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all"
                       >
                         <X size={14} />
@@ -675,7 +710,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                   );
                 })
               ) : (
-                <p className="text-xs text-gray-400 py-8 text-center">Click channels on the left to add them to your watchlist</p>
+                <p className="text-xs text-gray-400 py-8 text-center">Click creators on the left to add them to your watchlist</p>
               )}
             </div>
           </div>
@@ -684,6 +719,10 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
     </div>
   );
 };
+
+// VIDEOS PAGE (Feed & Vault)
+// ============================================================
+
 const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoDetail }) => {
   const [activeTab, setActiveTab] = useState("feed");
   const [viewsFilter, setViewsFilter] = useState("all");
@@ -886,8 +925,8 @@ const VideoDetailPage = ({ video, setSelectedVideoDetail, savedVideos, setSavedV
 
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <div className="flex items-start gap-3 mb-4">
-              <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.avatar || "from-gray-300 to-gray-400"} flex items-center justify-center text-white text-sm font-bold`}>
-                {(() => { const ch = SAMPLE_CHANNELS.find(c => c.id === video.channelId); return ch ? ch.name.split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase() : "?"; })()}
+              <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.avatar || "from-orange-400 to-pink-500"} flex items-center justify-center text-white text-xs font-bold`}>
+                {(SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.name || "?").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
               </div>
               <div className="flex-1">
                 <h2 className="font-bold text-gray-900">{video.channel}</h2>
