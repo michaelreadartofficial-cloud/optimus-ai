@@ -1,47 +1,200 @@
 import { useState, useEffect } from "react";
-import { Search, TrendingUp, Zap, BookOpen, Archive, Settings, Eye, ThumbsUp, MessageCircle, Clock, Star, Copy, ChevronDown, Plus, Sparkles, RefreshCw, X, BarChart3, Users, Video, Bookmark, Flame, ArrowRight, Lightbulb, PenTool, Layers, Play } from "lucide-react";
+import {
+  Search, TrendingUp, Zap, BookOpen, Archive, Settings, Eye, ThumbsUp,
+  MessageCircle, Clock, Star, Copy, ChevronDown, Plus, Sparkles, RefreshCw,
+  X, BarChart3, Users, Video, Bookmark, Flame, ArrowRight, Lightbulb,
+  PenTool, Layers, Play, Filter, Grid, List, Trash2, Download, Check,
+  ChevronLeft, Share2, Code, Zap as ZapIcon, AlertCircle
+} from "lucide-react";
 
 // ============================================================
 // SAMPLE DATA — Short-Form Only (TikTok, Reels, Shorts)
 // ============================================================
 
 const SAMPLE_VIDEOS = [
-  { id: 1, title: "I Tried Living on $1 for 24 Hours", channel: "Ryan Trahan", platform: "YouTube Shorts", views: "48.2M", likes: "2.1M", comments: "45K", outlierScore: 28.5, uploadDate: "3 days ago", duration: "0:58", emoji: "🎬", niche: "Lifestyle", hook: "What if I told you that you could survive an entire day on just one dollar?", transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop — the dollar store..." },
-  { id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", platform: "TikTok", views: "12.7M", likes: "890K", comments: "23K", outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", emoji: "🧠", niche: "Education", hook: "Stop using the word 'very'. Here's what smart people say instead.", transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'. Instead of 'very happy', say 'ecstatic'..." },
-  { id: 3, title: "POV: You Finally Quit Your 9-5", channel: "Alex Hormozi", platform: "Instagram Reels", views: "8.4M", likes: "620K", comments: "18K", outlierScore: 12.8, uploadDate: "5 days ago", duration: "0:45", emoji: "💼", niche: "Business", hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.", transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one — I made zero dollars. Month two — still zero..." },
-  { id: 4, title: "The Psychology Behind Why You Can't Stop Scrolling", channel: "Ali Abdaal", platform: "YouTube Shorts", views: "22.1M", likes: "1.5M", comments: "34K", outlierScore: 19.3, uploadDate: "2 days ago", duration: "0:52", emoji: "📱", niche: "Psychology", hook: "Your phone is literally designed to be addictive. Here's the science behind it.", transcript: "Your phone is literally designed to be addictive. Here's the science behind it. It's called variable ratio reinforcement — the same psychology behind slot machines..." },
-  { id: 5, title: "I Asked 100 Millionaires Their #1 Habit", channel: "Mark Tilbury", platform: "TikTok", views: "31.5M", likes: "1.8M", comments: "52K", outlierScore: 24.1, uploadDate: "4 days ago", duration: "0:41", emoji: "💰", niche: "Finance", hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.", transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing. It wasn't waking up at 5am. It wasn't cold showers. It was this one simple habit..." },
-  { id: 6, title: "Why Japan's Trains Are Never Late", channel: "Abroad in Japan", platform: "Instagram Reels", views: "15.8M", likes: "1.1M", comments: "28K", outlierScore: 16.7, uploadDate: "1 week ago", duration: "0:55", emoji: "🚄", niche: "Travel", hook: "In Japan, if a train is even 60 seconds late, the company issues a formal apology.", transcript: "In Japan, if a train is even 60 seconds late, the company issues a formal apology. But how do they maintain this insane level of punctuality? It comes down to three things..." },
-  { id: 7, title: "This Meal Prep Changed My Life (5 Mins)", channel: "Ethan Chlebowski", platform: "TikTok", views: "9.6M", likes: "740K", comments: "21K", outlierScore: 11.4, uploadDate: "6 days ago", duration: "0:48", emoji: "🍳", niche: "Food", hook: "This 5-minute meal prep will save you $200 a month. And it actually tastes good.", transcript: "This 5-minute meal prep will save you $200 a month. And it actually tastes good. All you need are five ingredients..." },
-  { id: 8, title: "The Real Reason You're Always Tired", channel: "Dr. Mike", platform: "YouTube Shorts", views: "19.3M", likes: "1.3M", comments: "41K", outlierScore: 17.9, uploadDate: "3 days ago", duration: "0:39", emoji: "😴", niche: "Health", hook: "You're not tired because you're not sleeping enough. You're tired because of this.", transcript: "You're not tired because you're not sleeping enough. You're tired because of this. Most people don't realize that chronic fatigue comes from three hidden causes..." },
+  {
+    id: 1,
+    title: "I Tried Living on $1 for 24 Hours",
+    channel: "Ryan Trahan",
+    channelId: 1,
+    platform: "YouTube Shorts",
+    views: "48.2M",
+    viewsNum: 48200000,
+    likes: "2.1M",
+    comments: "45K",
+    outlierScore: 28.5,
+    uploadDate: "3 days ago",
+    duration: "0:58",
+    emoji: "🎬",
+    niche: "Lifestyle",
+    hook: "What if I told you that you could survive an entire day on just one dollar?",
+    transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop — the dollar store...",
+    engagement: 4.3,
+  },
+  {
+    id: 2,
+    title: "This Trick Makes You Sound Smarter Instantly",
+    channel: "Jade Bowler",
+    channelId: 6,
+    platform: "TikTok",
+    views: "12.7M",
+    viewsNum: 12700000,
+    likes: "890K",
+    comments: "23K",
+    outlierScore: 15.2,
+    uploadDate: "1 week ago",
+    duration: "0:34",
+    emoji: "🧠",
+    niche: "Education",
+    hook: "Stop using the word 'very'. Here's what smart people say instead.",
+    transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'...",
+    engagement: 7.1,
+  },
+  {
+    id: 3,
+    title: "POV: You Finally Quit Your 9-5",
+    channel: "Alex Hormozi",
+    channelId: 3,
+    platform: "Instagram Reels",
+    views: "8.4M",
+    viewsNum: 8400000,
+    likes: "620K",
+    comments: "18K",
+    outlierScore: 12.8,
+    uploadDate: "5 days ago",
+    duration: "0:45",
+    emoji: "💼",
+    niche: "Business",
+    hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.",
+    transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one...",
+    engagement: 7.4,
+  },
+  {
+    id: 4,
+    title: "The Psychology Behind Why You Can't Stop Scrolling",
+    channel: "Ali Abdaal",
+    channelId: 2,
+    platform: "YouTube Shorts",
+    views: "22.1M",
+    viewsNum: 22100000,
+    likes: "1.5M",
+    comments: "34K",
+    outlierScore: 19.3,
+    uploadDate: "2 days ago",
+    duration: "0:52",
+    emoji: "📱",
+    niche: "Psychology",
+    hook: "Your phone is literally designed to be addictive. Here's the science behind it.",
+    transcript: "Your phone is literally designed to be addictive. Here's the science behind it...",
+    engagement: 6.8,
+  },
+  {
+    id: 5,
+    title: "I Asked 100 Millionaires Their #1 Habit",
+    channel: "Mark Tilbury",
+    channelId: 4,
+    platform: "TikTok",
+    views: "31.5M",
+    viewsNum: 31500000,
+    likes: "1.8M",
+    comments: "52K",
+    outlierScore: 24.1,
+    uploadDate: "4 days ago",
+    duration: "0:41",
+    emoji: "💰",
+    niche: "Finance",
+    hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.",
+    transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing...",
+    engagement: 5.7,
+  },
+  {
+    id: 6,
+    title: "Why Japan's Trains Are Never Late",
+    channel: "Abroad in Japan",
+    channelId: 5,
+    platform: "Instagram Reels",
+    views: "15.8M",
+    viewsNum: 15800000,
+    likes: "1.1M",
+    comments: "28K",
+    outlierScore: 16.7,
+    uploadDate: "1 week ago",
+    duration: "0:55",
+    emoji: "🚄",
+    niche: "Travel",
+    hook: "In Japan, if a train is even 60 seconds late, the company issues a formal apology.",
+    transcript: "In Japan, if a train is even 60 seconds late, the company issues a formal apology...",
+    engagement: 6.9,
+  },
+  {
+    id: 7,
+    title: "This Meal Prep Changed My Life (5 Mins)",
+    channel: "Ethan Chlebowski",
+    channelId: 1,
+    platform: "TikTok",
+    views: "9.6M",
+    viewsNum: 9600000,
+    likes: "740K",
+    comments: "21K",
+    outlierScore: 11.4,
+    uploadDate: "6 days ago",
+    duration: "0:48",
+    emoji: "🍳",
+    niche: "Food",
+    hook: "This 5-minute meal prep will save you $200 a month.",
+    transcript: "This 5-minute meal prep will save you $200 a month...",
+    engagement: 7.7,
+  },
+  {
+    id: 8,
+    title: "The Real Reason You're Always Tired",
+    channel: "Dr. Mike",
+    channelId: 5,
+    platform: "YouTube Shorts",
+    views: "19.3M",
+    viewsNum: 19300000,
+    likes: "1.3M",
+    comments: "41K",
+    outlierScore: 17.9,
+    uploadDate: "3 days ago",
+    duration: "0:39",
+    emoji: "😴",
+    niche: "Health",
+    hook: "You're not tired because you're not sleeping enough.",
+    transcript: "You're not tired because you're not sleeping enough...",
+    engagement: 6.7,
+  },
 ];
 
 const SAMPLE_CHANNELS = [
-  { name: "Ryan Trahan", platform: "YouTube Shorts", subscribers: "12.4M", avgViews: "5.2M", videos: 342, niche: "Lifestyle", emoji: "🎬" },
-  { name: "Ali Abdaal", platform: "YouTube Shorts", subscribers: "5.8M", avgViews: "1.8M", videos: 520, niche: "Productivity", emoji: "📚" },
-  { name: "Alex Hormozi", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "2.1M", videos: 890, niche: "Business", emoji: "💪" },
-  { name: "Mark Tilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", videos: 1200, niche: "Finance", emoji: "💰" },
-  { name: "Dr. Mike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", videos: 650, niche: "Health", emoji: "🩺" },
-  { name: "Jade Bowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", videos: 280, niche: "Education", emoji: "🧠" },
+  { id: 1, name: "Ryan Trahan", platform: "YouTube Shorts", subscribers: "12.4M", avgViews: "5.2M", videos: 342, niche: "Lifestyle", emoji: "🎬" },
+  { id: 2, name: "Ali Abdaal", platform: "YouTube Shorts", subscribers: "5.8M", avgViews: "1.8M", videos: 520, niche: "Productivity", emoji: "📚" },
+  { id: 3, name: "Alex Hormozi", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "2.1M", videos: 890, niche: "Business", emoji: "💪" },
+  { id: 4, name: "Mark Tilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", videos: 1200, niche: "Finance", emoji: "💰" },
+  { id: 5, name: "Dr. Mike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", videos: 650, niche: "Health", emoji: "🩺" },
+  { id: 6, name: "Jade Bowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", videos: 280, niche: "Education", emoji: "🧠" },
 ];
 
-const HOOK_TEMPLATES = [
-  { type: "Question", icon: "❓", hooks: ["What if I told you [unexpected claim]?", "Did you know that [shocking statistic]?", "Why does nobody talk about [hidden truth]?", "Have you ever wondered why [common thing] works this way?"] },
-  { type: "Controversy", icon: "🔥", hooks: ["Everyone is wrong about [topic]. Here's the truth.", "[Popular advice] is actually ruining your [area].", "I'm going to say something that might upset a lot of people.", "Stop doing [common habit]. It's destroying your [result]."] },
-  { type: "Story", icon: "📖", hooks: ["I spent [time] doing [extreme thing]. Here's what happened.", "Nobody believed me when I said [claim]. Then this happened.", "Last week, something changed my mind completely about [topic].", "Three years ago I was [bad situation]. Today I [good outcome]."] },
-  { type: "Statistic", icon: "📊", hooks: ["[X]% of people don't know this about [topic].", "I analyzed [large number] of [things] and found this pattern.", "According to [source], [surprising finding].", "Only [small number] of people will ever [achievement]. Here's why."] },
+const SAMPLE_WATCHLISTS = [
+  { id: 1, name: "AI & Tech", channels: [1, 2, 3] },
+  { id: 2, name: "Finance & Business", channels: [3, 4] },
+  { id: 3, name: "Health & Lifestyle", channels: [5, 1] },
 ];
 
-const VAULT_ITEMS = [
-  { id: 1, type: "hook", content: "What if I told you that everything you know about [topic] is wrong?", source: "Ryan Trahan", tags: ["question", "curiosity gap"], saved: "2 days ago" },
-  { id: 2, type: "style", content: "Fast-paced cuts with text overlays, jump cuts every 2-3 seconds, high energy voiceover", source: "Ali Abdaal", tags: ["editing", "pacing"], saved: "1 week ago" },
-  { id: 3, type: "hook", content: "I spent $10,000 testing this so you don't have to.", source: "Mark Tilbury", tags: ["story", "investment"], saved: "3 days ago" },
-  { id: 4, type: "structure", content: "Hook (3s) → Context (5s) → 3 Key Points (20s) → Twist (5s) → CTA (3s)", source: "Jade Bowler", tags: ["framework", "short-form"], saved: "5 days ago" },
+const SAMPLE_HOOKS = [
+  { id: 1, type: "hook", content: "What if I told you that everything you know about [topic] is wrong?", source: "Ryan Trahan", views: "2.1M", tags: ["question", "curiosity gap"] },
+  { id: 2, type: "hook", content: "I spent $10,000 testing this so you don't have to.", source: "Mark Tilbury", views: "890K", tags: ["story", "investment"] },
+  { id: 3, type: "hook", content: "Nobody ever talks about this but...", source: "Ali Abdaal", views: "1.5M", tags: ["insight", "hidden"] },
 ];
 
-// ============================================================
-// SMALL REUSABLE PIECES
-// ============================================================
+const SAMPLE_STYLES = [
+  { id: 4, type: "style", content: "Fast-paced cuts with text overlays, jump cuts every 2-3 seconds, high energy voiceover", source: "Ali Abdaal", tags: ["editing", "pacing"] },
+  { id: 5, type: "style", content: "Slow intro, build tension, shocking reveal, immediate payoff", source: "Ryan Trahan", tags: ["narrative", "tension"] },
+];
+
+const SAMPLE_STRUCTURES = [
+  { id: 6, type: "structure", content: "Hook (3s) → Context (5s) → 3 Key Points (20s) → Twist (5s) → CTA (3s)", source: "Jade Bowler", tags: ["framework", "short-form"] },
+];
 
 const platformColors = {
   "YouTube Shorts": { bg: "bg-red-100", text: "text-red-600", dot: "bg-red-500" },
@@ -70,23 +223,22 @@ const OutlierBadge = ({ score }) => {
 };
 
 // ============================================================
-// PAGES
+// DASHBOARD PAGE
 // ============================================================
 
-const DashboardPage = ({ setPage }) => (
+const DashboardPage = ({ stats }) => (
   <div className="space-y-8">
     <div>
       <h1 className="text-3xl font-extrabold text-gray-900">Welcome back, Michael 🚀</h1>
       <p className="text-gray-500 mt-1">Here's what's blowing up in short-form right now.</p>
     </div>
 
-    {/* Stats Row */}
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {[
-        { icon: Flame, label: "Outliers Found", value: "24", gradient: "from-orange-400 to-pink-500" },
-        { icon: Video, label: "Videos Analyzed", value: "156", gradient: "from-blue-400 to-indigo-500" },
-        { icon: PenTool, label: "Scripts Written", value: "12", gradient: "from-purple-400 to-pink-500" },
-        { icon: Bookmark, label: "Vault Items", value: "38", gradient: "from-emerald-400 to-teal-500" },
+        { icon: Flame, label: "Channels Watched", value: stats.channelsWatched, gradient: "from-orange-400 to-pink-500" },
+        { icon: Video, label: "Videos Saved", value: stats.videosSaved, gradient: "from-blue-400 to-indigo-500" },
+        { icon: PenTool, label: "Scripts Written", value: stats.scriptsWritten, gradient: "from-purple-400 to-pink-500" },
+        { icon: Bookmark, label: "Vault Items", value: stats.vaultItems, gradient: "from-emerald-400 to-teal-500" },
       ].map((s, i) => (
         <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
           <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center mb-3`}>
@@ -98,7 +250,6 @@ const DashboardPage = ({ setPage }) => (
       ))}
     </div>
 
-    {/* Top Outlier */}
     <div className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 rounded-2xl p-6 text-white">
       <h2 className="text-sm font-bold uppercase tracking-wider opacity-80">🏆 Top Outlier Today</h2>
       <div className="mt-3 flex items-start gap-4">
@@ -106,19 +257,15 @@ const DashboardPage = ({ setPage }) => (
         <div className="flex-1">
           <h3 className="text-xl font-bold">{SAMPLE_VIDEOS[0].title}</h3>
           <p className="text-white/70 text-sm mt-1">{SAMPLE_VIDEOS[0].channel} · {SAMPLE_VIDEOS[0].views} views · {SAMPLE_VIDEOS[0].outlierScore}x outlier</p>
-          <button onClick={() => setPage("videos")} className="mt-3 bg-white text-pink-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1">
-            View analysis <ArrowRight size={14} />
-          </button>
         </div>
       </div>
     </div>
 
-    {/* Trending */}
     <div>
       <h2 className="text-lg font-bold text-gray-900 mb-4">🔥 Trending Short-Form Outliers</h2>
       <div className="grid gap-3">
         {SAMPLE_VIDEOS.slice(0, 5).map(v => (
-          <div key={v.id} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer group" onClick={() => setPage("videos")}>
+          <div key={v.id} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer group">
             <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">{v.emoji}</div>
             <div className="flex-1 min-w-0">
               <h3 className="text-gray-900 text-sm font-semibold truncate group-hover:text-pink-600 transition-colors">{v.title}</h3>
@@ -135,686 +282,205 @@ const DashboardPage = ({ setPage }) => (
   </div>
 );
 
-const DiscoverPage = ({ setPage, setSelectedCreator }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [videos, setVideos] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState(null);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [savedVideos, setSavedVideos] = useState([]);
+// ============================================================
+// CHANNELS PAGE (Creators & Watchlists)
+// ============================================================
 
-  const discoverVideos = async () => {
-    if (!searchTerm.trim()) return;
-    setIsSearching(true);
-    setError(null);
-    setVideos([]);
-    setHasSearched(true);
-    setSelectedVideo(null);
-    try {
-      const res = await fetch("/api/discover-videos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: searchTerm }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Search failed");
-      setVideos(data.videos || []);
-      if (data.videos && data.videos.length === 0) setError("No short-form videos found for this niche. Try a different search term.");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsSearching(false);
+const ChannelsPage = ({ watchlists, setWatchlists }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedChannel, setSelectedChannel] = useState(null);
+  const [newWatchlistName, setNewWatchlistName] = useState("");
+  const [showNewWatchlist, setShowNewWatchlist] = useState(false);
+  const [selectedWatchlist, setSelectedWatchlist] = useState(null);
+
+  const filteredChannels = SAMPLE_CHANNELS.filter(c =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.niche.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleAddChannelToWatchlist = (watchlistId, channelId) => {
+    setWatchlists(watchlists.map(w =>
+      w.id === watchlistId
+        ? { ...w, channels: [...new Set([...w.channels, channelId])] }
+        : w
+    ));
+    setSelectedChannel(null);
+  };
+
+  const handleCreateWatchlist = () => {
+    if (newWatchlistName.trim()) {
+      setWatchlists([...watchlists, { id: Date.now(), name: newWatchlistName, channels: [] }]);
+      setNewWatchlistName("");
+      setShowNewWatchlist(false);
     }
   };
 
-  const toggleSave = (video) => {
-    setSavedVideos(prev => {
-      const exists = prev.find(v => v.id === video.id);
-      if (exists) return prev.filter(v => v.id !== video.id);
-      return [...prev, video];
-    });
-  };
-  const isSaved = (video) => savedVideos.some(v => v.id === video.id);
-
-  const outlierColor = (score) => {
-    if (score >= 20) return "from-orange-400 to-pink-500";
-    if (score >= 10) return "from-yellow-400 to-orange-400";
-    if (score >= 5) return "from-blue-400 to-cyan-400";
-    return "from-gray-300 to-gray-400";
-  };
-
-  const outlierLabel = (score) => {
-    if (score >= 20) return "Viral";
-    if (score >= 10) return "Outlier";
-    if (score >= 5) return "Above Avg";
-    return "Normal";
-  };
+  const watchlistChannels = selectedWatchlist
+    ? SAMPLE_CHANNELS.filter(c => selectedWatchlist.channels.includes(c.id))
+    : [];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
-        <h1 className="text-3xl font-extrabold text-gray-900">Discover</h1>
-        <p className="text-gray-500 mt-1">Find viral short-form videos in any niche. See what's blowing up and why.</p>
+        <h1 className="text-3xl font-extrabold text-gray-900">Channels</h1>
+        <p className="text-gray-500 mt-1">Discover creators and organize them into watchlists to track their content.</p>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-        <div className="flex gap-3">
-          <div className="flex-1 relative">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onKeyDown={(e) => e.key === "Enter" && discoverVideos()} placeholder="Search a niche... e.g. fitness, cooking, finance, productivity" className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300" />
-          </div>
-          <button onClick={discoverVideos} disabled={isSearching || !searchTerm.trim()} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
-            {isSearching ? <><RefreshCw size={14} className="animate-spin" /> Searching...</> : <><Search size={14} /> Discover</>}
-          </button>
-        </div>
-        <div className="flex gap-2 mt-3">
-          {["fitness", "cooking", "finance", "productivity", "travel", "tech"].map(tag => (
-            <button key={tag} onClick={() => { setSearchTerm(tag); }} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-medium rounded-full transition-colors">{tag}</button>
-          ))}
-        </div>
-      </div>
-
-      {/* Error */}
-      {error && <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
-
-      {/* Loading */}
-      {isSearching && (
-        <div className="text-center py-16">
-          <RefreshCw size={24} className="animate-spin text-pink-400 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm font-medium">Discovering viral "{searchTerm}" videos...</p>
-          <p className="text-gray-400 text-xs mt-1">Analyzing outlier scores across channels</p>
-        </div>
-      )}
-
-      {/* Results */}
-      {!isSearching && videos.length > 0 && (
-        <div className="flex gap-6">
-          {/* Video List */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{videos.length} videos found — sorted by outlier score</p>
+      <div className="grid grid-cols-3 gap-6">
+        {/* Search & Results */}
+        <div className="col-span-2 space-y-6">
+          {/* Search Bar */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+            <div className="relative">
+              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by creator name or niche..."
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300"
+              />
             </div>
-            <div className="space-y-3">
-              {videos.map((video, i) => (
-                <div key={video.id} onClick={() => setSelectedVideo(video)} className={`flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer group ${selectedVideo?.id === video.id ? "bg-pink-50 border-pink-200 shadow-sm" : "bg-white border-gray-100 hover:border-gray-200 hover:shadow-sm"}`}>
-                  {/* Rank */}
-                  <div className="flex-shrink-0 w-8 text-center">
-                    <span className={`text-lg font-extrabold ${i < 3 ? "bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text" : "text-gray-300"}`} style={i < 3 ? { WebkitTextFillColor: "transparent" } : {}}>#{i + 1}</span>
+          </div>
+
+          {/* Channels Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {filteredChannels.map(channel => (
+              <div
+                key={channel.id}
+                onClick={() => setSelectedChannel(channel)}
+                className={`bg-white rounded-2xl border-2 p-4 cursor-pointer transition-all ${selectedChannel?.id === channel.id ? "border-pink-500 shadow-md" : "border-gray-100 hover:border-gray-200"}`}
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-xl">{channel.emoji}</div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-900 text-sm">{channel.name}</h3>
+                    <p className="text-xs text-gray-500">{channel.niche}</p>
                   </div>
-                  {/* Thumbnail */}
-                  <div className="relative flex-shrink-0 w-28 h-20 rounded-xl overflow-hidden bg-gray-100">
-                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
-                    <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">{video.durationFormatted}</div>
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                      <Play size={20} className="text-white" />
-                    </div>
-                  </div>
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight">{video.title}</h3>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      {video.channel.thumbnail && <img src={video.channel.thumbnail} alt="" className="w-4 h-4 rounded-full" />}
-                      <span className="text-xs text-gray-500">{video.channel.name}</span>
-                      <span className="text-gray-300 text-xs">&middot;</span>
-                      <span className="text-xs text-gray-400">{video.channel.subscribers} subs</span>
-                    </div>
-                    <div className="flex items-center gap-3 mt-2">
-                      <span className="text-xs font-semibold text-gray-600"><Eye size={11} className="inline mr-1" />{video.viewsFormatted}</span>
-                      <span className="text-xs text-gray-400"><ThumbsUp size={11} className="inline mr-1" />{video.likesFormatted}</span>
-                      <span className="text-xs text-gray-400"><MessageCircle size={11} className="inline mr-1" />{video.commentsFormatted}</span>
-                      <span className="text-xs text-gray-400">{video.timeAgo}</span>
-                    </div>
-                  </div>
-                  {/* Outlier Score */}
-                  <div className="flex-shrink-0 flex flex-col items-center gap-1">
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r ${outlierColor(video.outlierScore)}`}>
-                      <TrendingUp size={11} className="inline mr-1" />{video.outlierScore}x
-                    </span>
-                    <span className="text-[10px] text-gray-400 font-medium">{outlierLabel(video.outlierScore)}</span>
-                  </div>
-                  {/* Save */}
-                  <button onClick={(e) => { e.stopPropagation(); toggleSave(video); }} className={`flex-shrink-0 p-2 rounded-lg transition-all ${isSaved(video) ? "text-pink-500 bg-pink-50" : "text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100"}`}>
-                    <Bookmark size={16} className={isSaved(video) ? "fill-current" : ""} />
+                </div>
+                <PlatformBadge platform={channel.platform} />
+                <div className="mt-3 text-xs text-gray-600 space-y-1">
+                  <p><Users size={11} className="inline mr-1" />{channel.subscribers} subscribers</p>
+                  <p><Eye size={11} className="inline mr-1" />{channel.avgViews} avg views</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Watchlists & Channel Detail */}
+        <div className="space-y-6">
+          {/* Watchlists */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-bold text-gray-900">Your Watchlists</h2>
+              <button
+                onClick={() => setShowNewWatchlist(!showNewWatchlist)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+
+            {showNewWatchlist && (
+              <div className="mb-4 pb-4 border-b border-gray-100">
+                <input
+                  type="text"
+                  value={newWatchlistName}
+                  onChange={(e) => setNewWatchlistName(e.target.value)}
+                  placeholder="Watchlist name..."
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm mb-2"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleCreateWatchlist}
+                    className="flex-1 bg-pink-500 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-pink-600"
+                  >
+                    Create
+                  </button>
+                  <button
+                    onClick={() => { setShowNewWatchlist(false); setNewWatchlistName(""); }}
+                    className="flex-1 bg-gray-100 text-gray-600 px-3 py-2 rounded-lg text-xs font-semibold hover:bg-gray-200"
+                  >
+                    Cancel
                   </button>
                 </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {watchlists.map(wl => (
+                <button
+                  key={wl.id}
+                  onClick={() => setSelectedWatchlist(wl)}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-all ${selectedWatchlist?.id === wl.id ? "bg-pink-50 border border-pink-200" : "hover:bg-gray-50 border border-transparent"}`}
+                >
+                  <p className="text-sm font-semibold text-gray-900">{wl.name}</p>
+                  <p className="text-xs text-gray-500">{wl.channels.length} channels</p>
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Detail Panel */}
-          <div className="w-80 flex-shrink-0">
-            <div className="bg-white border border-gray-100 rounded-2xl p-5 sticky top-4 shadow-sm">
-              {selectedVideo ? (
-                <div>
-                  <div className="relative rounded-xl overflow-hidden mb-4">
-                    <img src={selectedVideo.thumbnail} alt={selectedVideo.title} className="w-full aspect-video object-cover" />
-                    <a href={selectedVideo.url} target="_blank" rel="noopener noreferrer" className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors">
-                      <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center"><Play size={20} className="text-gray-900 ml-0.5" /></div>
-                    </a>
-                    <div className={`absolute top-2 right-2 px-2.5 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${outlierColor(selectedVideo.outlierScore)}`}>{selectedVideo.outlierScore}x outlier</div>
-                  </div>
-                  <h3 className="font-bold text-gray-900 text-sm leading-tight">{selectedVideo.title}</h3>
-                  <div className="flex items-center gap-2 mt-2">
-                    {selectedVideo.channel.thumbnail && <img src={selectedVideo.channel.thumbnail} alt="" className="w-6 h-6 rounded-full" />}
-                    <div>
-                      <p className="text-xs font-semibold text-gray-900">{selectedVideo.channel.name}</p>
-                      <p className="text-[10px] text-gray-400">{selectedVideo.channel.subscribers} subscribers</p>
-                    </div>
-                  </div>
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-3 gap-2 mt-4">
-                    <div className="bg-gray-50 rounded-lg p-2.5 text-center">
-                      <p className="text-xs font-bold text-gray-900">{selectedVideo.viewsFormatted}</p>
-                      <p className="text-[10px] text-gray-400">Views</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-2.5 text-center">
-                      <p className="text-xs font-bold text-gray-900">{selectedVideo.likesFormatted}</p>
-                      <p className="text-[10px] text-gray-400">Likes</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-2.5 text-center">
-                      <p className="text-xs font-bold text-gray-900">{selectedVideo.commentsFormatted}</p>
-                      <p className="text-[10px] text-gray-400">Comments</p>
-                    </div>
-                  </div>
-                  {/* Hook */}
-                  <div className="mt-4 bg-gradient-to-r from-orange-50 to-pink-50 border border-pink-100 rounded-xl p-3">
-                    <p className="text-[10px] font-bold text-pink-600 uppercase tracking-wider mb-1"><Zap size={10} className="inline mr-1" />Hook</p>
-                    <p className="text-xs text-gray-700 leading-relaxed">"{selectedVideo.hook}"</p>
-                  </div>
-                  {/* Actions */}
-                  <div className="flex gap-2 mt-4">
-                    <button onClick={() => toggleSave(selectedVideo)} className={`flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${isSaved(selectedVideo) ? "bg-pink-100 text-pink-600 border border-pink-200" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
-                      <Bookmark size={13} className={isSaved(selectedVideo) ? "fill-current" : ""} /> {isSaved(selectedVideo) ? "Saved" : "Save"}
-                    </button>
-                    <button onClick={() => { setSelectedCreator({ id: selectedVideo.channel.id, name: selectedVideo.channel.name, thumbnail: selectedVideo.channel.thumbnail, platform: "YouTube Shorts", subscribers: selectedVideo.channel.subscribers, subscriberCount: selectedVideo.channel.subscriberCount }); setPage("creator-detail"); }} className="flex-1 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all">
-                      <Users size={13} /> View Creator
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Eye size={24} className="text-gray-300 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-400">Click a video to see details</p>
-                  <p className="text-xs text-gray-300 mt-1">View hooks, stats, and outlier analysis</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!hasSearched && !isSearching && (
-        <div className="text-center py-20">
-          <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <TrendingUp size={28} className="text-white" />
-          </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Discover Viral Content</h3>
-          <p className="text-gray-400 text-sm max-w-md mx-auto">Search any niche to find short-form videos that are massively outperforming their channel average. Learn what hooks, formats, and topics are going viral right now.</p>
-        </div>
-      )}
-    </div>
-  );
-};
-
-const CreatorDetailPage = ({ creator, setPage, setPageState }) => {
-  const [videos, setVideos] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-
-  const loadVideos = async () => {
-    if (!creator) return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/creator-videos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          creatorId: creator.id,
-          uploadsPlaylistId: creator.uploadsPlaylistId,
-          platform: creator.platform,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to load videos");
-      setVideos(data.videos || []);
-      setStats(data.stats || null);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (creator) loadVideos();
-  }, [creator?.id]);
-
-  if (selectedVideo) {
-    return (
-      <div className="space-y-6">
-        <button onClick={() => setSelectedVideo(null)} className="text-sm text-gray-400 hover:text-gray-900 font-medium flex items-center gap-1 transition-colors">← Back to {creator.name}'s videos</button>
-        <div className="flex items-start gap-5">
-          <img src={selectedVideo.thumbnail} alt={selectedVideo.title} className="w-40 h-24 rounded-xl object-cover bg-gray-100" />
-          <div className="flex-1">
-            <h1 className="text-xl font-extrabold text-gray-900">{selectedVideo.title}</h1>
-            <p className="text-gray-500 text-sm mt-1">{creator.name} · {new Date(selectedVideo.publishedAt).toLocaleDateString()} · {selectedVideo.durationFormatted}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <OutlierBadge score={selectedVideo.outlierScore} />
-              <PlatformBadge platform="YouTube Shorts" />
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { icon: Eye, label: "Views", value: selectedVideo.viewsFormatted, color: "text-blue-500 bg-blue-50" },
-            { icon: ThumbsUp, label: "Likes", value: selectedVideo.likesFormatted, color: "text-green-500 bg-green-50" },
-            { icon: MessageCircle, label: "Comments", value: selectedVideo.commentsFormatted, color: "text-purple-500 bg-purple-50" },
-          ].map((s, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4 text-center shadow-sm">
-              <div className={`w-9 h-9 rounded-xl ${s.color} flex items-center justify-center mx-auto mb-2`}><s.icon size={16} /></div>
-              <div className="text-lg font-extrabold text-gray-900">{s.value}</div>
-              <div className="text-xs text-gray-400">{s.label}</div>
-            </div>
-          ))}
-        </div>
-        {selectedVideo.outlierScore >= 2 && (
-          <div className="bg-gradient-to-r from-orange-50 to-pink-50 border border-pink-200 rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <Flame size={16} className="text-orange-500" />
-              <span className="font-bold text-gray-900 text-sm">Outlier Alert — {selectedVideo.outlierScore}x above average</span>
-            </div>
-            <p className="text-gray-600 text-sm">This video got {selectedVideo.outlierScore}x more views than {creator.name}'s average. This is the type of content worth studying and remixing.</p>
-            <button onClick={() => { setPageState({ remixTranscript: selectedVideo.title + ". " + selectedVideo.description }); setPage("scripts"); }} className="mt-3 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
-              <RefreshCw size={14} /> Remix This Content
-            </button>
-          </div>
-        )}
-        {selectedVideo.description && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-            <h2 className="font-bold text-gray-900 flex items-center gap-2 mb-3"><BookOpen size={16} className="text-blue-500" /> Description</h2>
-            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">{selectedVideo.description}</p>
-          </div>
-        )}
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-          <h2 className="font-bold text-gray-900 flex items-center gap-2 mb-3"><Play size={16} className="text-red-500" /> Watch Original</h2>
-          <a href={selectedVideo.url} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 text-sm font-medium underline">{selectedVideo.url}</a>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <button onClick={() => setPage("videos")} className="text-sm text-gray-400 hover:text-gray-900 font-medium flex items-center gap-1 transition-colors">← Back to Discover</button>
-      <div className="flex items-center gap-5">
-        <img src={creator.thumbnail} alt={creator.name} className="w-20 h-20 rounded-full object-cover bg-gray-100" onError={(e) => { e.target.style.display = "none"; }} />
-        <div>
-          <h1 className="text-2xl font-extrabold text-gray-900">{creator.name}</h1>
-          <div className="flex items-center gap-3 mt-1">
-            <PlatformBadge platform={creator.platform} />
-            <span className="text-sm text-gray-500">{creator.subscribers} subscribers</span>
-            <span className="text-sm text-gray-400">{creator.videoCount} videos</span>
-          </div>
-        </div>
-      </div>
-      {stats && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[
-            { label: "Shorts Found", value: stats.shortsCount, icon: Video, gradient: "from-pink-400 to-rose-500" },
-            { label: "Avg Views", value: stats.avgViews, icon: Eye, gradient: "from-blue-400 to-indigo-500" },
-            { label: "Median Views", value: stats.medianViews, icon: BarChart3, gradient: "from-purple-400 to-pink-500" },
-            { label: "Top Outlier", value: stats.topOutlierScore + "x", icon: TrendingUp, gradient: "from-orange-400 to-pink-500" },
-          ].map((s, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-              <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center mb-2`}>
-                <s.icon size={15} className="text-white" />
+          {/* Channel Detail or Watchlist View */}
+          {selectedChannel && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+              <div className="mb-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-2xl mb-3">{selectedChannel.emoji}</div>
+                <h3 className="font-bold text-gray-900">{selectedChannel.name}</h3>
+                <p className="text-sm text-gray-500 mt-1">{selectedChannel.subscribers} subscribers</p>
               </div>
-              <div className="text-xl font-extrabold text-gray-900">{s.value}</div>
-              <div className="text-xs text-gray-400">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      )}
-      {error && <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 text-sm">{error}</div>}
-      {isLoading && (
-        <div className="text-center py-12">
-          <RefreshCw size={24} className="animate-spin text-pink-500 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">Pulling {creator.name}'s videos and calculating outlier scores...</p>
-        </div>
-      )}
-      {!isLoading && videos.length > 0 && (
-        <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Videos ranked by outlier score</h2>
-          <div className="grid gap-3">
-            {videos.map((video, i) => (
-              <div key={video.id || i} onClick={() => setSelectedVideo(video)} className="bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-lg hover:border-pink-200 transition-all cursor-pointer group">
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-shrink-0">
-                    <img src={video.thumbnail} alt={video.title} className="w-28 h-16 rounded-lg object-cover bg-gray-100" />
-                    <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">{video.durationFormatted}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-gray-900 font-bold text-sm group-hover:text-pink-600 transition-colors truncate">{video.title}</h3>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-xs text-gray-400 flex items-center gap-1"><Eye size={11} /> {video.viewsFormatted}</span>
-                      <span className="text-xs text-gray-400 flex items-center gap-1"><ThumbsUp size={11} /> {video.likesFormatted}</span>
-                      <span className="text-xs text-gray-400">{new Date(video.publishedAt).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                  <OutlierBadge score={video.outlierScore} />
+
+              <div className="space-y-3 mb-4 pb-4 border-b border-gray-100 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Platform</span>
+                  <PlatformBadge platform={selectedChannel.platform} />
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {!isLoading && videos.length === 0 && !error && (
-        <div className="text-center py-12">
-          <p className="text-gray-400 text-sm">No videos found for this creator.</p>
-        </div>
-      )}
-    </div>
-  );
-};
 
-const ChannelsPage = ({ setPage, setSelectedCreator }) => {
-  const [searchInput, setSearchInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [watchlist, setWatchlist] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [activeTab, setActiveTab] = useState("suggestions");
-  const [visibleCount, setVisibleCount] = useState(20);
-  const [accountSize, setAccountSize] = useState("all");
-  const [showSizeDropdown, setShowSizeDropdown] = useState(false);
-
-  const searchCreators = async (q) => {
-    const query = q || searchInput;
-    if (!query.trim()) return;
-    setIsLoading(true);
-    setError(null);
-    setSuggestions([]);
-    setHasSearched(true);
-    setActiveTab("suggestions");
-    setVisibleCount(20);
-    try {
-      const results = [];
-      const [ytRes, igRes] = await Promise.all([
-        fetch("/api/search-creators", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query }),
-        }).catch(e => null),
-        fetch("/api/search-creators-instagram", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query }),
-        }).catch(e => null),
-      ]);
-      if (ytRes) {
-        try {
-          const ytData = await ytRes.json();
-          if (ytRes.ok && ytData.creators) results.push(...ytData.creators);
-        } catch(e) {}
-      }
-      if (igRes) {
-        try {
-          const igData = await igRes.json();
-          if (igRes.ok && igData.creators) results.push(...igData.creators);
-        } catch(e) {}
-      }
-      results.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
-      setSuggestions(results);
-      if (results.length === 0) setError("No creators found. Try a different niche or handle.");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const addToWatchlist = (creator) => {
-    if (!watchlist.find(c => c.id === creator.id && c.platform === creator.platform)) {
-      setWatchlist(prev => [...prev, creator]);
-    }
-  };
-
-  const removeFromWatchlist = (creator) => {
-    setWatchlist(prev => prev.filter(c => !(c.id === creator.id && c.platform === creator.platform)));
-  };
-
-  const isInWatchlist = (creator) => watchlist.some(c => c.id === creator.id && c.platform === creator.platform);
-
-  const platformIcon = (platform) => {
-    if (!platform) return null;
-    if (platform.includes("Instagram")) return (
-      <span className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{background: "radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)"}}>
-        <svg viewBox="0 0 24 24" fill="white" className="w-3 h-3"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-      </span>
-    );
-    if (platform.includes("YouTube")) return (
-      <span className="w-5 h-5 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
-        <svg viewBox="0 0 24 24" fill="white" className="w-2.5 h-2.5"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.546 12 3.546 12 3.546s-7.505 0-9.377.504A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.504 9.376.504 9.376.504s7.505 0 9.377-.504a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-      </span>
-    );
-    if (platform.includes("TikTok")) return (
-      <span className="w-5 h-5 rounded-full bg-black flex items-center justify-center flex-shrink-0">
-        <svg viewBox="0 0 24 24" fill="white" className="w-2.5 h-2.5"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.4a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 005.58 2.17v-3.35z"/></svg>
-      </span>
-    );
-    return null;
-  };
-
-  const sizeRanges = {
-    all: { label: "All sizes", min: 0, max: Infinity },
-    nano: { label: "Nano (1K-10K)", min: 1000, max: 10000 },
-    micro: { label: "Micro (10K-100K)", min: 10000, max: 100000 },
-    mid: { label: "Mid (100K-500K)", min: 100000, max: 500000 },
-    macro: { label: "Macro (500K-1M)", min: 500000, max: 1000000 },
-    mega: { label: "Mega (1M+)", min: 1000000, max: Infinity },
-  };
-
-  const filteredSuggestions = suggestions.filter(c => {
-    if (accountSize === "all") return true;
-    const range = sizeRanges[accountSize];
-    return c.subscriberCount >= range.min && c.subscriberCount < range.max;
-  });
-
-  const fallbackImg = (size) => `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'%3E%3Crect width='${size}' height='${size}' rx='${size/2}' fill='%23374151'/%3E%3Ctext x='${size/2}' y='${size*0.62}' text-anchor='middle' font-size='${size*0.38}' fill='%236b7280'%3E%3F%3C/text%3E%3C/svg%3E`;
-
-  return (
-    <div className="flex gap-6">
-      {/* Main Content — Left Panel */}
-      <div className="flex-1 min-w-0">
-        <div className="mb-5">
-          <h1 className="text-3xl font-extrabold text-gray-900">Channels</h1>
-          <p className="text-gray-500 mt-1">Pick which channels to include in your videos feed</p>
-        </div>
-
-        {/* Search Bar */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm mb-5">
-          <input
-            type="text" value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && searchCreators()}
-            placeholder="Describe your content, or find a channel by handle"
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 mb-3"
-          />
-          <div className="flex items-center gap-2">
-            {/* Account Size Filter */}
-            <div className="relative">
-              <button onClick={() => setShowSizeDropdown(!showSizeDropdown)} className="bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-medium px-3 py-2 rounded-lg flex items-center gap-1.5 transition-colors">
-                {sizeRanges[accountSize].label} <ChevronDown size={12} />
-              </button>
-              {showSizeDropdown && (
-                <div className="absolute top-full left-0 mt-1 bg-white rounded-xl border border-gray-200 shadow-lg z-20 py-1 w-48">
-                  {Object.entries(sizeRanges).map(([key, val]) => (
-                    <button key={key} onClick={() => { setAccountSize(key); setShowSizeDropdown(false); }} className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors ${accountSize === key ? "text-pink-600 font-bold bg-pink-50" : "text-gray-600"}`}>
-                      {val.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button onClick={() => searchCreators()} disabled={isLoading || !searchInput.trim()} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all shadow-md ml-auto">
-              {isLoading ? <><RefreshCw size={12} className="animate-spin" /> Searching...</> : <><Search size={12} /> Search</>}
-            </button>
-          </div>
-        </div>
-
-        {/* Tabs: Suggestions / Watchlist */}
-        <div className="flex items-center gap-1 mb-4">
-          <button onClick={() => setActiveTab("suggestions")} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "suggestions" ? "bg-white text-gray-900 shadow-sm border border-gray-200" : "text-gray-400 hover:text-gray-600"}`}>
-            Suggestions {hasSearched && suggestions.length > 0 && <span className="ml-1 text-xs text-gray-400">({filteredSuggestions.length})</span>}
-          </button>
-          <button onClick={() => setActiveTab("watchlist")} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === "watchlist" ? "bg-white text-gray-900 shadow-sm border border-gray-200" : "text-gray-400 hover:text-gray-600"}`}>
-            Watchlist {watchlist.length > 0 && <span className="ml-1 text-xs text-gray-400">({watchlist.length})</span>}
-          </button>
-        </div>
-
-        {error && <div className="mb-4 bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
-
-        {/* SUGGESTIONS TAB */}
-        {activeTab === "suggestions" && (
-          <>
-            {isLoading && (
-              <div className="text-center py-12">
-                <RefreshCw size={24} className="animate-spin text-pink-400 mx-auto mb-3" />
-                <p className="text-gray-400 text-sm">Discovering creators in this niche...</p>
-                <p className="text-gray-300 text-xs mt-1">Searching YouTube & Instagram</p>
-              </div>
-            )}
-            {!isLoading && filteredSuggestions.length > 0 && (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  {filteredSuggestions.slice(0, visibleCount).map((creator, i) => (
-                    <div key={creator.id + (creator.platform || "") + i}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${isInWatchlist(creator) ? "bg-green-50 border-green-200" : "bg-white border-gray-100 hover:border-pink-200 hover:shadow-sm"}`}
-                      onClick={() => addToWatchlist(creator)}
-                    >
-                      <img src={creator.thumbnail} alt={creator.name} className="w-10 h-10 rounded-full object-cover bg-gray-700 flex-shrink-0"
-                        onError={(e) => { e.target.src = fallbackImg(40); }} />
-                      <div className="flex items-center gap-2 min-w-0 flex-1">
-                        {platformIcon(creator.platform)}
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold text-gray-900 truncate">{creator.username || creator.name}</p>
-                          <p className="text-xs text-gray-400">{creator.subscribers} {creator.platform?.includes("YouTube") ? "subscribers" : "followers"}</p>
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0 ml-auto">
-                        {isInWatchlist(creator) ? (
-                          <span className="text-green-500 text-xs font-semibold">Added</span>
-                        ) : (
-                          <span className="text-gray-300 group-hover:text-pink-400 transition-colors"><Plus size={16} /></span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {visibleCount < filteredSuggestions.length && (
-                  <div className="text-center mt-4">
-                    <button onClick={() => setVisibleCount(prev => prev + 20)} className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2 rounded-xl text-sm font-medium transition-colors">
-                      Load more ({filteredSuggestions.length - visibleCount} remaining)
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-            {!isLoading && hasSearched && filteredSuggestions.length === 0 && !error && (
-              <div className="text-center py-10">
-                <Users size={32} className="text-gray-300 mx-auto mb-2" />
-                <p className="text-gray-400 text-sm">No creators found matching that filter. Try a different size or niche.</p>
-              </div>
-            )}
-            {!hasSearched && (
-              <div className="text-center py-16">
-                <Search size={40} className="text-gray-300 mx-auto mb-3" />
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Find creators in any niche</h3>
-                <p className="text-gray-400 text-sm max-w-md mx-auto mb-6">Describe your content or search by niche to discover channels making viral short-form content.</p>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {["fitness", "cooking", "finance", "tech", "travel", "beauty", "gaming", "motivation"].map(niche => (
-                    <button key={niche} onClick={() => { setSearchInput(niche); searchCreators(niche); }} className="bg-gray-100 hover:bg-pink-50 hover:text-pink-600 text-gray-500 px-4 py-2 rounded-full text-sm font-medium transition-all capitalize">
-                      {niche}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* WATCHLIST TAB (main panel view) */}
-        {activeTab === "watchlist" && (
-          <>
-            {watchlist.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3">
-                {watchlist.map((creator, i) => (
-                  <div key={creator.id + (creator.platform || "") + i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white hover:border-pink-200 hover:shadow-sm transition-all cursor-pointer group">
-                    <img src={creator.thumbnail} alt={creator.name} className="w-10 h-10 rounded-full object-cover bg-gray-700 flex-shrink-0" onError={(e) => { e.target.src = fallbackImg(40); }} />
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      {platformIcon(creator.platform)}
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-gray-900 truncate">{creator.username || creator.name}</p>
-                        <p className="text-xs text-gray-400">{creator.subscribers} {creator.platform?.includes("YouTube") ? "subscribers" : "followers"}</p>
-                      </div>
-                    </div>
-                    <button onClick={(e) => { e.stopPropagation(); removeFromWatchlist(creator); }} className="text-gray-300 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-50 flex-shrink-0 transition-colors"><X size={14} /></button>
-                  </div>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-gray-700 mb-2">Add to watchlist:</label>
+                {watchlists.map(wl => (
+                  <button
+                    key={wl.id}
+                    onClick={() => handleAddChannelToWatchlist(wl.id, selectedChannel.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${wl.channels.includes(selectedChannel.id) ? "bg-green-50 border border-green-200 text-green-700" : "bg-gray-50 border border-gray-200 hover:border-pink-300"}`}
+                  >
+                    <span className="font-medium">{wl.name}</span>
+                    {wl.channels.includes(selectedChannel.id) && <Check size={14} className="inline ml-2" />}
+                  </button>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-16">
-                <Bookmark size={40} className="text-gray-300 mx-auto mb-3" />
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Your watchlist is empty</h3>
-                <p className="text-gray-400 text-sm max-w-md mx-auto">Search for creators and click them to add to your watchlist. Their content will appear in your videos feed.</p>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Right Sidebar — Your Watchlist */}
-      <div className="w-72 flex-shrink-0 hidden lg:block">
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm sticky top-4">
-          <div className="p-4 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-gray-900">Your Watchlist</h3>
-              {watchlist.length > 0 && (
-                <button onClick={() => setWatchlist([])} className="text-xs text-gray-400 hover:text-red-400 transition-colors">Remove all</button>
-              )}
             </div>
-          </div>
-          <div className="max-h-[calc(100vh-220px)] overflow-y-auto p-2">
-            {watchlist.length > 0 ? watchlist.map((creator, i) => (
-              <div key={creator.id + (creator.platform || "") + i} className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-gray-50 transition-colors group">
-                <img src={creator.thumbnail} alt={creator.name} className="w-9 h-9 rounded-full object-cover bg-gray-700 flex-shrink-0" onError={(e) => { e.target.src = fallbackImg(36); }} />
-                <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                  {platformIcon(creator.platform)}
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-gray-900 truncate">{creator.username || creator.name}</p>
-                    <p className="text-xs text-gray-400">{creator.subscribers} {creator.platform?.includes("YouTube") ? "subscribers" : "followers"}</p>
-                  </div>
-                </div>
-                <button onClick={() => removeFromWatchlist(creator)} className="text-gray-200 hover:text-red-400 p-1 rounded opacity-0 group-hover:opacity-100 transition-all"><X size={12} /></button>
+          )}
+
+          {selectedWatchlist && !selectedChannel && (
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+              <h3 className="font-bold text-gray-900 mb-3">{selectedWatchlist.name}</h3>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {watchlistChannels.length > 0 ? (
+                  watchlistChannels.map(c => (
+                    <div key={c.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg text-sm">
+                      <span className="text-lg">{c.emoji}</span>
+                      <span className="font-medium text-gray-900 flex-1">{c.name}</span>
+                      <button
+                        onClick={() => {
+                          setWatchlists(watchlists.map(w =>
+                            w.id === selectedWatchlist.id
+                              ? { ...w, channels: w.channels.filter(ch => ch !== c.id) }
+                              : w
+                          ));
+                        }}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-gray-500 py-4 text-center">No channels yet. Add one above.</p>
+                )}
               </div>
-            )) : (
-              <div className="text-center py-8 px-3">
-                <Users size={20} className="text-gray-300 mx-auto mb-2" />
-                <p className="text-gray-400 text-xs">Search for creators and add them to your watchlist</p>
-              </div>
-            )}
-          </div>
-          {watchlist.length > 0 && (
-            <div className="p-3 border-t border-gray-100">
-              <p className="text-xs text-gray-400 text-center">{watchlist.length} / 100 channels</p>
             </div>
           )}
         </div>
@@ -823,36 +489,322 @@ const ChannelsPage = ({ setPage, setSelectedCreator }) => {
   );
 };
 
-const ScriptWriterPage = ({ pageState, setPageState }) => {
-  const [mode, setMode] = useState(pageState?.remixTranscript ? "remix" : "idea");
-  const [input, setInput] = useState(pageState?.remixTranscript || "");
+// ============================================================
+// VIDEOS PAGE (Feed & Vault)
+// ============================================================
+
+const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoDetail }) => {
+  const [activeTab, setActiveTab] = useState("feed");
+  const [viewsFilter, setViewsFilter] = useState("all");
+  const [platformFilter, setPlatformFilter] = useState("all");
+  const [outlierFilter, setOutlierFilter] = useState("all");
+  const [timeFilter, setTimeFilter] = useState("all");
+
+  // Get videos from watchlisted channels
+  const watchlistedChannelIds = new Set(watchlists.flatMap(w => w.channels));
+  const feedVideos = SAMPLE_VIDEOS.filter(v => watchlistedChannelIds.has(v.channelId));
+
+  // Apply filters
+  const filteredVideos = (activeTab === "feed" ? feedVideos : savedVideos).filter(v => {
+    if (outlierFilter === "2x" && v.outlierScore < 20) return false;
+    if (outlierFilter === "1.5x" && v.outlierScore < 15) return false;
+    return true;
+  });
+
+  const platforms = ["YouTube Shorts", "TikTok", "Instagram Reels"];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-extrabold text-gray-900">Videos</h1>
+        <p className="text-gray-500 mt-1">Discover and save videos from your watchlisted channels.</p>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-gray-200">
+        {["feed", "vault"].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-3 font-semibold text-sm transition-all border-b-2 ${activeTab === tab ? "text-pink-600 border-pink-600" : "text-gray-600 border-transparent hover:text-gray-900"}`}
+          >
+            {tab === "feed" ? "📊 Feed" : "💾 Vault"}
+          </button>
+        ))}
+      </div>
+
+      {/* Filters */}
+      {activeTab === "feed" && watchlistedChannelIds.size === 0 ? (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center">
+          <AlertCircle size={24} className="mx-auto text-blue-600 mb-2" />
+          <p className="text-blue-900 font-semibold">No watchlists created yet</p>
+          <p className="text-blue-700 text-sm mt-1">Go to Channels to add creators to your watchlists and see their videos here.</p>
+        </div>
+      ) : (
+        <>
+          <div className="flex gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Filter size={16} className="text-gray-600" />
+              <select value={outlierFilter} onChange={(e) => setOutlierFilter(e.target.value)} className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm">
+                <option value="all">All Outlier Levels</option>
+                <option value="2x">&gt; 2x outlier</option>
+                <option value="1.5x">&gt; 1.5x outlier</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <select value={platformFilter} onChange={(e) => setPlatformFilter(e.target.value)} className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm">
+                <option value="all">All Platforms</option>
+                {platforms.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm">
+                <option value="all">Any Time</option>
+                <option value="week">Last Week</option>
+                <option value="month">Last Month</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Video Grid */}
+          <div className="grid grid-cols-4 gap-4">
+            {filteredVideos.map(video => {
+              const isSaved = savedVideos.some(v => v.id === video.id);
+              return (
+                <div key={video.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all cursor-pointer group" onClick={() => setSelectedVideoDetail(video)}>
+                  {/* Thumbnail */}
+                  <div className="relative aspect-video bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-4xl overflow-hidden">
+                    {video.emoji}
+                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur rounded-lg p-1.5">
+                      <PlatformBadge platform={video.platform} />
+                    </div>
+                    {/* Hover Overlay */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSavedVideos(prev => isSaved ? prev.filter(v => v.id !== video.id) : [...prev, video]);
+                      }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors"
+                    >
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isSaved ? "bg-pink-500" : "bg-white/30 group-hover:bg-white/50"}`}>
+                        <Bookmark size={20} className={isSaved ? "text-white fill-current" : "text-white"} />
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Info */}
+                  <div className="p-4">
+                    <h3 className="font-bold text-gray-900 text-sm line-clamp-2 mb-2">{video.title}</h3>
+                    <div className="flex items-center gap-2 mb-3 text-xs text-gray-600">
+                      <span className="font-medium">{video.channel}</span>
+                      <span className="text-gray-400">{video.uploadDate}</span>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="space-y-2 text-xs text-gray-600 bg-gray-50 rounded-lg p-2 mb-3">
+                      <div className="flex justify-between">
+                        <span>Outlier</span>
+                        <OutlierBadge score={video.outlierScore} />
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Views</span>
+                        <span className="font-semibold text-gray-900">{video.views}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Engagement</span>
+                        <span className="font-semibold text-gray-900">{video.engagement}%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {filteredVideos.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              <Video size={32} className="mx-auto mb-3 opacity-30" />
+              <p className="font-semibold">No videos found</p>
+              <p className="text-sm">Try adjusting your filters</p>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+// ============================================================
+// VIDEO DETAIL PAGE
+// ============================================================
+
+const VideoDetailPage = ({ video, setSelectedVideoDetail, savedVideos, setSavedVideos }) => {
+  const [activeTab, setActiveTab] = useState("metrics");
+  const isSaved = savedVideos.some(v => v.id === video.id);
+
+  const handleSave = () => {
+    setSavedVideos(prev =>
+      isSaved ? prev.filter(v => v.id !== video.id) : [...prev, video]
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      <button
+        onClick={() => setSelectedVideoDetail(null)}
+        className="flex items-center gap-2 text-pink-600 font-semibold hover:text-pink-700 mb-4"
+      >
+        <ChevronLeft size={18} /> Back to Feed
+      </button>
+
+      <div className="grid grid-cols-3 gap-6">
+        {/* Left: Info & Thumbnail */}
+        <div className="col-span-1 space-y-4">
+          <div className="bg-gradient-to-br from-purple-400 to-pink-500 aspect-video rounded-2xl flex items-center justify-center text-6xl">
+            {video.emoji}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-xl">
+                {SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.emoji}
+              </div>
+              <div className="flex-1">
+                <h2 className="font-bold text-gray-900">{video.channel}</h2>
+                <p className="text-sm text-gray-500">{SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.subscribers} subscribers</p>
+              </div>
+            </div>
+
+            <PlatformBadge platform={video.platform} />
+
+            <button
+              onClick={handleSave}
+              className={`w-full mt-4 px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${isSaved ? "bg-pink-100 text-pink-700 hover:bg-pink-200" : "bg-pink-600 text-white hover:bg-pink-700"}`}
+            >
+              <Bookmark size={16} className={isSaved ? "" : ""} />
+              {isSaved ? "Saved to Vault" : "Save to Vault"}
+            </button>
+          </div>
+        </div>
+
+        {/* Right: Tabbed Content */}
+        <div className="col-span-2">
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            {/* Title */}
+            <h1 className="text-2xl font-bold text-gray-900 mb-6">{video.title}</h1>
+
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6 border-b border-gray-200 flex-wrap">
+              {["metrics", "transcript", "hook", "description", "structure", "style"].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-3 font-semibold text-sm transition-all border-b-2 capitalize ${activeTab === tab ? "text-pink-600 border-pink-600" : "text-gray-600 border-transparent hover:text-gray-900"}`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab Content */}
+            <div>
+              {activeTab === "metrics" && (
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { label: "Outlier Score", value: `${video.outlierScore}x`, icon: TrendingUp, color: "from-orange-400 to-pink-500" },
+                    { label: "Views", value: video.views, icon: Eye, color: "from-blue-400 to-cyan-400" },
+                    { label: "Engagement Rate", value: `${video.engagement}%`, icon: ThumbsUp, color: "from-green-400 to-emerald-400" },
+                    { label: "Likes", value: video.likes, icon: Heart, color: "from-red-400 to-pink-400" },
+                    { label: "Comments", value: video.comments, icon: MessageCircle, color: "from-purple-400 to-blue-400" },
+                    { label: "Channel Followers", value: SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.subscribers || "N/A", icon: Users, color: "from-yellow-400 to-orange-400" },
+                  ].map((metric, i) => (
+                    <div key={i} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${metric.color} flex items-center justify-center mb-2`}>
+                        <metric.icon size={18} className="text-white" />
+                      </div>
+                      <p className="text-xs text-gray-600 font-medium">{metric.label}</p>
+                      <p className="text-xl font-bold text-gray-900 mt-1">{metric.value}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === "transcript" && (
+                <div className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed">{video.transcript}</p>
+                  <div className="flex gap-2">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-pink-600 text-white rounded-lg font-semibold text-sm hover:bg-pink-700">
+                      <Copy size={14} /> Copy
+                    </button>
+                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200">
+                      <Download size={14} /> Download
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "hook" && (
+                <div className="space-y-4">
+                  <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg">
+                    <p className="text-gray-900 leading-relaxed">{video.hook}</p>
+                  </div>
+                  <button className="flex items-center gap-2 px-4 py-2 bg-pink-600 text-white rounded-lg font-semibold text-sm hover:bg-pink-700">
+                    <Copy size={14} /> Copy Hook
+                  </button>
+                </div>
+              )}
+
+              {activeTab === "description" && (
+                <div className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed">No additional description available.</p>
+                </div>
+              )}
+
+              {activeTab === "structure" && (
+                <div className="space-y-4">
+                  <p className="text-gray-700">Video Structure (Analysis not available for demo data)</p>
+                </div>
+              )}
+
+              {activeTab === "style" && (
+                <div className="space-y-4">
+                  <p className="text-gray-700">Style Analysis (Analysis not available for demo data)</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// SCRIPTS PAGE
+// ============================================================
+
+const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
+  const [selectedHook, setSelectedHook] = useState(null);
+  const [selectedStyle, setSelectedStyle] = useState(null);
+  const [topic, setTopic] = useState("");
   const [generatedScript, setGeneratedScript] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState(null);
-  const [duration, setDuration] = useState("Short (15-30s)");
-  const [tone, setTone] = useState("Energetic");
 
-  // Clear pageState after consuming it
-  if (pageState?.remixTranscript && input === pageState.remixTranscript) {
-    setTimeout(() => setPageState && setPageState({}), 0);
-  }
+  const hooks = SAMPLE_HOOKS;
+  const styles = SAMPLE_STYLES;
 
-  const generate = async () => {
-    if (!input.trim()) return;
+  const generateScript = async () => {
+    if (!selectedHook || !selectedStyle || !topic) return;
     setIsGenerating(true);
-    setError(null);
-    setGeneratedScript(null);
     try {
-      const res = await fetch("/api/generate-script", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, input, duration, tone }),
+      // Simulated generation - in real app would call API
+      await new Promise(r => setTimeout(r, 1500));
+      setGeneratedScript({
+        hook: selectedHook.content,
+        body: `[Body content expanding on "${topic}" with engaging storytelling]`,
+        cta: "Make sure to like, subscribe, and drop a comment below!",
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
-      setGeneratedScript(data);
-    } catch (err) {
-      setError(err.message);
+      setScriptsWritten(scriptsWritten + 1);
     } finally {
       setIsGenerating(false);
     }
@@ -861,270 +813,261 @@ const ScriptWriterPage = ({ pageState, setPageState }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-extrabold text-gray-900">Script Writer</h1>
-        <p className="text-gray-500 mt-1">Generate scroll-stopping short-form scripts in seconds.</p>
+        <h1 className="text-3xl font-extrabold text-gray-900">Script Generator</h1>
+        <p className="text-gray-500 mt-1">Combine hooks, styles, and topics to generate viral scripts.</p>
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {[
-          { key: "remix", label: "🔄 Remix Reel", desc: "Paste a viral reel transcript to rewrite" },
-          { key: "idea", label: "💡 From Idea", desc: "Turn a single idea into a full script" },
-          { key: "outline", label: "📋 From Outline", desc: "Expand an outline into a polished script" },
-          { key: "polish", label: "✨ Polish Draft", desc: "Refine and improve an existing draft" },
-        ].map(m => (
-          <button key={m.key} onClick={() => { setMode(m.key); setGeneratedScript(null); }} className={`p-4 rounded-2xl border-2 text-left transition-all ${mode === m.key ? "border-pink-400 bg-pink-50 shadow-sm" : "border-gray-200 bg-white hover:border-pink-200"}`}>
-            <div className="font-bold text-sm text-gray-900">{m.label}</div>
-            <div className="text-xs text-gray-500 mt-0.5">{m.desc}</div>
+
+      <div className="grid grid-cols-2 gap-6">
+        {/* Inputs */}
+        <div className="space-y-6">
+          {/* Hook Selection */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                <Lightbulb size={18} className="text-white" />
+              </div>
+              <h2 className="font-bold text-gray-900">Hook</h2>
+            </div>
+
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {hooks.map(hook => (
+                <button
+                  key={hook.id}
+                  onClick={() => setSelectedHook(hook)}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-all text-sm ${selectedHook?.id === hook.id ? "bg-purple-100 border border-purple-300" : "bg-gray-50 border border-transparent hover:bg-gray-100"}`}
+                >
+                  <p className="font-medium text-gray-900 line-clamp-1">{hook.content}</p>
+                  <p className="text-xs text-gray-600 mt-1">{hook.views} views • {hook.source}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Style Selection */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                <Palette size={18} className="text-white" />
+              </div>
+              <h2 className="font-bold text-gray-900">Style</h2>
+            </div>
+
+            <div className="space-y-2">
+              {styles.map(style => (
+                <button
+                  key={style.id}
+                  onClick={() => setSelectedStyle(style)}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-all text-sm ${selectedStyle?.id === style.id ? "bg-green-100 border border-green-300" : "bg-gray-50 border border-transparent hover:bg-gray-100"}`}
+                >
+                  <p className="font-medium text-gray-900 line-clamp-1">{style.content}</p>
+                  <p className="text-xs text-gray-600 mt-1">{style.source}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Topic Input */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center">
+                <ZapIcon size={18} className="text-white" />
+              </div>
+              <h2 className="font-bold text-gray-900">Topic</h2>
+            </div>
+
+            <input
+              type="text"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="Enter your topic (e.g., 'morning productivity routine')"
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+            />
+          </div>
+
+          {/* Generate Button */}
+          <button
+            onClick={generateScript}
+            disabled={!selectedHook || !selectedStyle || !topic || isGenerating}
+            className="w-full bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-all shadow-md"
+          >
+            {isGenerating ? (
+              <><RefreshCw size={16} className="animate-spin" /> Generating...</>
+            ) : (
+              <><Sparkles size={16} /> Generate Script</>
+            )}
+          </button>
+        </div>
+
+        {/* Output */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 h-fit sticky top-4">
+          <h2 className="font-bold text-gray-900 mb-4">Generated Script</h2>
+
+          {generatedScript ? (
+            <div className="space-y-4">
+              {/* Hook Section */}
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-l-4 border-purple-500 rounded-lg p-4">
+                <p className="text-xs font-bold text-purple-600 uppercase mb-2">Hook</p>
+                <p className="text-gray-900 font-semibold">{generatedScript.hook}</p>
+              </div>
+
+              {/* Body Section */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-xs font-bold text-gray-600 uppercase mb-2">Body</p>
+                <p className="text-gray-700 text-sm leading-relaxed">{generatedScript.body}</p>
+              </div>
+
+              {/* CTA Section */}
+              <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4">
+                <p className="text-xs font-bold text-green-600 uppercase mb-2">Call to Action</p>
+                <p className="text-gray-900 font-semibold">{generatedScript.cta}</p>
+              </div>
+
+              {/* Copy Button */}
+              <button className="w-full bg-pink-600 hover:bg-pink-700 text-white px-4 py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all">
+                <Copy size={16} /> Copy Script
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <Sparkles size={32} className="mx-auto mb-2 opacity-30" />
+              <p className="font-semibold">No script yet</p>
+              <p className="text-sm">Select a hook, style, and topic to generate</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// VAULT PAGE
+// ============================================================
+
+const VaultPage = () => {
+  const [filterType, setFilterType] = useState("all");
+
+  const allItems = [...SAMPLE_HOOKS, ...SAMPLE_STYLES, ...SAMPLE_STRUCTURES];
+  const filtered = filterType === "all" ? allItems : allItems.filter(i => i.type === filterType);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-extrabold text-gray-900">Vault</h1>
+        <p className="text-gray-500 mt-1">Your saved hooks, styles, structures, and videos.</p>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-2 flex-wrap">
+        {["all", "hook", "style", "structure"].map(type => (
+          <button
+            key={type}
+            onClick={() => setFilterType(type)}
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${filterType === type ? "bg-pink-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+          >
+            {type === "all" ? "All Items" : type.charAt(0).toUpperCase() + type.slice(1) + "s"}
           </button>
         ))}
       </div>
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
-        <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={mode === "remix" ? "Paste the transcript of a viral reel you want to remix..." : mode === "idea" ? "Type your video idea... (e.g., 'Why most people will never be rich')" : mode === "outline" ? "Paste your outline here..." : "Paste your draft to polish..."} className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none h-32" />
-        <div className="flex items-center justify-between">
-          <div className="flex gap-2">
-            <select value={duration} onChange={(e) => setDuration(e.target.value)} className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-300">
-              <option>Short (15-30s)</option>
-              <option>Medium (30-45s)</option>
-              <option>Long (45-60s)</option>
-            </select>
-            <select value={tone} onChange={(e) => setTone(e.target.value)} className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-pink-300">
-              <option>Energetic</option>
-              <option>Conversational</option>
-              <option>Professional</option>
-              <option>Storytelling</option>
-            </select>
-          </div>
-          <button onClick={generate} disabled={isGenerating || !input.trim()} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
-            {isGenerating ? <><RefreshCw size={14} className="animate-spin" /> Generating...</> : <><Sparkles size={14} /> Generate Script</>}
-          </button>
-        </div>
-        {error && <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
-      </div>
-      {generatedScript && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-bold text-gray-900 flex items-center gap-2"><Sparkles size={16} className="text-pink-500" /> Your Script</h2>
-            <div className="flex gap-2">
-              <button onClick={() => { const full = [generatedScript.hook, generatedScript.explain, generatedScript.illustrate, generatedScript.teach].filter(Boolean).join("\n\n"); navigator.clipboard.writeText(full); }} className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-50" title="Copy full script"><Copy size={14} /></button>
-              <button onClick={generate} className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-50" title="Regenerate"><RefreshCw size={14} /></button>
-            </div>
-          </div>
-          <div className="space-y-3">
-            <div className="bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-orange-600 mb-1">🎣 HOOK</div>
-              <p className="text-gray-900 font-medium">{generatedScript.hook}</p>
-            </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-blue-600 mb-1">💬 EXPLAIN</div>
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.explain}</p>
-            </div>
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-purple-600 mb-1">💡 ILLUSTRATE</div>
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.illustrate}</p>
-            </div>
-            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
-              <div className="text-xs font-bold text-emerald-600 mb-1">🎓 TEACH</div>
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed">{generatedScript.teach}</p>
-            </div>
-          </div>
-          {mode === "remix" && generatedScript.analysis && (
-            <div className="border-t border-gray-100 pt-4 space-y-3">
-              <h3 className="font-bold text-sm text-gray-700">Remix Analysis</h3>
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                <p className="text-gray-600 text-sm leading-relaxed">{generatedScript.analysis}</p>
+
+      {/* Items Grid */}
+      <div className="grid grid-cols-2 gap-4">
+        {filtered.map(item => {
+          const colorMap = {
+            hook: "from-purple-100 to-purple-50 border-purple-200 text-purple-600",
+            style: "from-green-100 to-green-50 border-green-200 text-green-600",
+            structure: "from-yellow-100 to-yellow-50 border-yellow-200 text-yellow-600",
+          };
+          const colors = colorMap[item.type];
+
+          return (
+            <div key={item.id} className={`bg-gradient-to-br ${colors} rounded-2xl border-2 p-5`}>
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider opacity-60">
+                    {item.type === "hook" ? "🎯" : item.type === "style" ? "🎨" : "📐"} {item.type}
+                  </p>
+                  <h3 className="font-bold text-gray-900 mt-1 line-clamp-2">{item.content}</h3>
+                </div>
+                <button className="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0">
+                  <Trash2 size={16} />
+                </button>
               </div>
-              <div className="flex gap-4 text-xs text-gray-500">
-                {generatedScript.original_word_count > 0 && <span>Original: {generatedScript.original_word_count} words</span>}
-                {generatedScript.rewritten_word_count > 0 && <span>Rewritten: {generatedScript.rewritten_word_count} words</span>}
-              </div>
-              {generatedScript.used_research && (
-                <div className="text-xs text-gray-500 italic">{generatedScript.used_research}</div>
+
+              <p className="text-sm text-gray-600 mb-3">From: {item.source}</p>
+
+              {item.views && <p className="text-xs text-gray-600 mb-2">{item.views} views</p>}
+
+              {item.tags && (
+                <div className="flex flex-wrap gap-2">
+                  {item.tags.slice(0, 2).map((tag, i) => (
+                    <span key={i} className="text-xs bg-white/60 px-2.5 py-1 rounded-full font-medium">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
-          )}
+          );
+        })}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="text-center py-12 text-gray-500">
+          <Archive size={32} className="mx-auto mb-3 opacity-30" />
+          <p className="font-semibold">No items found</p>
+          <p className="text-sm">Start saving hooks, styles, and videos to your vault</p>
         </div>
       )}
     </div>
   );
 };
 
-const HooksPage = () => {
-  const [selectedType, setSelectedType] = useState(null);
-  const [customTopic, setCustomTopic] = useState("");
-  const [generatedHooks, setGeneratedHooks] = useState(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState(null);
-
-  const generateCustomHooks = async () => {
-    if (!customTopic.trim()) return;
-    setIsGenerating(true);
-    setError(null);
-    setGeneratedHooks(null);
-    try {
-      const res = await fetch("/api/generate-hooks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: customTopic }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
-      setGeneratedHooks(data.hooks);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-extrabold text-gray-900">Hook Generator</h1>
-        <p className="text-gray-500 mt-1">Create scroll-stopping opening lines for your short-form videos.</p>
-      </div>
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <h2 className="font-bold text-gray-900 mb-3">Generate hooks for any topic</h2>
-        <div className="flex gap-3">
-          <input type="text" value={customTopic} onChange={(e) => setCustomTopic(e.target.value)} placeholder="Enter your topic... (e.g., 'morning routines', 'investing')" className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300" onKeyDown={(e) => e.key === "Enter" && generateCustomHooks()} />
-          <button onClick={generateCustomHooks} disabled={isGenerating || !customTopic} className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 text-white px-6 py-3 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-md">
-            {isGenerating ? <><RefreshCw size={14} className="animate-spin" /> Working...</> : <><Zap size={14} /> Generate</>}
-          </button>
-        </div>
-        {error && <div className="mt-3 bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-sm">{error}</div>}
-        {generatedHooks && (
-          <div className="mt-4 space-y-2">
-            {generatedHooks.map((hook, i) => (
-              <div key={i} className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-start justify-between gap-3 group hover:border-pink-200 hover:bg-pink-50/30 transition-all">
-                <p className="text-gray-700 text-sm flex-1">"{hook}"</p>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="text-gray-400 hover:text-pink-500 p-1.5 rounded-lg hover:bg-white"><Copy size={13} /></button>
-                  <button className="text-gray-400 hover:text-orange-500 p-1.5 rounded-lg hover:bg-white"><Bookmark size={13} /></button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Hook Templates</h2>
-        <div className="grid grid-cols-2 gap-4">
-          {HOOK_TEMPLATES.map((template, i) => (
-            <div key={i} onClick={() => setSelectedType(selectedType === i ? null : i)} className={`bg-white rounded-2xl border-2 p-5 cursor-pointer transition-all ${selectedType === i ? "border-pink-400 shadow-md" : "border-gray-100 hover:border-pink-200 hover:shadow-sm"}`}>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-bold text-gray-900 flex items-center gap-2"><span className="text-xl">{template.icon}</span> {template.type}</h3>
-                <ChevronDown size={16} className={`text-gray-400 transition-transform ${selectedType === i ? "rotate-180 text-pink-500" : ""}`} />
-              </div>
-              {selectedType === i && (
-                <div className="space-y-2 mt-3">
-                  {template.hooks.map((hook, j) => (
-                    <div key={j} className="bg-gray-50 rounded-xl p-3 flex items-start justify-between gap-2 group">
-                      <p className="text-gray-600 text-sm">"{hook}"</p>
-                      <button className="text-gray-300 hover:text-pink-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"><Copy size={12} /></button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const VaultPage = () => {
-  const [filter, setFilter] = useState("all");
-  const filtered = filter === "all" ? VAULT_ITEMS : VAULT_ITEMS.filter(item => item.type === filter);
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-900">Content Vault</h1>
-          <p className="text-gray-500 mt-1">Your saved hooks, styles, and frameworks — ready to use anytime.</p>
-        </div>
-        <button className="bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-md">
-          <Plus size={16} /> Add to Vault
-        </button>
-      </div>
-      <div className="flex gap-2">
-        {[{ key: "all", label: "All" }, { key: "hook", label: "Hooks" }, { key: "style", label: "Styles" }, { key: "structure", label: "Structures" }].map(f => (
-          <button key={f.key} onClick={() => setFilter(f.key)} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${filter === f.key ? "bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-md" : "bg-white border border-gray-200 text-gray-500 hover:border-pink-200"}`}>
-            {f.label}
-          </button>
-        ))}
-      </div>
-      <div className="grid gap-3">
-        {filtered.map(item => (
-          <div key={item.id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:border-pink-100 transition-all">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${item.type === "hook" ? "bg-pink-100 text-pink-600" : item.type === "style" ? "bg-cyan-100 text-cyan-600" : "bg-amber-100 text-amber-600"}`}>{item.type}</span>
-                  <span className="text-xs text-gray-400">from {item.source}</span>
-                  <span className="text-xs text-gray-300">· {item.saved}</span>
-                </div>
-                <p className="text-gray-700 text-sm">{item.content}</p>
-                <div className="flex gap-2 mt-2">
-                  {item.tags.map((tag, j) => (
-                    <span key={j} className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">#{tag}</span>
-                  ))}
-                </div>
-              </div>
-              <div className="flex gap-1">
-                <button className="text-gray-300 hover:text-pink-500 p-2 rounded-lg hover:bg-gray-50"><Copy size={14} /></button>
-                <button className="text-gray-300 hover:text-red-400 p-2 rounded-lg hover:bg-gray-50"><X size={14} /></button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+// ============================================================
+// SETTINGS PAGE
+// ============================================================
 
 const SettingsPage = () => (
-  <div className="space-y-6">
+  <div className="space-y-6 max-w-2xl">
     <div>
       <h1 className="text-3xl font-extrabold text-gray-900">Settings</h1>
-      <p className="text-gray-500 mt-1">Manage your account and preferences.</p>
+      <p className="text-gray-500 mt-1">Manage your preferences and account.</p>
     </div>
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
-      <h2 className="font-bold text-gray-900">Profile</h2>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm text-gray-500 block mb-1.5 font-medium">Name</label>
-          <input type="text" defaultValue="Michael" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300" />
-        </div>
-        <div>
-          <label className="text-sm text-gray-500 block mb-1.5 font-medium">Email</label>
-          <input type="email" defaultValue="michaelreadartofficial@gmail.com" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-pink-300" />
-        </div>
-      </div>
-    </div>
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
-      <h2 className="font-bold text-gray-900">Subscription</h2>
-      <div className="bg-gradient-to-r from-orange-50 to-pink-50 border border-pink-200 rounded-xl p-5 flex items-center justify-between">
-        <div>
-          <div className="text-gray-900 font-extrabold text-lg">Pro Plan</div>
-          <div className="text-gray-500 text-sm">50 creators · Unlimited saves · Full access to all tools</div>
-        </div>
-        <div className="text-2xl font-extrabold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text" style={{ WebkitTextFillColor: "transparent" }}>$39/mo</div>
-      </div>
-    </div>
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
-      <h2 className="font-bold text-gray-900">Platforms</h2>
-      <div className="space-y-3">
-        {["TikTok", "Instagram Reels", "YouTube Shorts"].map((platform, i) => (
-          <label key={i} className="flex items-center justify-between cursor-pointer group">
-            <div className="flex items-center gap-3">
-              <PlatformBadge platform={platform} />
-              <span className="text-gray-600 text-sm">Show {platform} content</span>
+
+    {/* Notification Settings */}
+    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+      <h2 className="font-bold text-gray-900 mb-4">Notifications</h2>
+      <div className="space-y-4">
+        {[
+          { label: "Viral alerts", desc: "Get notified when outliers hit >20x" },
+          { label: "Weekly digest", desc: "Receive a summary of top videos" },
+          { label: "New channels", desc: "Alerts when followed channels post" },
+        ].map((item, i) => (
+          <div key={i} className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900">{item.label}</p>
+              <p className="text-sm text-gray-500">{item.desc}</p>
             </div>
-            <div className="w-11 h-6 bg-gradient-to-r from-orange-400 to-pink-500 rounded-full relative shadow-sm">
-              <div className="absolute top-1 right-1 w-4 h-4 bg-white rounded-full shadow" />
-            </div>
-          </label>
+            <input type="checkbox" defaultChecked className="w-5 h-5" />
+          </div>
         ))}
+      </div>
+    </div>
+
+    {/* Content Preferences */}
+    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+      <h2 className="font-bold text-gray-900 mb-4">Content Preferences</h2>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-900 mb-2">Favorite Niches</label>
+          <div className="flex flex-wrap gap-2">
+            {["Finance", "Business", "Health", "Travel"].map(niche => (
+              <button key={niche} className="px-4 py-2 bg-pink-100 text-pink-700 rounded-full text-sm font-medium hover:bg-pink-200 flex items-center gap-2">
+                {niche} <X size={14} />
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1134,90 +1077,121 @@ const SettingsPage = () => (
 // MAIN APP
 // ============================================================
 
+const Heart = ({ size = 24 }) => <span>❤️</span>;
+const Palette = ({ size = 24 }) => <span>🎨</span>;
+
 const NAV_ITEMS = [
-  { key: "dashboard", label: "Dashboard", icon: BarChart3 },
-  { key: "videos", label: "Discover", icon: Video },
-  { key: "channels", label: "Creators", icon: Users },
-  { key: "hooks", label: "Hooks", icon: Zap },
-  { key: "scripts", label: "Script Writer", icon: PenTool },
-  { key: "vault", label: "Vault", icon: Archive },
-  { key: "settings", label: "Settings", icon: Settings },
+  { id: "dashboard", label: "Dashboard", icon: BarChart3 },
+  { id: "channels", label: "Channels", icon: Users },
+  { id: "videos", label: "Videos", icon: Video },
+  { id: "scripts", label: "Scripts", icon: PenTool },
+  { id: "vault", label: "Vault", icon: Archive },
+  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 export default function App() {
-  const [page, setPage] = useState("dashboard");
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [selectedCreator, setSelectedCreator] = useState(null);
-  const [pageState, setPageState] = useState({});
+  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [watchlists, setWatchlists] = useState(SAMPLE_WATCHLISTS);
+  const [savedVideos, setSavedVideos] = useState([]);
+  const [selectedVideoDetail, setSelectedVideoDetail] = useState(null);
+  const [scriptsWritten, setScriptsWritten] = useState(0);
 
-  const renderPage = () => {
-    switch (page) {
-      case "dashboard": return <DashboardPage setPage={setPage} />;
-      case "videos": return <DiscoverPage setPage={setPage} setSelectedCreator={setSelectedCreator} />;
-      case "creator-detail": return <CreatorDetailPage creator={selectedCreator} setPage={setPage} setPageState={(state) => { setPageState(state); }} />;
-      case "channels": return <ChannelsPage setPage={setPage} setSelectedCreator={setSelectedCreator} />;
-      case "hooks": return <HooksPage />;
-      case "scripts": return <ScriptWriterPage pageState={pageState} setPageState={setPageState} />;
-      case "vault": return <VaultPage />;
-      case "settings": return <SettingsPage />;
-      default: return <DashboardPage setPage={setPage} />;
-    }
+  const vaultItems = [...SAMPLE_HOOKS, ...SAMPLE_STYLES, ...SAMPLE_STRUCTURES];
+
+  const stats = {
+    channelsWatched: watchlists.reduce((acc, w) => acc + w.channels.length, 0),
+    videosSaved: savedVideos.length,
+    scriptsWritten,
+    vaultItems: vaultItems.length,
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 text-gray-900 overflow-hidden" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${sidebarCollapsed ? "w-16" : "w-60"}`}>
+      <div className={`${sidebarOpen ? "w-64" : "w-20"} transition-all duration-300 bg-white border-r border-gray-200 flex flex-col`}>
         {/* Logo */}
-        <div className="p-4 border-b border-gray-100 flex items-center gap-3 cursor-pointer" onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
-          <div className="w-9 h-9 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0 shadow-lg">O</div>
-          {!sidebarCollapsed && <span className="font-extrabold text-gray-900 tracking-tight text-lg">Optimus<span className="bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text" style={{ WebkitTextFillColor: "transparent" }}>.AI</span></span>}
+        <div className="px-6 py-6 border-b border-gray-200 flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+            O
+          </div>
+          {sidebarOpen && <span className="font-bold text-gray-900">Optimus.AI</span>}
         </div>
 
-        {/* Platforms indicator */}
-        {!sidebarCollapsed && (
-          <div className="px-4 py-3 border-b border-gray-100">
-            <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">Platforms</div>
-            <div className="flex gap-1.5">
-              {["TikTok", "Reels", "Shorts"].map(p => (
-                <span key={p} className="px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full text-[10px] font-semibold">{p}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Nav */}
-        <nav className="flex-1 p-2 space-y-1">
-          {NAV_ITEMS.map(item => {
-            const Icon = item.icon;
-            const active = page === item.key;
-            return (
-              <button key={item.key} onClick={() => setPage(item.key)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${active ? "bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-md" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`} title={sidebarCollapsed ? item.label : undefined}>
-                <Icon size={18} className="flex-shrink-0" />
-                {!sidebarCollapsed && <span>{item.label}</span>}
-              </button>
-            );
-          })}
+        {/* Nav Items */}
+        <nav className="flex-1 p-4 space-y-2">
+          {NAV_ITEMS.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setCurrentPage(item.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                currentPage === item.id
+                  ? "bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-md"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+              title={item.label}
+            >
+              <item.icon size={20} className="flex-shrink-0" />
+              {sidebarOpen && <span className="text-sm font-semibold">{item.label}</span>}
+            </button>
+          ))}
         </nav>
 
-        {/* Credits */}
-        {!sidebarCollapsed && (
-          <div className="p-4 border-t border-gray-100">
-            <div className="bg-gradient-to-r from-orange-50 to-pink-50 rounded-xl p-3 border border-pink-100">
-              <div className="text-[10px] text-gray-500 font-bold uppercase">Credits</div>
-              <div className="text-gray-900 font-extrabold mt-0.5">47 / 100</div>
-              <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                <div className="bg-gradient-to-r from-orange-400 to-pink-500 h-1.5 rounded-full" style={{ width: "47%" }} />
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Toggle */}
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="w-full flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
+          >
+            <ChevronDown size={18} className={`transition-transform ${sidebarOpen ? "rotate-90" : "-rotate-90"}`} />
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-8">
-          {renderPage()}
+      <div className="flex-1 overflow-auto flex flex-col">
+        {/* Header */}
+        <div className="border-b border-gray-200 bg-white px-8 py-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">
+              {NAV_ITEMS.find(n => n.id === currentPage)?.label}
+            </h1>
+            <div className="flex items-center gap-4">
+              <button className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-600">
+                <Search size={18} />
+              </button>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500" />
+            </div>
+          </div>
+        </div>
+
+        {/* Page Content */}
+        <div className="flex-1 overflow-auto p-8">
+          {selectedVideoDetail && currentPage === "videos" ? (
+            <VideoDetailPage
+              video={selectedVideoDetail}
+              setSelectedVideoDetail={setSelectedVideoDetail}
+              savedVideos={savedVideos}
+              setSavedVideos={setSavedVideos}
+            />
+          ) : currentPage === "dashboard" ? (
+            <DashboardPage stats={stats} />
+          ) : currentPage === "channels" ? (
+            <ChannelsPage watchlists={watchlists} setWatchlists={setWatchlists} />
+          ) : currentPage === "videos" ? (
+            <VideosPage
+              watchlists={watchlists}
+              savedVideos={savedVideos}
+              setSavedVideos={setSavedVideos}
+              setSelectedVideoDetail={setSelectedVideoDetail}
+            />
+          ) : currentPage === "scripts" ? (
+            <ScriptsPage vaultItems={vaultItems} scriptsWritten={scriptsWritten} setScriptsWritten={setScriptsWritten} />
+          ) : currentPage === "vault" ? (
+            <VaultPage />
+          ) : currentPage === "settings" ? (
+            <SettingsPage />
+          ) : null}
         </div>
       </div>
     </div>
