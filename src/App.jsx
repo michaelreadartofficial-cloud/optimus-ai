@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 // ============================================================
-// SAMPLE DATA — Short-Form Only (TikTok, Reels, Shorts)
+// SAMPLE DATA â Short-Form Only (TikTok, Reels, Shorts)
 // ============================================================
 
 const SAMPLE_VIDEOS = [
@@ -18,16 +18,16 @@ const SAMPLE_VIDEOS = [
     id: 1, title: "I Tried Living on $1 for 24 Hours", channel: "Ryan Trahan", channelId: 1,
     platform: "YouTube Shorts", views: "48.2M", viewsNum: 48200000, likes: "2.1M", comments: "45K",
     outlierScore: 28.5, uploadDate: "3 days ago", duration: "0:58", niche: "Lifestyle",
-    thumbnail: "https://picsum.photos/seed/v1/400/700",
+    thumbnail: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&h=711&fit=crop&crop=face",
     hook: "What if I told you that you could survive an entire day on just one dollar?",
-    transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop — the dollar store...",
+    transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop â the dollar store...",
     engagement: 4.3,
   },
   {
     id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", channelId: 6,
     platform: "TikTok", views: "12.7M", viewsNum: 12700000, likes: "890K", comments: "23K",
     outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", niche: "Education",
-    thumbnail: "https://picsum.photos/seed/v2/400/700",
+    thumbnail: "https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&h=711&fit=crop&crop=face",
     hook: "Stop using the word 'very'. Here's what smart people say instead.",
     transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'...",
     engagement: 7.1,
@@ -36,7 +36,7 @@ const SAMPLE_VIDEOS = [
     id: 3, title: "POV: You Finally Quit Your 9-5", channel: "Alex Hormozi", channelId: 3,
     platform: "Instagram Reels", views: "8.4M", viewsNum: 8400000, likes: "620K", comments: "18K",
     outlierScore: 12.8, uploadDate: "5 days ago", duration: "0:45", niche: "Business",
-    thumbnail: "https://picsum.photos/seed/v3/400/700",
+    thumbnail: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=711&fit=crop&crop=face",
     hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.",
     transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one...",
     engagement: 7.4,
@@ -45,7 +45,7 @@ const SAMPLE_VIDEOS = [
     id: 4, title: "The Psychology Behind Why You Can't Stop Scrolling", channel: "Ali Abdaal", channelId: 2,
     platform: "YouTube Shorts", views: "22.1M", viewsNum: 22100000, likes: "1.5M", comments: "34K",
     outlierScore: 19.3, uploadDate: "2 days ago", duration: "0:52", niche: "Psychology",
-    thumbnail: "https://picsum.photos/seed/v4/400/700",
+    thumbnail: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=711&fit=crop&crop=face",
     hook: "Your phone is literally designed to be addictive. Here's the science behind it.",
     transcript: "Your phone is literally designed to be addictive. Here's the science behind it...",
     engagement: 6.8,
@@ -54,7 +54,7 @@ const SAMPLE_VIDEOS = [
     id: 5, title: "I Asked 100 Millionaires Their #1 Habit", channel: "Mark Tilbury", channelId: 4,
     platform: "TikTok", views: "31.5M", viewsNum: 31500000, likes: "1.8M", comments: "52K",
     outlierScore: 24.1, uploadDate: "4 days ago", duration: "0:41", niche: "Finance",
-    thumbnail: "https://picsum.photos/seed/v5/400/700",
+    thumbnail: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=711&fit=crop&crop=face",
     hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.",
     transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing...",
     engagement: 5.7,
@@ -63,7 +63,7 @@ const SAMPLE_VIDEOS = [
     id: 6, title: "Why Japan's Trains Are Never Late", channel: "Abroad in Japan", channelId: 5,
     platform: "Instagram Reels", views: "15.8M", viewsNum: 15800000, likes: "1.1M", comments: "28K",
     outlierScore: 16.7, uploadDate: "1 week ago", duration: "0:55", niche: "Travel",
-    thumbnail: "https://picsum.photos/seed/v6/400/700",
+    thumbnail: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=711&fit=crop&crop=face",
     hook: "In Japan, if a train is even 60 seconds late, the company issues a formal apology.",
     transcript: "In Japan, if a train is even 60 seconds late, the company issues a formal apology...",
     engagement: 6.9,
@@ -72,7 +72,7 @@ const SAMPLE_VIDEOS = [
     id: 7, title: "This Meal Prep Changed My Life (5 Mins)", channel: "Ethan Chlebowski", channelId: 1,
     platform: "TikTok", views: "9.6M", viewsNum: 9600000, likes: "740K", comments: "21K",
     outlierScore: 11.4, uploadDate: "6 days ago", duration: "0:48", niche: "Food",
-    thumbnail: "https://picsum.photos/seed/v7/400/700",
+    thumbnail: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&h=711&fit=crop&crop=face",
     hook: "This 5-minute meal prep will save you $200 a month.",
     transcript: "This 5-minute meal prep will save you $200 a month...",
     engagement: 7.7,
@@ -81,7 +81,7 @@ const SAMPLE_VIDEOS = [
     id: 8, title: "The Real Reason You're Always Tired", channel: "Dr. Mike", channelId: 5,
     platform: "YouTube Shorts", views: "19.3M", viewsNum: 19300000, likes: "1.3M", comments: "41K",
     outlierScore: 17.9, uploadDate: "3 days ago", duration: "0:39", niche: "Health",
-    thumbnail: "https://picsum.photos/seed/v8/400/700",
+    thumbnail: "https://images.unsplash.com/photo-1550345332-09e3ac987658?w=400&h=711&fit=crop&crop=face",
     hook: "You're not tired because you're not sleeping enough.",
     transcript: "You're not tired because you're not sleeping enough...",
     engagement: 6.7,
@@ -96,7 +96,7 @@ const SAMPLE_CHANNELS = [
   { id: 4, name: "Mark Tilbury", handle: "marktilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", followers: "8.1M", followersNum: 8100000, videos: 1200, niche: "Finance", avatar: "from-green-400 to-emerald-600", size: "large" },
   { id: 5, name: "Dr. Mike", handle: "doctormike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", followers: "11.2M", followersNum: 11200000, videos: 650, niche: "Health", avatar: "from-teal-400 to-cyan-600", size: "large" },
   { id: 6, name: "Jade Bowler", handle: "jadebowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", followers: "1.9M", followersNum: 1900000, videos: 280, niche: "Education", avatar: "from-purple-400 to-pink-500", size: "large" },
-  // Fitness — large
+  // Fitness â large
   { id: 20, name: "Vladimir Fitness", handle: "vladimirfitness", platform: "YouTube Shorts", subscribers: "9.4M", avgViews: "3.8M", followers: "9.4M", followersNum: 9400000, videos: 890, niche: "Fitness", avatar: "from-red-500 to-orange-500", size: "large" },
   { id: 21, name: "Fitness Blender", handle: "fitnessblender", platform: "YouTube Shorts", subscribers: "6.6M", avgViews: "2.5M", followers: "6.6M", followersNum: 6600000, videos: 1200, niche: "Fitness", avatar: "from-blue-500 to-teal-400", size: "large" },
   { id: 22, name: "Sascha Fitness", handle: "saschafitness", platform: "Instagram Reels", subscribers: "5.8M", avgViews: "1.9M", followers: "5.8M", followersNum: 5800000, videos: 780, niche: "Fitness", avatar: "from-pink-400 to-rose-500", size: "large" },
@@ -115,7 +115,7 @@ const SAMPLE_CHANNELS = [
   { id: 35, name: "Koboko Fitness", handle: "kobokofitness", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "560K", followers: "1.9M", followersNum: 1900000, videos: 340, niche: "Fitness", avatar: "from-amber-600 to-yellow-500", size: "large" },
   { id: 36, name: "Scotty K Fitness", handle: "scottykfitness", platform: "TikTok", subscribers: "1.8M", avgViews: "540K", followers: "1.8M", followersNum: 1800000, videos: 420, niche: "Fitness", avatar: "from-red-400 to-rose-600", size: "large" },
   { id: 37, name: "MDJ Fitness", handle: "mdj_fitness", platform: "TikTok", subscribers: "1.7M", avgViews: "520K", followers: "1.7M", followersNum: 1700000, videos: 310, niche: "Fitness", avatar: "from-blue-600 to-indigo-700", size: "large" },
-  // Fitness — medium (100K–1M)
+  // Fitness â medium (100Kâ1M)
   { id: 40, name: "Macro Daddy", handle: "_macro_daddy", platform: "Instagram Reels", subscribers: "773K", avgViews: "280K", followers: "773K", followersNum: 773000, videos: 490, niche: "Fitness", avatar: "from-orange-500 to-amber-600", size: "medium" },
   { id: 41, name: "Alexa Stancofit", handle: "alexastancofit", platform: "Instagram Reels", subscribers: "409K", avgViews: "150K", followers: "409K", followersNum: 409000, videos: 320, niche: "Fitness", avatar: "from-pink-400 to-rose-500", size: "medium" },
   { id: 42, name: "Alex Gamble Coach", handle: "alexgamblecoach", platform: "Instagram Reels", subscribers: "428K", avgViews: "160K", followers: "428K", followersNum: 428000, videos: 280, niche: "Fitness", avatar: "from-teal-500 to-cyan-600", size: "medium" },
@@ -161,7 +161,7 @@ const SAMPLE_STYLES = [
 ];
 
 const SAMPLE_STRUCTURES = [
-  { id: 6, type: "structure", content: "Hook (3s) → Context (5s) → 3 Key Points (20s) → Twist (5s) → CTA (3s)", source: "Jade Bowler", tags: ["framework", "short-form"] },
+  { id: 6, type: "structure", content: "Hook (3s) â Context (5s) â 3 Key Points (20s) â Twist (5s) â CTA (3s)", source: "Jade Bowler", tags: ["framework", "short-form"] },
 ];
 
 const platformColors = {
@@ -259,7 +259,7 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
           <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-3xl">{topOutlier.emoji}</div>
           <div className="flex-1">
             <h3 className="text-xl font-bold">{topOutlier.title}</h3>
-            <p className="text-white/70 text-sm mt-1">{topOutlier.channel} · {topOutlier.views} views · {topOutlier.outlierScore}x outlier</p>
+            <p className="text-white/70 text-sm mt-1">{topOutlier.channel} Â· {topOutlier.views} views Â· {topOutlier.outlierScore}x outlier</p>
             <div className="flex gap-4 mt-2 text-white/60 text-xs">
               <span><Eye size={12} className="inline mr-1" />{topOutlier.views}</span>
               <span><Heart size={12} className="inline mr-1" />{topOutlier.likes}</span>
@@ -281,7 +281,7 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
                 <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">{v.emoji}</div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-gray-900 text-sm font-semibold truncate group-hover:text-pink-600 transition-colors">{v.title}</h3>
-                  <p className="text-gray-400 text-xs mt-0.5">{v.channel} · {v.platform}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">{v.channel} Â· {v.platform}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="text-right">
@@ -347,9 +347,9 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
         <h2 className="text-lg font-bold text-gray-900 mb-4">Platform Overview</h2>
         <div className="grid grid-cols-3 gap-4">
           {[
-            { name: "YouTube Shorts", count: SAMPLE_VIDEOS.filter(v => v.platform === "YouTube Shorts").length, avgOutlier: "21.9x", color: "from-red-400 to-red-600", icon: "▶" },
-            { name: "TikTok", count: SAMPLE_VIDEOS.filter(v => v.platform === "TikTok").length, avgOutlier: "16.9x", color: "from-cyan-400 to-cyan-600", icon: "♪" },
-            { name: "Instagram Reels", count: SAMPLE_VIDEOS.filter(v => v.platform === "Instagram Reels").length, avgOutlier: "14.8x", color: "from-pink-400 to-purple-500", icon: "📷" },
+            { name: "YouTube Shorts", count: SAMPLE_VIDEOS.filter(v => v.platform === "YouTube Shorts").length, avgOutlier: "21.9x", color: "from-red-400 to-red-600", icon: "â¶" },
+            { name: "TikTok", count: SAMPLE_VIDEOS.filter(v => v.platform === "TikTok").length, avgOutlier: "16.9x", color: "from-cyan-400 to-cyan-600", icon: "âª" },
+            { name: "Instagram Reels", count: SAMPLE_VIDEOS.filter(v => v.platform === "Instagram Reels").length, avgOutlier: "14.8x", color: "from-pink-400 to-purple-500", icon: "ð·" },
           ].map((p, i) => (
             <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center mb-3 text-white text-lg`}>
@@ -640,7 +640,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                         <p className="text-sm font-semibold text-gray-900 truncate">{creator.username || creator.name}</p>
                         <p className="text-xs text-gray-500">{creator.subscribers} followers</p>
                       </div>
-                      {/* Action icons — always visible */}
+                      {/* Action icons â always visible */}
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <button
                           onClick={(e) => { e.stopPropagation(); findSimilar(creator); }}
@@ -675,7 +675,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
           </div>
         </div>
 
-        {/* Right Sidebar — Your Watchlist */}
+        {/* Right Sidebar â Your Watchlist */}
         <div className="w-72 flex-shrink-0">
           <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
             <div className="flex items-center justify-between mb-4">
@@ -767,7 +767,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
   );
 };
 
-// VIDEOS PAGE (Feed & Vault) — Sandcastles-matching design
+// VIDEOS PAGE (Feed & Vault) â Sandcastles-matching design
 // ============================================================
 
 const PlatformIcon = ({ platform, size = "sm" }) => {
@@ -786,7 +786,7 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
   const [showExportModal, setShowExportModal] = useState(false);
 
   // Filter state
-  const [outlierMin, setOutlierMin] = useState("1");
+  const [outlierMin, setOutlierMin] = useState("");
   const [outlierMax, setOutlierMax] = useState("");
   const [viewsMin, setViewsMin] = useState("");
   const [viewsMax, setViewsMax] = useState("");
@@ -978,7 +978,7 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
             <div>
               <label className="text-xs text-gray-500 mb-1.5 block">Outlier score</label>
               <div className="flex gap-2">
-                <input type="text" placeholder="1" value={outlierMin} onChange={e => setOutlierMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                <input type="text" placeholder="0x" value={outlierMin} onChange={e => setOutlierMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
                 <input type="text" placeholder="100x" value={outlierMax} onChange={e => setOutlierMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
               </div>
             </div>
@@ -1074,7 +1074,7 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
                 {displayedVideos.map(video => {
                   const isSaved = savedVideos.some(v => v.id === video.id);
                   const isHovered = hoveredVideoId === video.id;
@@ -1086,7 +1086,7 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
                       onMouseEnter={() => setHoveredVideoId(video.id)}
                       onMouseLeave={() => setHoveredVideoId(null)}
                     >
-                      {/* Thumbnail — click saves to vault */}
+                      {/* Thumbnail â click saves to vault */}
                       <div
                         className="relative overflow-hidden rounded-lg cursor-pointer"
                         style={{ aspectRatio: "9/16" }}
@@ -1099,11 +1099,11 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
                           alt=""
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
-                        {/* Platform icon — top right */}
+                        {/* Platform icon â top right */}
                         <div className="absolute top-2 right-2">
                           <PlatformIcon platform={video.platform} size="lg" />
                         </div>
-                        {/* Save to vault overlay — bottom center, on hover */}
+                        {/* Save to vault overlay â bottom center, on hover */}
                         <div className={`absolute inset-0 flex items-end justify-center pb-4 transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
                           <span className={`px-4 py-2 rounded-lg text-xs font-medium shadow-lg transition-all ${
                             isSaved ? "bg-green-500 text-white" : "bg-white/95 backdrop-blur-sm text-gray-700"
@@ -1115,7 +1115,7 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
 
                       {/* Meta info below thumbnail */}
                       <div className="flex flex-col gap-1 pt-2 pb-1">
-                        {/* Title — clickable, links to original post */}
+                        {/* Title â clickable, links to original post */}
                         <a
                           href="#"
                           onClick={(e) => { e.preventDefault(); setSelectedVideoDetail(video); }}
@@ -1362,9 +1362,9 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
       await new Promise(r => setTimeout(r, 1500));
       const script = {
         hook: selectedHook.content.replace("[topic]", topic),
-        body: `Let me break this down for you. When it comes to ${topic}, most people get it completely wrong. Here's what the top 1% actually do differently.\n\nFirst, they focus on consistency over intensity. Instead of going all-in for a week and burning out, they commit to small, daily actions.\n\nSecond, they leverage systems, not willpower. The secret isn't motivation — it's building an environment that makes the right choice the easy choice.\n\nThird, they measure what matters. Not vanity metrics, but the numbers that actually move the needle.`,
+        body: `Let me break this down for you. When it comes to ${topic}, most people get it completely wrong. Here's what the top 1% actually do differently.\n\nFirst, they focus on consistency over intensity. Instead of going all-in for a week and burning out, they commit to small, daily actions.\n\nSecond, they leverage systems, not willpower. The secret isn't motivation â it's building an environment that makes the right choice the easy choice.\n\nThird, they measure what matters. Not vanity metrics, but the numbers that actually move the needle.`,
         cta: "If this changed how you think about " + topic + ", drop a comment below with your biggest takeaway. And make sure to follow for more content like this!",
-        structure: selectedStructure?.content || "Hook → Context → Key Points → CTA",
+        structure: selectedStructure?.content || "Hook â Context â Key Points â CTA",
         style: selectedStyle.content,
         wordCount: 127,
         estDuration: "0:45 - 1:00",
@@ -1437,7 +1437,7 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
                   <p className="font-medium text-gray-900 line-clamp-2">{hook.content}</p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span className="text-xs text-gray-500">{hook.source}</span>
-                    <span className="text-xs text-gray-400">·</span>
+                    <span className="text-xs text-gray-400">Â·</span>
                     <span className="text-xs text-gray-500">{hook.views} views</span>
                     {hook.tags?.map((tag, i) => (
                       <span key={i} className="text-xs bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">{tag}</span>
@@ -1543,7 +1543,7 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
               {generatedScript && (
                 <div className="flex items-center gap-3 text-xs text-gray-500">
                   <span>{generatedScript.wordCount} words</span>
-                  <span>·</span>
+                  <span>Â·</span>
                   <span>{generatedScript.estDuration}</span>
                 </div>
               )}
@@ -1612,7 +1612,7 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
                     className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all text-sm"
                   >
                     <p className="font-medium text-gray-900 line-clamp-1">{s.hook}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{s.timestamp} · {s.wordCount} words</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{s.timestamp} Â· {s.wordCount} words</p>
                   </button>
                 ))}
               </div>
@@ -1663,7 +1663,7 @@ const VaultPage = ({ savedVideos, setSavedVideos, setSelectedVideoDetail, setCur
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-extrabold text-gray-900">Vault</h1>
-          <p className="text-gray-500 mt-1">Your saved hooks, styles, structures, and videos — all in one place.</p>
+          <p className="text-gray-500 mt-1">Your saved hooks, styles, structures, and videos â all in one place.</p>
         </div>
         <div className="text-sm text-gray-500 flex items-center gap-2">
           <Archive size={14} />
@@ -1724,7 +1724,7 @@ const VaultPage = ({ savedVideos, setSavedVideos, setSelectedVideoDetail, setCur
                 <div className="p-4">
                   <p className="text-xs font-bold uppercase tracking-wider text-pink-500 mb-1 flex items-center gap-1"><Video size={10} /> Saved Video</p>
                   <h3 className="font-bold text-gray-900 text-sm line-clamp-2 group-hover:text-pink-600 transition-colors">{item.title}</h3>
-                  <p className="text-xs text-gray-500 mt-1">{item.channel} · {item.views} views</p>
+                  <p className="text-xs text-gray-500 mt-1">{item.channel} Â· {item.views} views</p>
                   <div className="flex items-center gap-2 mt-2">
                     <OutlierBadge score={item.outlierScore} />
                     <button
