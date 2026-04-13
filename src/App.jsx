@@ -212,7 +212,7 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
         {[
           { icon: Flame, label: "Channels Watched", value: stats.channelsWatched, gradient: "from-orange-400 to-pink-500", change: "+2 this week" },
           { icon: Video, label: "Videos Saved", value: stats.videosSaved, gradient: "from-blue-400 to-indigo-500", change: "Feed active" },
@@ -305,33 +305,7 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
                   <div className={`w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0 ${item.color}`}>
                     <item.icon size={14} />
                   </div>
-                <div>
-                  <p className="text-xs text-gray-700">{item.text}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{item.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ============================================================
-// CHANNELS PAGE
-// ============================================================
-
-const ChannelsPage = ({ watchlists, setWatchlists }) => {
-  const [activeTab, setActiveTab] = useState("discover");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedNiche, setSelectedNiche] = useState("All");
-  const [selectedSize, setSelectedSize] = useState("All");
-  const [selectedPlatform, setSelectedPlatform] = useState("All");
-  const [showWatchlistModal, setShowWatchlistModal] = useState(null);
-
-  const watchlistedChannelIds = new Set(watchlists.flatMap(w => w.channels));
-  const nic          <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0">
                     <p className="text-sm text-gray-900 leading-snug">{item.text}</p>
                     <p className="text-xs text-gray-400 mt-0.5">{item.time}</p>
                   </div>
@@ -770,20 +744,18 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
 // VIDEOS PAGE (Feed & Vault) — Sandcastles-matching design
 // ============================================================
 
-const PlatformIcon = ({ platform, size = "sm" }) => {
-  const cls = size === "lg" ? "w-6 h-6" : "w-5 h-5";
-  if (platform.includes("YouTube")) return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/120px-YouTube_full-color_icon_%282017%29.svg.png" alt="YouTube" className={`${cls} rounded object-cover`} />;
-  if (platform.includes("TikTok")) return <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/120px-TikTok_logo.svg.png" alt="TikTok" className={`${cls} rounded object-cover bg-black p-0.5`} />;
-  return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/120px-Instagram_logo_2016.svg.png" alt="Instagram" className={`${cls} rounded object-cover`} />;
+const PlatformIcon = ({ platform }) => {
+  if (platform.includes("YouTube")) return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/120px-YouTube_full-color_icon_%282017%29.svg.png" alt="YouTube" className="w-5 h-5 rounded object-cover" />;
+  if (platform.includes("TikTok")) return <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/120px-TikTok_logo.svg.png" alt="TikTok" className="w-5 h-5 rounded object-cover bg-black p-0.5" />;
+  return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/120px-Instagram_logo_2016.svg.png" alt="Instagram" className="w-5 h-5 rounded object-cover" />;
 };
 
-const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoDetail, setCurrentPage }) => {
+const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoDetail }) => {
   const [activeTab, setActiveTab] = useState("feed");
-  const [sortBy, setSortBy] = useState("newest");
+  const [sortBy, setSortBy] = useState("outlier");
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [hoveredVideoId, setHoveredVideoId] = useState(null);
   const [visibleCount, setVisibleCount] = useState(20);
-  const [showExportModal, setShowExportModal] = useState(false);
 
   // Filter state
   const [outlierMin, setOutlierMin] = useState("");
@@ -793,85 +765,72 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
   const [engagementMin, setEngagementMin] = useState("");
   const [engagementMax, setEngagementMax] = useState("");
   const [postedInLast, setPostedInLast] = useState("");
-  const [postedInLastUnit, setPostedInLastUnit] = useState("Months");
   const [platformFilter, setPlatformFilter] = useState("all");
-  const [channelFilter, setChannelFilter] = useState("all");
   const [keywordSearch, setKeywordSearch] = useState("");
-  const [showChannelDropdown, setShowChannelDropdown] = useState(false);
-  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
 
-  // Get all watchlisted channel IDs and channel objects
+  // Get videos from watchlisted channels
   const watchlistedChannelIds = new Set(watchlists.flatMap(w => w.channels));
-  const watchlistedChannels = SAMPLE_CHANNELS.filter(c => watchlistedChannelIds.has(c.id));
   const feedVideos = SAMPLE_VIDEOS.filter(v => watchlistedChannelIds.has(v.channelId));
 
   // Apply filters
   const filteredVideos = (activeTab === "feed" ? feedVideos : savedVideos).filter(v => {
     if (outlierMin && v.outlierScore < parseFloat(outlierMin)) return false;
-    if (outlierMax && v.outlierScore > parseFloat(outlierMax.replace("x", ""))) return false;
+    if (outlierMax && v.outlierScore > parseFloat(outlierMax)) return false;
     if (viewsMin && v.viewsNum < parseInt(viewsMin.replace(/,/g, ""))) return false;
     if (viewsMax && v.viewsNum > parseInt(viewsMax.replace(/,/g, ""))) return false;
-    if (engagementMin && v.engagement < parseFloat(engagementMin.replace("%", ""))) return false;
-    if (engagementMax && v.engagement > parseFloat(engagementMax.replace("%", ""))) return false;
+    if (engagementMin && v.engagement < parseFloat(engagementMin)) return false;
+    if (engagementMax && v.engagement > parseFloat(engagementMax)) return false;
     if (platformFilter !== "all" && v.platform !== platformFilter) return false;
-    if (channelFilter !== "all" && v.channelId !== parseInt(channelFilter)) return false;
     if (keywordSearch && !v.title.toLowerCase().includes(keywordSearch.toLowerCase()) && !v.hook.toLowerCase().includes(keywordSearch.toLowerCase())) return false;
     return true;
   }).sort((a, b) => {
-    if (sortBy === "newest") return 0;
-    if (sortBy === "oldest") return 0;
     if (sortBy === "outlier") return b.outlierScore - a.outlierScore;
     if (sortBy === "views") return b.viewsNum - a.viewsNum;
     if (sortBy === "engagement") return b.engagement - a.engagement;
+    if (sortBy === "recent") return 0;
     return 0;
   });
 
   const displayedVideos = filteredVideos.slice(0, visibleCount);
+  const platforms = ["YouTube Shorts", "TikTok", "Instagram Reels"];
 
   const formatViews = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
-    if (num >= 1000) return Math.round(num / 1000) + "K";
+    if (num >= 1000) return (num / 1000).toFixed(0) + "K";
     return num.toString();
   };
 
-  const formatFollowers = (num) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
-    if (num >= 1000) return Math.round(num / 1000) + "K";
-    return num.toString();
+  const getPlatformIcon = (platform) => {
+    if (platform.includes("YouTube")) return { color: "bg-red-500", label: "YT" };
+    if (platform.includes("TikTok")) return { color: "bg-black", label: "TT" };
+    if (platform.includes("Instagram")) return { color: "bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400", label: "IG" };
+    return { color: "bg-gray-400", label: "?" };
   };
 
   const clearFilters = () => {
-    setOutlierMin("1"); setOutlierMax(""); setViewsMin(""); setViewsMax("");
+    setOutlierMin(""); setOutlierMax(""); setViewsMin(""); setViewsMax("");
     setEngagementMin(""); setEngagementMax(""); setPostedInLast("");
-    setPostedInLastUnit("Months"); setPlatformFilter("all"); setChannelFilter("all"); setKeywordSearch("");
+    setPlatformFilter("all"); setKeywordSearch("");
   };
-
-  const sortOptions = [
-    { key: "newest", label: "Newest" },
-    { key: "oldest", label: "Oldest" },
-    { key: "outlier", label: "Outlier score" },
-    { key: "views", label: "Views" },
-    { key: "engagement", label: "Engagement rate" },
-  ];
 
   return (
     <div>
       {/* Header */}
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-gray-900">Videos</h1>
-        <p className="text-sm text-gray-500 mt-1">
+      <div className="mb-4">
+        <h1 className="text-xl font-semibold text-gray-900">Videos</h1>
+        <p className="text-sm text-gray-500 mt-0.5">
           {activeTab === "feed" ? "Save high-performing videos to your vault to unlock deep analysis" : "Browse videos you\u2019ve saved to your vault"}
         </p>
       </div>
 
       {/* Feed / Vault toggle + toolbar */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="relative inline-flex rounded-full bg-gray-100 p-1">
+      <div className="flex items-center justify-between mb-4">
+        <div className="relative inline-flex rounded-lg bg-gray-100 h-[37px] p-0.5">
           {["feed", "vault"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`relative px-5 h-full rounded-md text-sm font-medium transition-colors duration-200 ${
                 activeTab === tab ? "text-gray-900 bg-white shadow-sm" : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -880,18 +839,11 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
           ))}
         </div>
 
-        <div className="flex items-center gap-5 text-sm text-gray-500">
-          {activeTab === "feed" ? (
-            <button onClick={() => setCurrentPage && setCurrentPage("channels")} className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
-              <Settings size={14} />
-              <span>Configure channels</span>
-            </button>
-          ) : (
-            <button className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
-              <Plus size={14} />
-              <span>Add video URL</span>
-            </button>
-          )}
+        <div className="flex items-center gap-4 text-sm text-gray-500">
+          <button className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
+            <Settings size={14} />
+            <span>{activeTab === "feed" ? "Configure channels" : "Add video URL"}</span>
+          </button>
           <div className="relative">
             <button onClick={() => setShowSortMenu(!showSortMenu)} className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
               <BarChart3 size={14} />
@@ -900,295 +852,179 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
             {showSortMenu && (
               <>
                 <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />
-                <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-48">
-                  {sortOptions.map(opt => (
+                <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-44">
+                  {[{ key: "outlier", label: "Outlier Score" }, { key: "views", label: "Views" }, { key: "engagement", label: "Engagement" }, { key: "recent", label: "Most Recent" }].map(opt => (
                     <button key={opt.key} onClick={() => { setSortBy(opt.key); setShowSortMenu(false); }}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 ${sortBy === opt.key ? "text-gray-900 font-medium" : "text-gray-600"}`}>
-                      {opt.label}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${sortBy === opt.key ? "text-gray-900 font-medium" : "text-gray-600"}`}>
+                      {opt.label} {sortBy === opt.key && <Check size={14} className="inline ml-2 text-green-500" />}
                     </button>
                   ))}
                 </div>
               </>
             )}
           </div>
-          <button onClick={() => setShowExportModal(true)} className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
+          <button className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
             <Download size={14} />
             <span>Export</span>
           </button>
         </div>
       </div>
 
-      {/* Main layout: sidebar + video grid */}
-      <div className="flex gap-5">
-        {/* Filters Sidebar */}
-        <div className="hidden md:block w-[220px] flex-shrink-0 sticky top-0 self-start">
-          <div className="border border-gray-200 rounded-xl bg-white p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Filters</span>
-              <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600">Clear</button>
-            </div>
-
-            {/* Saved Filters */}
-            <div>
-              <label className="text-xs text-gray-500 mb-1.5 block">Saved Filters</label>
-              <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-400 appearance-none cursor-pointer" style={{backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center"}}>
-                <option>Pick one to apply</option>
-              </select>
-            </div>
-
-            {/* Channels dropdown */}
-            <div className="relative">
-              <label className="text-xs text-gray-500 mb-1.5 block">Channels</label>
-              <button
-                onClick={() => { setShowChannelDropdown(!showChannelDropdown); setShowPlatformDropdown(false); }}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between"
-              >
-                <span className={channelFilter === "all" ? "text-gray-600" : "text-gray-900"}>
-                  {channelFilter === "all" ? "All channels" : watchlistedChannels.find(c => c.id === parseInt(channelFilter))?.handle || "All channels"}
-                </span>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
-              {showChannelDropdown && (
-                <>
-                  <div className="fixed inset-0 z-20" onClick={() => setShowChannelDropdown(false)} />
-                  <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-64 max-h-80 overflow-y-auto">
-                    <button
-                      onClick={() => { setChannelFilter("all"); setShowChannelDropdown(false); }}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${channelFilter === "all" ? "bg-gray-50 font-medium" : ""}`}
-                    >
-                      All channels
-                    </button>
-                    {watchlistedChannels.sort((a, b) => a.handle.localeCompare(b.handle)).map(ch => (
-                      <button
-                        key={ch.id}
-                        onClick={() => { setChannelFilter(String(ch.id)); setShowChannelDropdown(false); }}
-                        className={`w-full text-left px-3 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2.5 ${channelFilter === String(ch.id) ? "bg-gray-50" : ""}`}
-                      >
-                        <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${ch.avatar} flex-shrink-0`} />
-                        <span className="text-gray-800 truncate">{ch.handle}</span>
-                        <span className="text-gray-400 text-xs ml-auto whitespace-nowrap">{formatFollowers(ch.followersNum)} followers</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Outlier score */}
-            <div>
-              <label className="text-xs text-gray-500 mb-1.5 block">Outlier score</label>
-              <div className="flex gap-2">
-                <input type="text" placeholder="0x" value={outlierMin} onChange={e => setOutlierMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                <input type="text" placeholder="100x" value={outlierMax} onChange={e => setOutlierMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-              </div>
-            </div>
-
-            {/* Views */}
-            <div>
-              <label className="text-xs text-gray-500 mb-1.5 block">Views</label>
-              <div className="flex gap-2">
-                <input type="text" placeholder="0" value={viewsMin} onChange={e => setViewsMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                <input type="text" placeholder="10,000,000" value={viewsMax} onChange={e => setViewsMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-              </div>
-            </div>
-
-            {/* Engagement */}
-            <div>
-              <label className="text-xs text-gray-500 mb-1.5 block">Engagement</label>
-              <div className="flex gap-2">
-                <input type="text" placeholder="0%" value={engagementMin} onChange={e => setEngagementMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                <input type="text" placeholder="100%" value={engagementMax} onChange={e => setEngagementMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-              </div>
-            </div>
-
-            {/* Posted in last */}
-            <div>
-              <label className="text-xs text-gray-500 mb-1.5 block">Posted in last</label>
-              <div className="flex gap-2">
-                <input type="text" placeholder="0" value={postedInLast} onChange={e => setPostedInLast(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                <select value={postedInLastUnit} onChange={e => setPostedInLastUnit(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 appearance-none cursor-pointer" style={{backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center"}}>
-                  <option>Months</option><option>Weeks</option><option>Days</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Platform dropdown */}
-            <div className="relative">
-              <label className="text-xs text-gray-500 mb-1.5 block">Platform</label>
-              <button
-                onClick={() => { setShowPlatformDropdown(!showPlatformDropdown); setShowChannelDropdown(false); }}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between"
-              >
-                <span className="text-gray-600">
-                  {platformFilter === "all" ? "All platforms" : platformFilter}
-                </span>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
-              {showPlatformDropdown && (
-                <>
-                  <div className="fixed inset-0 z-20" onClick={() => setShowPlatformDropdown(false)} />
-                  <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-full">
-                    <button
-                      onClick={() => { setPlatformFilter("all"); setShowPlatformDropdown(false); }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50"
-                    >
-                      All platforms
-                    </button>
-                    {[
-                      { value: "YouTube Shorts", label: "YouTube" },
-                      { value: "TikTok", label: "TikTok" },
-                      { value: "Instagram Reels", label: "Instagram" },
-                    ].map(p => (
-                      <button
-                        key={p.value}
-                        onClick={() => { setPlatformFilter(p.value); setShowPlatformDropdown(false); }}
-                        className="w-full text-left px-3 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2.5"
-                      >
-                        <PlatformIcon platform={p.value} />
-                        <span>{p.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Keywords */}
-            <div>
-              <label className="text-xs text-gray-500 mb-1.5 block">Keywords</label>
-              <input type="text" placeholder="Search captions and titles" value={keywordSearch} onChange={e => setKeywordSearch(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-            </div>
-
-            {/* Save filter button */}
-            <button className="w-full bg-gray-900 text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-colors">Save filter</button>
+      {/* Main grid: sidebar (col 1) + video cards (cols 2-4) */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {/* Filters Sidebar — takes 1 column, sticky */}
+        <div className="hidden sm:block sticky top-4 self-start max-h-[calc(100vh-2rem)] overflow-y-auto space-y-4 pr-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Filters</span>
+            <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600">Clear</button>
           </div>
+
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Saved Filters</label>
+            <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500"><option>Pick one to apply</option></select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Channels</label>
+            <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500"><option>All channels</option></select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Outlier score</label>
+            <div className="flex gap-2">
+              <input type="text" placeholder="0x" value={outlierMin} onChange={e => setOutlierMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+              <input type="text" placeholder="100x" value={outlierMax} onChange={e => setOutlierMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Views</label>
+            <div className="flex gap-2">
+              <input type="text" placeholder="0" value={viewsMin} onChange={e => setViewsMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+              <input type="text" placeholder="10,000,000" value={viewsMax} onChange={e => setViewsMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Engagement</label>
+            <div className="flex gap-2">
+              <input type="text" placeholder="0%" value={engagementMin} onChange={e => setEngagementMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+              <input type="text" placeholder="100%" value={engagementMax} onChange={e => setEngagementMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Posted in last</label>
+            <div className="flex gap-2">
+              <input type="text" placeholder="0" value={postedInLast} onChange={e => setPostedInLast(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+              <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600"><option>Months</option><option>Weeks</option><option>Days</option></select>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Platform</label>
+            <select value={platformFilter} onChange={e => setPlatformFilter(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600">
+              <option value="all">All platforms</option>
+              {platforms.map(p => <option key={p} value={p}>{p}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Keywords</label>
+            <input type="text" placeholder="Search captions and titles" value={keywordSearch} onChange={e => setKeywordSearch(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <button className="w-full bg-gray-900 text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-colors">Save filter</button>
         </div>
 
-        {/* Video Grid */}
-        <div className="flex-1 min-w-0">
-          {activeTab === "feed" && watchlistedChannelIds.size === 0 ? (
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center">
-              <AlertCircle size={24} className="mx-auto text-blue-600 mb-2" />
-              <p className="text-blue-900 font-semibold">No watchlists created yet</p>
-              <p className="text-blue-700 text-sm mt-1">Go to Channels to add creators to your watchlists and see their videos here.</p>
-            </div>
-          ) : (
-            <>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
-                {displayedVideos.map(video => {
-                  const isSaved = savedVideos.some(v => v.id === video.id);
-                  const isHovered = hoveredVideoId === video.id;
-                  const channelObj = SAMPLE_CHANNELS.find(c => c.id === video.channelId);
-                  return (
-                    <div
-                      key={video.id}
-                      className="w-full flex flex-col group"
-                      onMouseEnter={() => setHoveredVideoId(video.id)}
-                      onMouseLeave={() => setHoveredVideoId(null)}
-                    >
-                      {/* Thumbnail — click saves to vault */}
-                      <div
-                        className="relative overflow-hidden rounded-lg cursor-pointer"
-                        style={{ aspectRatio: "9/16" }}
-                        onClick={() => {
+        {/* Video Cards — span remaining columns */}
+        {activeTab === "feed" && watchlistedChannelIds.size === 0 ? (
+          <div className="md:col-span-2 lg:col-span-3 bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center">
+            <AlertCircle size={24} className="mx-auto text-blue-600 mb-2" />
+            <p className="text-blue-900 font-semibold">No watchlists created yet</p>
+            <p className="text-blue-700 text-sm mt-1">Go to Channels to add creators to your watchlists and see their videos here.</p>
+          </div>
+        ) : (
+          <>
+            {displayedVideos.map(video => {
+              const isSaved = savedVideos.some(v => v.id === video.id);
+              const isHovered = hoveredVideoId === video.id;
+              return (
+                <div
+                  key={video.id}
+                  className="w-full flex flex-col group cursor-pointer rounded-xl transition-colors duration-300"
+                  onMouseEnter={() => setHoveredVideoId(video.id)}
+                  onMouseLeave={() => setHoveredVideoId(null)}
+                  onClick={() => setSelectedVideoDetail(video)}
+                >
+                  {/* Thumbnail */}
+                  <div className="relative overflow-hidden rounded-xl group-hover:shadow-md transition-all duration-300">
+                    <img
+                      src={video.thumbnail}
+                      alt=""
+                      className="group-hover:opacity-80 transition-all duration-300 h-[400px] w-full object-cover scale-105"
+                    />
+                    {/* Platform icon — top right */}
+                    <div className="absolute top-1 right-1">
+                      <PlatformIcon platform={video.platform} />
+                    </div>
+                    {/* Save to vault — bottom, on hover */}
+                    <div className={`absolute top-0 left-0 flex flex-col w-full items-end justify-end h-full p-1.5 transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setSavedVideos(prev => isSaved ? prev.filter(v => v.id !== video.id) : [...prev, video]);
                         }}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shadow-sm transition-all ${
+                          isSaved ? "bg-green-500 text-white" : "bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white"
+                        }`}
                       >
-                        <img
-                          src={video.thumbnail}
-                          alt=""
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        {/* Platform icon — top right */}
-                        <div className="absolute top-2 right-2">
-                          <PlatformIcon platform={video.platform} size="lg" />
-                        </div>
-                        {/* Save to vault overlay — bottom center, on hover */}
-                        <div className={`absolute inset-0 flex items-end justify-center pb-4 transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
-                          <span className={`px-4 py-2 rounded-lg text-xs font-medium shadow-lg transition-all ${
-                            isSaved ? "bg-green-500 text-white" : "bg-white/95 backdrop-blur-sm text-gray-700"
-                          }`}>
-                            {isSaved ? "Saved" : "Save to vault"}
-                          </span>
-                        </div>
-                      </div>
+                        {isSaved ? <Check size={12} /> : <Download size={12} />}
+                        {isSaved ? "Saved" : "Save to vault"}
+                      </button>
+                    </div>
+                  </div>
 
-                      {/* Meta info below thumbnail */}
-                      <div className="flex flex-col gap-1 pt-2 pb-1">
-                        {/* Title — clickable, links to original post */}
-                        <a
-                          href="#"
-                          onClick={(e) => { e.preventDefault(); setSelectedVideoDetail(video); }}
-                          className="text-sm font-semibold text-gray-900 line-clamp-1 leading-snug hover:underline cursor-pointer"
-                        >
-                          {video.title}
-                        </a>
-                        {/* @handle + time */}
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500 truncate">@{channelObj?.handle || video.channel.toLowerCase().replace(/\s/g, "")}</p>
-                          <p className="text-xs text-gray-400 whitespace-nowrap ml-2">{video.uploadDate}</p>
-                        </div>
-                        {/* Stat badges row */}
-                        <div className="flex items-center gap-1.5 mt-1">
-                          {/* Outlier badge */}
-                          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: "rgba(34,197,94,0.12)" }}>
-                            <TrendingUp size={12} className="text-green-600" />
-                            <span className="font-medium text-green-700">{video.outlierScore}x</span>
-                          </div>
-                          {/* Views badge */}
-                          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: "rgba(59,130,246,0.12)" }}>
-                            <Eye size={12} className="text-blue-500" />
-                            <span className="font-medium text-blue-700">{formatViews(video.viewsNum)}</span>
-                          </div>
-                          {/* Engagement badge */}
-                          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: "rgba(249,115,22,0.12)" }}>
-                            <Sparkles size={12} className="text-orange-500" />
-                            <span className="font-medium text-orange-700">{video.engagement}%</span>
-                          </div>
-                        </div>
+                  {/* Meta info */}
+                  <div className="flex flex-col gap-1 px-1.5 pt-1.5 pb-1 h-[88px]">
+                    <div className="relative">
+                      <div className="w-full">
+                        <p className="text-xs font-medium text-gray-900 line-clamp-2 leading-tight">{video.title}</p>
                       </div>
                     </div>
-                  );
-                })}
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500 truncate hover:underline cursor-pointer">@{video.channel.toLowerCase().replace(/\s/g, "")}</p>
+                      <p className="text-xs text-gray-400 whitespace-nowrap ml-2">{video.uploadDate}</p>
+                    </div>
+                    <div className="w-full grid grid-cols-3 gap-1 items-center mt-auto">
+                      <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(34,197,94,0.15)", color: "rgb(21,128,61)" }}>
+                        <TrendingUp size={12} className="text-green-500" />
+                        <span className="font-medium">{video.outlierScore}x</span>
+                      </div>
+                      <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(59,130,246,0.15)", color: "rgb(29,78,216)" }}>
+                        <Eye size={12} className="text-blue-500" />
+                        <span className="font-medium">{formatViews(video.viewsNum)}</span>
+                      </div>
+                      <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(249,115,22,0.15)", color: "rgb(194,65,12)" }}>
+                        <Sparkles size={12} className="text-orange-500" />
+                        <span className="font-medium">{video.engagement}%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {filteredVideos.length === 0 && (
+              <div className="md:col-span-2 lg:col-span-3 text-center py-16 text-gray-500">
+                <Video size={32} className="mx-auto mb-3 opacity-30" />
+                <p className="font-semibold">No videos found</p>
+                <p className="text-sm mt-1">Try adjusting your filters or add channels to your watchlist</p>
               </div>
+            )}
 
-              {filteredVideos.length === 0 && (
-                <div className="text-center py-16 text-gray-500">
-                  <Video size={32} className="mx-auto mb-3 opacity-30" />
-                  <p className="font-semibold">No videos found</p>
-                  <p className="text-sm mt-1">Try adjusting your filters or add channels to your watchlist</p>
-                </div>
-              )}
-
-              {visibleCount < filteredVideos.length && (
-                <div className="flex justify-center mt-6 mb-4">
-                  <button onClick={() => setVisibleCount(prev => prev + 20)} className="px-8 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
-                    Load more
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+            {visibleCount < filteredVideos.length && (
+              <div className="md:col-span-2 lg:col-span-3 flex justify-center mt-4 mb-4">
+                <button onClick={() => setVisibleCount(prev => prev + 20)} className="px-6 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                  Load more
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
-
-      {/* Export Modal */}
-      {showExportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">Start an export</h3>
-            <p className="text-sm text-gray-500 mb-4">Exports allow you to work with your videos and scripts off-platform.</p>
-            <div className="border-2 border-dashed border-yellow-300 rounded-xl p-4 bg-yellow-50 text-center mb-5">
-              <span className="text-2xl mb-2 block">&#9888;</span>
-              <p className="text-sm text-gray-700">Exports are only available to paid subscribers of the Visionary tier or higher.</p>
-            </div>
-            <div className="flex items-center justify-end gap-3">
-              <button onClick={() => setShowExportModal(false)} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">Close</button>
-              <button className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">Start export</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -2121,7 +1957,6 @@ export default function App() {
               savedVideos={savedVideos}
               setSavedVideos={setSavedVideos}
               setSelectedVideoDetail={setSelectedVideoDetail}
-              setCurrentPage={setCurrentPage}
             />
           ) : currentPage === "scripts" ? (
             <ScriptsPage vaultItems={vaultItems} scriptsWritten={scriptsWritten} setScriptsWritten={setScriptsWritten} />
