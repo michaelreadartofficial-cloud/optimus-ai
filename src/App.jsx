@@ -10,158 +10,78 @@ import {
 } from "lucide-react";
 
 // ============================================================
-// SAMPLE DATA â Short-Form Only (TikTok, Reels, Shorts)
+// SAMPLE DATA — Short-Form Only (TikTok, Reels, Shorts)
 // ============================================================
 
 const SAMPLE_VIDEOS = [
   {
-    id: 1,
-    title: "I Tried Living on $1 for 24 Hours",
-    channel: "Ryan Trahan",
-    channelId: 1,
-    platform: "YouTube Shorts",
-    views: "48.2M",
-    viewsNum: 48200000,
-    likes: "2.1M",
-    comments: "45K",
-    outlierScore: 28.5,
-    uploadDate: "3 days ago",
-    duration: "0:58",
-    emoji: "ð¬",
-    niche: "Lifestyle",
+    id: 1, title: "I Tried Living on $1 for 24 Hours", channel: "Ryan Trahan", channelId: 1,
+    platform: "YouTube Shorts", views: "48.2M", viewsNum: 48200000, likes: "2.1M", comments: "45K",
+    outlierScore: 28.5, uploadDate: "3 days ago", duration: "0:58", niche: "Lifestyle",
+    thumbnail: "https://picsum.photos/seed/v1/400/700",
     hook: "What if I told you that you could survive an entire day on just one dollar?",
-    transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop â the dollar store...",
+    transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop — the dollar store...",
     engagement: 4.3,
   },
   {
-    id: 2,
-    title: "This Trick Makes You Sound Smarter Instantly",
-    channel: "Jade Bowler",
-    channelId: 6,
-    platform: "TikTok",
-    views: "12.7M",
-    viewsNum: 12700000,
-    likes: "890K",
-    comments: "23K",
-    outlierScore: 15.2,
-    uploadDate: "1 week ago",
-    duration: "0:34",
-    emoji: "ð§ ",
-    niche: "Education",
+    id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", channelId: 6,
+    platform: "TikTok", views: "12.7M", viewsNum: 12700000, likes: "890K", comments: "23K",
+    outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", niche: "Education",
+    thumbnail: "https://picsum.photos/seed/v2/400/700",
     hook: "Stop using the word 'very'. Here's what smart people say instead.",
     transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'...",
     engagement: 7.1,
   },
   {
-    id: 3,
-    title: "POV: You Finally Quit Your 9-5",
-    channel: "Alex Hormozi",
-    channelId: 3,
-    platform: "Instagram Reels",
-    views: "8.4M",
-    viewsNum: 8400000,
-    likes: "620K",
-    comments: "18K",
-    outlierScore: 12.8,
-    uploadDate: "5 days ago",
-    duration: "0:45",
-    emoji: "ð¼",
-    niche: "Business",
+    id: 3, title: "POV: You Finally Quit Your 9-5", channel: "Alex Hormozi", channelId: 3,
+    platform: "Instagram Reels", views: "8.4M", viewsNum: 8400000, likes: "620K", comments: "18K",
+    outlierScore: 12.8, uploadDate: "5 days ago", duration: "0:45", niche: "Business",
+    thumbnail: "https://picsum.photos/seed/v3/400/700",
     hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.",
     transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one...",
     engagement: 7.4,
   },
   {
-    id: 4,
-    title: "The Psychology Behind Why You Can't Stop Scrolling",
-    channel: "Ali Abdaal",
-    channelId: 2,
-    platform: "YouTube Shorts",
-    views: "22.1M",
-    viewsNum: 22100000,
-    likes: "1.5M",
-    comments: "34K",
-    outlierScore: 19.3,
-    uploadDate: "2 days ago",
-    duration: "0:52",
-    emoji: "ð±",
-    niche: "Psychology",
+    id: 4, title: "The Psychology Behind Why You Can't Stop Scrolling", channel: "Ali Abdaal", channelId: 2,
+    platform: "YouTube Shorts", views: "22.1M", viewsNum: 22100000, likes: "1.5M", comments: "34K",
+    outlierScore: 19.3, uploadDate: "2 days ago", duration: "0:52", niche: "Psychology",
+    thumbnail: "https://picsum.photos/seed/v4/400/700",
     hook: "Your phone is literally designed to be addictive. Here's the science behind it.",
     transcript: "Your phone is literally designed to be addictive. Here's the science behind it...",
     engagement: 6.8,
   },
   {
-    id: 5,
-    title: "I Asked 100 Millionaires Their #1 Habit",
-    channel: "Mark Tilbury",
-    channelId: 4,
-    platform: "TikTok",
-    views: "31.5M",
-    viewsNum: 31500000,
-    likes: "1.8M",
-    comments: "52K",
-    outlierScore: 24.1,
-    uploadDate: "4 days ago",
-    duration: "0:41",
-    emoji: "ð°",
-    niche: "Finance",
+    id: 5, title: "I Asked 100 Millionaires Their #1 Habit", channel: "Mark Tilbury", channelId: 4,
+    platform: "TikTok", views: "31.5M", viewsNum: 31500000, likes: "1.8M", comments: "52K",
+    outlierScore: 24.1, uploadDate: "4 days ago", duration: "0:41", niche: "Finance",
+    thumbnail: "https://picsum.photos/seed/v5/400/700",
     hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.",
     transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing...",
     engagement: 5.7,
   },
   {
-    id: 6,
-    title: "Why Japan's Trains Are Never Late",
-    channel: "Abroad in Japan",
-    channelId: 5,
-    platform: "Instagram Reels",
-    views: "15.8M",
-    viewsNum: 15800000,
-    likes: "1.1M",
-    comments: "28K",
-    outlierScore: 16.7,
-    uploadDate: "1 week ago",
-    duration: "0:55",
-    emoji: "ð",
-    niche: "Travel",
+    id: 6, title: "Why Japan's Trains Are Never Late", channel: "Abroad in Japan", channelId: 5,
+    platform: "Instagram Reels", views: "15.8M", viewsNum: 15800000, likes: "1.1M", comments: "28K",
+    outlierScore: 16.7, uploadDate: "1 week ago", duration: "0:55", niche: "Travel",
+    thumbnail: "https://picsum.photos/seed/v6/400/700",
     hook: "In Japan, if a train is even 60 seconds late, the company issues a formal apology.",
     transcript: "In Japan, if a train is even 60 seconds late, the company issues a formal apology...",
     engagement: 6.9,
   },
   {
-    id: 7,
-    title: "This Meal Prep Changed My Life (5 Mins)",
-    channel: "Ethan Chlebowski",
-    channelId: 1,
-    platform: "TikTok",
-    views: "9.6M",
-    viewsNum: 9600000,
-    likes: "740K",
-    comments: "21K",
-    outlierScore: 11.4,
-    uploadDate: "6 days ago",
-    duration: "0:48",
-    emoji: "ð³",
-    niche: "Food",
+    id: 7, title: "This Meal Prep Changed My Life (5 Mins)", channel: "Ethan Chlebowski", channelId: 1,
+    platform: "TikTok", views: "9.6M", viewsNum: 9600000, likes: "740K", comments: "21K",
+    outlierScore: 11.4, uploadDate: "6 days ago", duration: "0:48", niche: "Food",
+    thumbnail: "https://picsum.photos/seed/v7/400/700",
     hook: "This 5-minute meal prep will save you $200 a month.",
     transcript: "This 5-minute meal prep will save you $200 a month...",
     engagement: 7.7,
   },
   {
-    id: 8,
-    title: "The Real Reason You're Always Tired",
-    channel: "Dr. Mike",
-    channelId: 5,
-    platform: "YouTube Shorts",
-    views: "19.3M",
-    viewsNum: 19300000,
-    likes: "1.3M",
-    comments: "41K",
-    outlierScore: 17.9,
-    uploadDate: "3 days ago",
-    duration: "0:39",
-    emoji: "ð´",
-    niche: "Health",
+    id: 8, title: "The Real Reason You're Always Tired", channel: "Dr. Mike", channelId: 5,
+    platform: "YouTube Shorts", views: "19.3M", viewsNum: 19300000, likes: "1.3M", comments: "41K",
+    outlierScore: 17.9, uploadDate: "3 days ago", duration: "0:39", niche: "Health",
+    thumbnail: "https://picsum.photos/seed/v8/400/700",
     hook: "You're not tired because you're not sleeping enough.",
     transcript: "You're not tired because you're not sleeping enough...",
     engagement: 6.7,
@@ -176,7 +96,7 @@ const SAMPLE_CHANNELS = [
   { id: 4, name: "Mark Tilbury", handle: "marktilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", followers: "8.1M", followersNum: 8100000, videos: 1200, niche: "Finance", avatar: "from-green-400 to-emerald-600", size: "large" },
   { id: 5, name: "Dr. Mike", handle: "doctormike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", followers: "11.2M", followersNum: 11200000, videos: 650, niche: "Health", avatar: "from-teal-400 to-cyan-600", size: "large" },
   { id: 6, name: "Jade Bowler", handle: "jadebowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", followers: "1.9M", followersNum: 1900000, videos: 280, niche: "Education", avatar: "from-purple-400 to-pink-500", size: "large" },
-  // Fitness â large
+  // Fitness — large
   { id: 20, name: "Vladimir Fitness", handle: "vladimirfitness", platform: "YouTube Shorts", subscribers: "9.4M", avgViews: "3.8M", followers: "9.4M", followersNum: 9400000, videos: 890, niche: "Fitness", avatar: "from-red-500 to-orange-500", size: "large" },
   { id: 21, name: "Fitness Blender", handle: "fitnessblender", platform: "YouTube Shorts", subscribers: "6.6M", avgViews: "2.5M", followers: "6.6M", followersNum: 6600000, videos: 1200, niche: "Fitness", avatar: "from-blue-500 to-teal-400", size: "large" },
   { id: 22, name: "Sascha Fitness", handle: "saschafitness", platform: "Instagram Reels", subscribers: "5.8M", avgViews: "1.9M", followers: "5.8M", followersNum: 5800000, videos: 780, niche: "Fitness", avatar: "from-pink-400 to-rose-500", size: "large" },
@@ -195,7 +115,7 @@ const SAMPLE_CHANNELS = [
   { id: 35, name: "Koboko Fitness", handle: "kobokofitness", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "560K", followers: "1.9M", followersNum: 1900000, videos: 340, niche: "Fitness", avatar: "from-amber-600 to-yellow-500", size: "large" },
   { id: 36, name: "Scotty K Fitness", handle: "scottykfitness", platform: "TikTok", subscribers: "1.8M", avgViews: "540K", followers: "1.8M", followersNum: 1800000, videos: 420, niche: "Fitness", avatar: "from-red-400 to-rose-600", size: "large" },
   { id: 37, name: "MDJ Fitness", handle: "mdj_fitness", platform: "TikTok", subscribers: "1.7M", avgViews: "520K", followers: "1.7M", followersNum: 1700000, videos: 310, niche: "Fitness", avatar: "from-blue-600 to-indigo-700", size: "large" },
-  // Fitness â medium (100Kâ1M)
+  // Fitness — medium (100K–1M)
   { id: 40, name: "Macro Daddy", handle: "_macro_daddy", platform: "Instagram Reels", subscribers: "773K", avgViews: "280K", followers: "773K", followersNum: 773000, videos: 490, niche: "Fitness", avatar: "from-orange-500 to-amber-600", size: "medium" },
   { id: 41, name: "Alexa Stancofit", handle: "alexastancofit", platform: "Instagram Reels", subscribers: "409K", avgViews: "150K", followers: "409K", followersNum: 409000, videos: 320, niche: "Fitness", avatar: "from-pink-400 to-rose-500", size: "medium" },
   { id: 42, name: "Alex Gamble Coach", handle: "alexgamblecoach", platform: "Instagram Reels", subscribers: "428K", avgViews: "160K", followers: "428K", followersNum: 428000, videos: 280, niche: "Fitness", avatar: "from-teal-500 to-cyan-600", size: "medium" },
@@ -241,7 +161,7 @@ const SAMPLE_STYLES = [
 ];
 
 const SAMPLE_STRUCTURES = [
-  { id: 6, type: "structure", content: "Hook (3s) â Context (5s) â 3 Key Points (20s) â Twist (5s) â CTA (3s)", source: "Jade Bowler", tags: ["framework", "short-form"] },
+  { id: 6, type: "structure", content: "Hook (3s) → Context (5s) → 3 Key Points (20s) → Twist (5s) → CTA (3s)", source: "Jade Bowler", tags: ["framework", "short-form"] },
 ];
 
 const platformColors = {
@@ -339,7 +259,7 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
           <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-3xl">{topOutlier.emoji}</div>
           <div className="flex-1">
             <h3 className="text-xl font-bold">{topOutlier.title}</h3>
-            <p className="text-white/70 text-sm mt-1">{topOutlier.channel} Â· {topOutlier.views} views Â· {topOutlier.outlierScore}x outlier</p>
+            <p className="text-white/70 text-sm mt-1">{topOutlier.channel} · {topOutlier.views} views · {topOutlier.outlierScore}x outlier</p>
             <div className="flex gap-4 mt-2 text-white/60 text-xs">
               <span><Eye size={12} className="inline mr-1" />{topOutlier.views}</span>
               <span><Heart size={12} className="inline mr-1" />{topOutlier.likes}</span>
@@ -361,7 +281,7 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
                 <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">{v.emoji}</div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-gray-900 text-sm font-semibold truncate group-hover:text-pink-600 transition-colors">{v.title}</h3>
-                  <p className="text-gray-400 text-xs mt-0.5">{v.channel} Â· {v.platform}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">{v.channel} · {v.platform}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="text-right">
@@ -401,9 +321,9 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
         <h2 className="text-lg font-bold text-gray-900 mb-4">Platform Overview</h2>
         <div className="grid grid-cols-3 gap-4">
           {[
-            { name: "YouTube Shorts", count: SAMPLE_VIDEOS.filter(v => v.platform === "YouTube Shorts").length, avgOutlier: "21.9x", color: "from-red-400 to-red-600", icon: "â¶" },
-            { name: "TikTok", count: SAMPLE_VIDEOS.filter(v => v.platform === "TikTok").length, avgOutlier: "16.9x", color: "from-cyan-400 to-cyan-600", icon: "âª" },
-            { name: "Instagram Reels", count: SAMPLE_VIDEOS.filter(v => v.platform === "Instagram Reels").length, avgOutlier: "14.8x", color: "from-pink-400 to-purple-500", icon: "ð·" },
+            { name: "YouTube Shorts", count: SAMPLE_VIDEOS.filter(v => v.platform === "YouTube Shorts").length, avgOutlier: "21.9x", color: "from-red-400 to-red-600", icon: "▶" },
+            { name: "TikTok", count: SAMPLE_VIDEOS.filter(v => v.platform === "TikTok").length, avgOutlier: "16.9x", color: "from-cyan-400 to-cyan-600", icon: "♪" },
+            { name: "Instagram Reels", count: SAMPLE_VIDEOS.filter(v => v.platform === "Instagram Reels").length, avgOutlier: "14.8x", color: "from-pink-400 to-purple-500", icon: "📷" },
           ].map((p, i) => (
             <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center mb-3 text-white text-lg`}>
@@ -523,6 +443,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
   const handleKeyDown = (e) => { if (e.key === "Enter") handleSearch(); };
 
   const findSimilar = (creator) => {
+    // Extract niche keywords from the creator's description or name
     const desc = (creator.description || "").toLowerCase();
     const name = (creator.name || "").toLowerCase();
     const combined = desc + " " + name;
@@ -537,6 +458,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
     const cid = creator.id;
     if (!myChannels.includes(cid)) {
       setMyChannels(prev => [...prev, cid]);
+      // Auto-save to watchlist
       setWatchlists(prev => {
         if (prev.length === 0) return [{ id: 1, name: "My Watchlist", channels: [...myChannels, cid] }];
         return prev.map((w, i) => i === 0 ? { ...w, channels: [...new Set([...w.channels, cid])] } : w);
@@ -666,10 +588,11 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                   const pi = platformIcon(creator.platform);
                   const isAdded = myChannels.includes(creator.id);
                   return (
-                    <button
+                    <div
                       key={creator.id}
-                      onClick={() => toggleChannel(creator)}
-                      className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all hover:shadow-sm ${isAdded ? "border-pink-400 bg-pink-50/50" : "border-gray-100 bg-white hover:border-gray-200"}`}
+                      onMouseEnter={() => setHoveredCard(creator.id)}
+                      onMouseLeave={() => setHoveredCard(null)}
+                      className={`relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all hover:shadow-sm ${isAdded ? "border-pink-400 bg-pink-50/50" : "border-gray-100 bg-white hover:border-gray-200"}`}
                     >
                       <div className="relative flex-shrink-0">
                         {creator.thumbnail ? (
@@ -691,7 +614,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                         <p className="text-sm font-semibold text-gray-900 truncate">{creator.username || creator.name}</p>
                         <p className="text-xs text-gray-500">{creator.subscribers} followers</p>
                       </div>
-                      {/* Action icons */}
+                      {/* Action icons — always visible */}
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <button
                           onClick={(e) => { e.stopPropagation(); findSimilar(creator); }}
@@ -718,7 +641,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
                           </button>
                         )}
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -726,7 +649,7 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
           </div>
         </div>
 
-        {/* Right Sidebar â Your Watchlist */}
+        {/* Right Sidebar — Your Watchlist */}
         <div className="w-72 flex-shrink-0">
           <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
             <div className="flex items-center justify-between mb-4">
@@ -782,7 +705,8 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
           </div>
         </div>
       </div>
-    
+
+      {/* Info Modal */}
       {showInfoModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowInfoModal(false)}>
           <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 p-8" onClick={(e) => e.stopPropagation()}>
@@ -797,24 +721,34 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
               Click on the link icon in the header of the watchlist card to get started.
             </p>
             <div className="flex items-center justify-end gap-4">
-              <button onClick={() => setShowInfoModal(false)}
-                className="px-4 py-2 text-base text-gray-400 hover:text-gray-600 transition-colors">
+              <button
+                onClick={() => setShowInfoModal(false)}
+                className="px-4 py-2 text-base text-gray-400 hover:text-gray-600 transition-colors"
+              >
                 Close
               </button>
-              <button onClick={() => { setShowInfoModal(false); }}
-                className="px-4 py-2 text-base font-semibold text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+              <button
+                onClick={() => { setShowInfoModal(false); document.querySelector('input[placeholder*="Search for creators"]')?.focus(); }}
+                className="px-4 py-2 text-base font-semibold text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              >
                 Add a channel now
               </button>
             </div>
           </div>
         </div>
       )}
-</div>
+    </div>
   );
 };
 
 // VIDEOS PAGE (Feed & Vault) — Sandcastles-matching design
 // ============================================================
+
+const PlatformIcon = ({ platform }) => {
+  if (platform.includes("YouTube")) return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/120px-YouTube_full-color_icon_%282017%29.svg.png" alt="YouTube" className="w-5 h-5 rounded object-cover" />;
+  if (platform.includes("TikTok")) return <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/120px-TikTok_logo.svg.png" alt="TikTok" className="w-5 h-5 rounded object-cover bg-black p-0.5" />;
+  return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/120px-Instagram_logo_2016.svg.png" alt="Instagram" className="w-5 h-5 rounded object-cover" />;
+};
 
 const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoDetail }) => {
   const [activeTab, setActiveTab] = useState("feed");
@@ -880,26 +814,24 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
   };
 
   return (
-    <div className="space-y-5">
+    <div>
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Videos</h1>
-        <p className="text-gray-500 text-sm mt-0.5 flex items-center gap-2">
-          Save high-performing videos to your vault to unlock deep analysis
+      <div className="mb-4">
+        <h1 className="text-xl font-semibold text-gray-900">Videos</h1>
+        <p className="text-sm text-gray-500 mt-0.5">
+          {activeTab === "feed" ? "Save high-performing videos to your vault to unlock deep analysis" : "Browse videos you\u2019ve saved to your vault"}
         </p>
       </div>
 
       {/* Feed / Vault toggle + toolbar */}
-      <div className="flex items-center justify-between">
-        <div className="relative inline-flex rounded-lg bg-gray-100 p-0.5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="relative inline-flex rounded-lg bg-gray-100 h-[37px] p-0.5">
           {["feed", "vault"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative py-1.5 px-5 rounded-lg text-sm font-medium transition-colors duration-200 z-10 ${
-                activeTab === tab
-                  ? "text-gray-900 bg-white shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
+              className={`relative px-5 h-full rounded-md text-sm font-medium transition-colors duration-200 ${
+                activeTab === tab ? "text-gray-900 bg-white shadow-sm" : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {tab === "feed" ? "Feed" : "Vault"}
@@ -907,283 +839,197 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+        <div className="flex items-center gap-4 text-sm text-gray-500">
+          <button className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
             <Settings size={14} />
-            <span>Configure channels</span>
+            <span>{activeTab === "feed" ? "Configure channels" : "Add video URL"}</span>
           </button>
           <div className="relative">
-            <button
-              onClick={() => setShowSortMenu(!showSortMenu)}
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
+            <button onClick={() => setShowSortMenu(!showSortMenu)} className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
               <BarChart3 size={14} />
               <span>Sort by</span>
             </button>
             {showSortMenu && (
-              <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-44">
-                {[
-                  { key: "outlier", label: "Outlier Score" },
-                  { key: "views", label: "Views" },
-                  { key: "engagement", label: "Engagement" },
-                  { key: "recent", label: "Most Recent" },
-                ].map(opt => (
-                  <button
-                    key={opt.key}
-                    onClick={() => { setSortBy(opt.key); setShowSortMenu(false); }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${sortBy === opt.key ? "text-gray-900 font-medium" : "text-gray-600"}`}
-                  >
-                    {opt.label}
-                    {sortBy === opt.key && <Check size={14} className="inline ml-2 text-green-500" />}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />
+                <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-44">
+                  {[{ key: "outlier", label: "Outlier Score" }, { key: "views", label: "Views" }, { key: "engagement", label: "Engagement" }, { key: "recent", label: "Most Recent" }].map(opt => (
+                    <button key={opt.key} onClick={() => { setSortBy(opt.key); setShowSortMenu(false); }}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${sortBy === opt.key ? "text-gray-900 font-medium" : "text-gray-600"}`}>
+                      {opt.label} {sortBy === opt.key && <Check size={14} className="inline ml-2 text-green-500" />}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
-          <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors">
+          <button className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
             <Download size={14} />
             <span>Export</span>
           </button>
         </div>
       </div>
 
-      {/* Main content: Filters sidebar + Video grid */}
-      <div className="flex gap-6">
-        {/* Filters Sidebar */}
-        <div className="w-64 flex-shrink-0 space-y-5">
+      {/* Main grid: sidebar (col 1) + video cards (cols 2-4) */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {/* Filters Sidebar — takes 1 column, sticky */}
+        <div className="hidden sm:block sticky top-4 self-start max-h-[calc(100vh-2rem)] overflow-y-auto space-y-4 pr-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Filters</span>
-            <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Clear</button>
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Filters</span>
+            <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600">Clear</button>
           </div>
 
-          {/* Saved Filters */}
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1.5 block">Saved Filters</label>
-            <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500">
-              <option>Pick one to apply</option>
-            </select>
+            <label className="text-xs text-gray-500 mb-1 block">Saved Filters</label>
+            <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500"><option>Pick one to apply</option></select>
           </div>
-
-          {/* Channels */}
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1.5 block">Channels</label>
-            <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500">
-              <option>All channels</option>
-            </select>
+            <label className="text-xs text-gray-500 mb-1 block">Channels</label>
+            <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500"><option>All channels</option></select>
           </div>
-
-          {/* Outlier score */}
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1.5 block">Outlier score</label>
+            <label className="text-xs text-gray-500 mb-1 block">Outlier score</label>
             <div className="flex gap-2">
-              <input
-                type="text" placeholder="0x" value={outlierMin}
-                onChange={e => setOutlierMin(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-              />
-              <input
-                type="text" placeholder="100x" value={outlierMax}
-                onChange={e => setOutlierMax(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-              />
+              <input type="text" placeholder="0x" value={outlierMin} onChange={e => setOutlierMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+              <input type="text" placeholder="100x" value={outlierMax} onChange={e => setOutlierMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
             </div>
           </div>
-
-          {/* Views */}
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1.5 block">Views</label>
+            <label className="text-xs text-gray-500 mb-1 block">Views</label>
             <div className="flex gap-2">
-              <input
-                type="text" placeholder="0" value={viewsMin}
-                onChange={e => setViewsMin(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-              />
-              <input
-                type="text" placeholder="10,000,000" value={viewsMax}
-                onChange={e => setViewsMax(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-              />
+              <input type="text" placeholder="0" value={viewsMin} onChange={e => setViewsMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+              <input type="text" placeholder="10,000,000" value={viewsMax} onChange={e => setViewsMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
             </div>
           </div>
-
-          {/* Engagement */}
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1.5 block">Engagement</label>
+            <label className="text-xs text-gray-500 mb-1 block">Engagement</label>
             <div className="flex gap-2">
-              <input
-                type="text" placeholder="0%" value={engagementMin}
-                onChange={e => setEngagementMin(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-              />
-              <input
-                type="text" placeholder="100%" value={engagementMax}
-                onChange={e => setEngagementMax(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-              />
+              <input type="text" placeholder="0%" value={engagementMin} onChange={e => setEngagementMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+              <input type="text" placeholder="100%" value={engagementMax} onChange={e => setEngagementMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
             </div>
           </div>
-
-          {/* Posted in last */}
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1.5 block">Posted in last</label>
+            <label className="text-xs text-gray-500 mb-1 block">Posted in last</label>
             <div className="flex gap-2">
-              <input
-                type="text" placeholder="0" value={postedInLast}
-                onChange={e => setPostedInLast(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-              />
-              <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600">
-                <option>Months</option>
-                <option>Weeks</option>
-                <option>Days</option>
-              </select>
+              <input type="text" placeholder="0" value={postedInLast} onChange={e => setPostedInLast(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+              <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600"><option>Months</option><option>Weeks</option><option>Days</option></select>
             </div>
           </div>
-
-          {/* Platform */}
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1.5 block">Platform</label>
-            <select
-              value={platformFilter}
-              onChange={e => setPlatformFilter(e.target.value)}
-              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600"
-            >
+            <label className="text-xs text-gray-500 mb-1 block">Platform</label>
+            <select value={platformFilter} onChange={e => setPlatformFilter(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600">
               <option value="all">All platforms</option>
               {platforms.map(p => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
-
-          {/* Keywords */}
           <div>
-            <label className="text-xs font-medium text-gray-700 mb-1.5 block">Keywords</label>
-            <input
-              type="text" placeholder="Search captions and titles" value={keywordSearch}
-              onChange={e => setKeywordSearch(e.target.value)}
-              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm"
-            />
+            <label className="text-xs text-gray-500 mb-1 block">Keywords</label>
+            <input type="text" placeholder="Search captions and titles" value={keywordSearch} onChange={e => setKeywordSearch(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
           </div>
-
-          {/* Save filter button */}
-          <button className="w-full bg-gray-900 text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-colors">
-            Save filter
-          </button>
+          <button className="w-full bg-gray-900 text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-colors">Save filter</button>
         </div>
 
-        {/* Video Grid */}
-        <div className="flex-1">
-          {activeTab === "feed" && watchlistedChannelIds.size === 0 ? (
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center">
-              <AlertCircle size={24} className="mx-auto text-blue-600 mb-2" />
-              <p className="text-blue-900 font-semibold">No watchlists created yet</p>
-              <p className="text-blue-700 text-sm mt-1">Go to Channels to add creators to your watchlists and see their videos here.</p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                {displayedVideos.map(video => {
-                  const isSaved = savedVideos.some(v => v.id === video.id);
-                  const isHovered = hoveredVideoId === video.id;
-                  const platIcon = getPlatformIcon(video.platform);
-                  return (
-                    <div
-                      key={video.id}
-                      className="flex flex-col cursor-pointer group"
-                      onMouseEnter={() => setHoveredVideoId(video.id)}
-                      onMouseLeave={() => setHoveredVideoId(null)}
-                      onClick={() => setSelectedVideoDetail(video)}
-                    >
-                      {/* Thumbnail */}
-                      <div className="relative overflow-hidden rounded-xl group-hover:shadow-md transition-all duration-300">
-                        <div className="h-[340px] w-full bg-gradient-to-br from-purple-400 via-pink-400 to-orange-300 flex items-center justify-center text-5xl group-hover:opacity-80 transition-all duration-300">
-                          {video.emoji}
-                        </div>
-                        {/* Platform badge */}
-                        <div className={`absolute top-1.5 right-1.5 w-5 h-5 rounded ${platIcon.color} flex items-center justify-center`}>
-                          <span className="text-white text-[8px] font-bold">{platIcon.label}</span>
-                        </div>
-                        {/* Save to vault overlay */}
-                        <div className={`absolute bottom-0 left-0 right-0 flex items-end justify-end p-1.5 transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSavedVideos(prev => isSaved ? prev.filter(v => v.id !== video.id) : [...prev, video]);
-                            }}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                              isSaved
-                                ? "bg-pink-500 text-white"
-                                : "bg-white/90 backdrop-blur text-gray-700 hover:bg-white"
-                            }`}
-                          >
-                            <Download size={12} />
-                            {isSaved ? "Saved" : "Save to vault"}
-                          </button>
-                        </div>
-                      </div>
+        {/* Video Cards — span remaining columns */}
+        {activeTab === "feed" && watchlistedChannelIds.size === 0 ? (
+          <div className="md:col-span-2 lg:col-span-3 bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center">
+            <AlertCircle size={24} className="mx-auto text-blue-600 mb-2" />
+            <p className="text-blue-900 font-semibold">No watchlists created yet</p>
+            <p className="text-blue-700 text-sm mt-1">Go to Channels to add creators to your watchlists and see their videos here.</p>
+          </div>
+        ) : (
+          <>
+            {displayedVideos.map(video => {
+              const isSaved = savedVideos.some(v => v.id === video.id);
+              const isHovered = hoveredVideoId === video.id;
+              return (
+                <div
+                  key={video.id}
+                  className="w-full flex flex-col group cursor-pointer rounded-xl transition-colors duration-300"
+                  onMouseEnter={() => setHoveredVideoId(video.id)}
+                  onMouseLeave={() => setHoveredVideoId(null)}
+                  onClick={() => setSelectedVideoDetail(video)}
+                >
+                  {/* Thumbnail */}
+                  <div className="relative overflow-hidden rounded-xl group-hover:shadow-md transition-all duration-300">
+                    <img
+                      src={video.thumbnail}
+                      alt=""
+                      className="group-hover:opacity-80 transition-all duration-300 h-[400px] w-full object-cover scale-105"
+                    />
+                    {/* Platform icon — top right */}
+                    <div className="absolute top-1 right-1">
+                      <PlatformIcon platform={video.platform} />
+                    </div>
+                    {/* Save to vault — bottom, on hover */}
+                    <div className={`absolute top-0 left-0 flex flex-col w-full items-end justify-end h-full p-1.5 transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSavedVideos(prev => isSaved ? prev.filter(v => v.id !== video.id) : [...prev, video]);
+                        }}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shadow-sm transition-all ${
+                          isSaved ? "bg-green-500 text-white" : "bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white"
+                        }`}
+                      >
+                        {isSaved ? <Check size={12} /> : <Download size={12} />}
+                        {isSaved ? "Saved" : "Save to vault"}
+                      </button>
+                    </div>
+                  </div>
 
-                      {/* Meta info */}
-                      <div className="flex flex-col gap-1 px-1.5 pt-1.5 pb-1 h-[88px]">
-                        {/* Title */}
-                        <div className="relative">
-                          <div className="w-full">
-                            <p className="text-xs font-medium text-gray-900 line-clamp-2 leading-tight">{video.title}</p>
-                          </div>
-                        </div>
-                        {/* Handle + time */}
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-500 truncate hover:underline cursor-pointer">@{video.channel.toLowerCase().replace(/\s/g, "")}</p>
-                          <p className="text-xs text-gray-400 whitespace-nowrap ml-2">{video.uploadDate}</p>
-                        </div>
-                        {/* Stats row: outlier, views, engagement */}
-                        <div className="w-full grid grid-cols-3 gap-1 items-center mt-auto">
-                          <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(34, 197, 94, 0.15)", color: "rgb(21, 128, 61)" }}>
-                            <TrendingUp size={12} className="text-green-500" />
-                            <span className="font-medium">{video.outlierScore}x</span>
-                          </div>
-                          <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(59, 130, 246, 0.15)", color: "rgb(29, 78, 216)" }}>
-                            <Eye size={12} className="text-blue-500" />
-                            <span className="font-medium">{formatViews(video.viewsNum)}</span>
-                          </div>
-                          <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(249, 115, 22, 0.15)", color: "rgb(194, 65, 12)" }}>
-                            <Sparkles size={12} className="text-orange-500" />
-                            <span className="font-medium">{video.engagement}%</span>
-                          </div>
-                        </div>
+                  {/* Meta info */}
+                  <div className="flex flex-col gap-1 px-1.5 pt-1.5 pb-1 h-[88px]">
+                    <div className="relative">
+                      <div className="w-full">
+                        <p className="text-xs font-medium text-gray-900 line-clamp-2 leading-tight">{video.title}</p>
                       </div>
                     </div>
-                  );
-                })}
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-gray-500 truncate hover:underline cursor-pointer">@{video.channel.toLowerCase().replace(/\s/g, "")}</p>
+                      <p className="text-xs text-gray-400 whitespace-nowrap ml-2">{video.uploadDate}</p>
+                    </div>
+                    <div className="w-full grid grid-cols-3 gap-1 items-center mt-auto">
+                      <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(34,197,94,0.15)", color: "rgb(21,128,61)" }}>
+                        <TrendingUp size={12} className="text-green-500" />
+                        <span className="font-medium">{video.outlierScore}x</span>
+                      </div>
+                      <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(59,130,246,0.15)", color: "rgb(29,78,216)" }}>
+                        <Eye size={12} className="text-blue-500" />
+                        <span className="font-medium">{formatViews(video.viewsNum)}</span>
+                      </div>
+                      <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(249,115,22,0.15)", color: "rgb(194,65,12)" }}>
+                        <Sparkles size={12} className="text-orange-500" />
+                        <span className="font-medium">{video.engagement}%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {filteredVideos.length === 0 && (
+              <div className="md:col-span-2 lg:col-span-3 text-center py-16 text-gray-500">
+                <Video size={32} className="mx-auto mb-3 opacity-30" />
+                <p className="font-semibold">No videos found</p>
+                <p className="text-sm mt-1">Try adjusting your filters or add channels to your watchlist</p>
               </div>
+            )}
 
-              {filteredVideos.length === 0 && (
-                <div className="text-center py-16 text-gray-500">
-                  <Video size={32} className="mx-auto mb-3 opacity-30" />
-                  <p className="font-semibold">No videos found</p>
-                  <p className="text-sm mt-1">Try adjusting your filters or add channels to your watchlist</p>
-                </div>
-              )}
-
-              {visibleCount < filteredVideos.length && (
-                <div className="flex justify-center mt-6">
-                  <button
-                    onClick={() => setVisibleCount(prev => prev + 20)}
-                    className="px-6 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    Load more
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
+            {visibleCount < filteredVideos.length && (
+              <div className="md:col-span-2 lg:col-span-3 flex justify-center mt-4 mb-4">
+                <button onClick={() => setVisibleCount(prev => prev + 20)} className="px-6 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                  Load more
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
-
-      {/* Close sort menu on outside click */}
-      {showSortMenu && (
-        <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />
-      )}
     </div>
   );
 };
+
+// ============================================================
 // VIDEO DETAIL PAGE
 // ============================================================
 
@@ -1352,9 +1198,9 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
       await new Promise(r => setTimeout(r, 1500));
       const script = {
         hook: selectedHook.content.replace("[topic]", topic),
-        body: `Let me break this down for you. When it comes to ${topic}, most people get it completely wrong. Here's what the top 1% actually do differently.\n\nFirst, they focus on consistency over intensity. Instead of going all-in for a week and burning out, they commit to small, daily actions.\n\nSecond, they leverage systems, not willpower. The secret isn't motivation â it's building an environment that makes the right choice the easy choice.\n\nThird, they measure what matters. Not vanity metrics, but the numbers that actually move the needle.`,
+        body: `Let me break this down for you. When it comes to ${topic}, most people get it completely wrong. Here's what the top 1% actually do differently.\n\nFirst, they focus on consistency over intensity. Instead of going all-in for a week and burning out, they commit to small, daily actions.\n\nSecond, they leverage systems, not willpower. The secret isn't motivation — it's building an environment that makes the right choice the easy choice.\n\nThird, they measure what matters. Not vanity metrics, but the numbers that actually move the needle.`,
         cta: "If this changed how you think about " + topic + ", drop a comment below with your biggest takeaway. And make sure to follow for more content like this!",
-        structure: selectedStructure?.content || "Hook â Context â Key Points â CTA",
+        structure: selectedStructure?.content || "Hook → Context → Key Points → CTA",
         style: selectedStyle.content,
         wordCount: 127,
         estDuration: "0:45 - 1:00",
@@ -1427,7 +1273,7 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
                   <p className="font-medium text-gray-900 line-clamp-2">{hook.content}</p>
                   <div className="flex items-center gap-2 mt-1.5">
                     <span className="text-xs text-gray-500">{hook.source}</span>
-                    <span className="text-xs text-gray-400">Â·</span>
+                    <span className="text-xs text-gray-400">·</span>
                     <span className="text-xs text-gray-500">{hook.views} views</span>
                     {hook.tags?.map((tag, i) => (
                       <span key={i} className="text-xs bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">{tag}</span>
@@ -1533,7 +1379,7 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
               {generatedScript && (
                 <div className="flex items-center gap-3 text-xs text-gray-500">
                   <span>{generatedScript.wordCount} words</span>
-                  <span>Â·</span>
+                  <span>·</span>
                   <span>{generatedScript.estDuration}</span>
                 </div>
               )}
@@ -1602,7 +1448,7 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
                     className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all text-sm"
                   >
                     <p className="font-medium text-gray-900 line-clamp-1">{s.hook}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{s.timestamp} Â· {s.wordCount} words</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{s.timestamp} · {s.wordCount} words</p>
                   </button>
                 ))}
               </div>
@@ -1653,7 +1499,7 @@ const VaultPage = ({ savedVideos, setSavedVideos, setSelectedVideoDetail, setCur
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-extrabold text-gray-900">Vault</h1>
-          <p className="text-gray-500 mt-1">Your saved hooks, styles, structures, and videos â all in one place.</p>
+          <p className="text-gray-500 mt-1">Your saved hooks, styles, structures, and videos — all in one place.</p>
         </div>
         <div className="text-sm text-gray-500 flex items-center gap-2">
           <Archive size={14} />
@@ -1714,7 +1560,7 @@ const VaultPage = ({ savedVideos, setSavedVideos, setSelectedVideoDetail, setCur
                 <div className="p-4">
                   <p className="text-xs font-bold uppercase tracking-wider text-pink-500 mb-1 flex items-center gap-1"><Video size={10} /> Saved Video</p>
                   <h3 className="font-bold text-gray-900 text-sm line-clamp-2 group-hover:text-pink-600 transition-colors">{item.title}</h3>
-                  <p className="text-xs text-gray-500 mt-1">{item.channel} Â· {item.views} views</p>
+                  <p className="text-xs text-gray-500 mt-1">{item.channel} · {item.views} views</p>
                   <div className="flex items-center gap-2 mt-2">
                     <OutlierBadge score={item.outlierScore} />
                     <button
