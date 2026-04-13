@@ -27,7 +27,7 @@ const SAMPLE_VIDEOS = [
     id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", channelId: 6,
     platform: "TikTok", views: "12.7M", viewsNum: 12700000, likes: "890K", comments: "23K",
     outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", niche: "Education",
-    thumbnail: "https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&h=711&fit=crop&crop=face",
+    thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=711&fit=crop&crop=face",
     hook: "Stop using the word 'very'. Here's what smart people say instead.",
     transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'...",
     engagement: 7.1,
@@ -36,7 +36,7 @@ const SAMPLE_VIDEOS = [
     id: 3, title: "POV: You Finally Quit Your 9-5", channel: "Alex Hormozi", channelId: 3,
     platform: "Instagram Reels", views: "8.4M", viewsNum: 8400000, likes: "620K", comments: "18K",
     outlierScore: 12.8, uploadDate: "5 days ago", duration: "0:45", niche: "Business",
-    thumbnail: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=711&fit=crop&crop=face",
+    thumbnail: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=711&fit=crop&crop=face",
     hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.",
     transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one...",
     engagement: 7.4,
@@ -45,7 +45,7 @@ const SAMPLE_VIDEOS = [
     id: 4, title: "The Psychology Behind Why You Can't Stop Scrolling", channel: "Ali Abdaal", channelId: 2,
     platform: "YouTube Shorts", views: "22.1M", viewsNum: 22100000, likes: "1.5M", comments: "34K",
     outlierScore: 19.3, uploadDate: "2 days ago", duration: "0:52", niche: "Psychology",
-    thumbnail: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=711&fit=crop&crop=face",
+    thumbnail: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&h=711&fit=crop&crop=face",
     hook: "Your phone is literally designed to be addictive. Here's the science behind it.",
     transcript: "Your phone is literally designed to be addictive. Here's the science behind it...",
     engagement: 6.8,
@@ -54,7 +54,7 @@ const SAMPLE_VIDEOS = [
     id: 5, title: "I Asked 100 Millionaires Their #1 Habit", channel: "Mark Tilbury", channelId: 4,
     platform: "TikTok", views: "31.5M", viewsNum: 31500000, likes: "1.8M", comments: "52K",
     outlierScore: 24.1, uploadDate: "4 days ago", duration: "0:41", niche: "Finance",
-    thumbnail: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=711&fit=crop&crop=face",
+    thumbnail: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=711&fit=crop&crop=face",
     hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.",
     transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing...",
     engagement: 5.7,
@@ -63,7 +63,7 @@ const SAMPLE_VIDEOS = [
     id: 6, title: "Why Japan's Trains Are Never Late", channel: "Abroad in Japan", channelId: 5,
     platform: "Instagram Reels", views: "15.8M", viewsNum: 15800000, likes: "1.1M", comments: "28K",
     outlierScore: 16.7, uploadDate: "1 week ago", duration: "0:55", niche: "Travel",
-    thumbnail: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=711&fit=crop&crop=face",
+    thumbnail: "https://images.unsplash.com/photo-1528164344705-47542687000d?w=400&h=711&fit=crop&crop=face",
     hook: "In Japan, if a train is even 60 seconds late, the company issues a formal apology.",
     transcript: "In Japan, if a train is even 60 seconds late, the company issues a formal apology...",
     engagement: 6.9,
@@ -72,7 +72,7 @@ const SAMPLE_VIDEOS = [
     id: 7, title: "This Meal Prep Changed My Life (5 Mins)", channel: "Ethan Chlebowski", channelId: 1,
     platform: "TikTok", views: "9.6M", viewsNum: 9600000, likes: "740K", comments: "21K",
     outlierScore: 11.4, uploadDate: "6 days ago", duration: "0:48", niche: "Food",
-    thumbnail: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=400&h=711&fit=crop&crop=face",
+    thumbnail: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=711&fit=crop&crop=face",
     hook: "This 5-minute meal prep will save you $200 a month.",
     transcript: "This 5-minute meal prep will save you $200 a month...",
     engagement: 7.7,
@@ -81,7 +81,7 @@ const SAMPLE_VIDEOS = [
     id: 8, title: "The Real Reason You're Always Tired", channel: "Dr. Mike", channelId: 5,
     platform: "YouTube Shorts", views: "19.3M", viewsNum: 19300000, likes: "1.3M", comments: "41K",
     outlierScore: 17.9, uploadDate: "3 days ago", duration: "0:39", niche: "Health",
-    thumbnail: "https://images.unsplash.com/photo-1550345332-09e3ac987658?w=400&h=711&fit=crop&crop=face",
+    thumbnail: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=711&fit=crop&crop=face",
     hook: "You're not tired because you're not sleeping enough.",
     transcript: "You're not tired because you're not sleeping enough...",
     engagement: 6.7,
@@ -212,7 +212,7 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { icon: Flame, label: "Channels Watched", value: stats.channelsWatched, gradient: "from-orange-400 to-pink-500", change: "+2 this week" },
           { icon: Video, label: "Videos Saved", value: stats.videosSaved, gradient: "from-blue-400 to-indigo-500", change: "Feed active" },
@@ -744,287 +744,423 @@ const ChannelsPage = ({ watchlists, setWatchlists }) => {
 // VIDEOS PAGE (Feed & Vault) — Sandcastles-matching design
 // ============================================================
 
-const PlatformIcon = ({ platform }) => {
-  if (platform.includes("YouTube")) return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/120px-YouTube_full-color_icon_%282017%29.svg.png" alt="YouTube" className="w-5 h-5 rounded object-cover" />;
-  if (platform.includes("TikTok")) return <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/120px-TikTok_logo.svg.png" alt="TikTok" className="w-5 h-5 rounded object-cover bg-black p-0.5" />;
-  return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/120px-Instagram_logo_2016.svg.png" alt="Instagram" className="w-5 h-5 rounded object-cover" />;
+const PlatformIcon = ({ platform, size = "sm" }) => {
+  const cls = size === "lg" ? "w-6 h-6" : "w-5 h-5";
+  if (platform.includes("YouTube")) return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/120px-YouTube_full-color_icon_%282017%29.svg.png" alt="YouTube" className={`${cls} rounded object-cover`} />;
+  if (platform.includes("TikTok")) return <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/120px-TikTok_logo.svg.png" alt="TikTok" className={`${cls} rounded object-cover bg-black p-0.5`} />;
+  return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/120px-Instagram_logo_2016.svg.png" alt="Instagram" className={`${cls} rounded object-cover`} />;
 };
 
-const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoDetail }) => {
+const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoDetail, setCurrentPage }) => {
   const [activeTab, setActiveTab] = useState("feed");
-  const [sortBy, setSortBy] = useState("outlier");
+  const [sortBy, setSortBy] = useState("newest");
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [hoveredVideoId, setHoveredVideoId] = useState(null);
   const [visibleCount, setVisibleCount] = useState(20);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Filter state
-  const [outlierMin, setOutlierMin] = useState("");
+  const [outlierMin, setOutlierMin] = useState("1");
   const [outlierMax, setOutlierMax] = useState("");
   const [viewsMin, setViewsMin] = useState("");
   const [viewsMax, setViewsMax] = useState("");
   const [engagementMin, setEngagementMin] = useState("");
   const [engagementMax, setEngagementMax] = useState("");
   const [postedInLast, setPostedInLast] = useState("");
+  const [postedInLastUnit, setPostedInLastUnit] = useState("Months");
   const [platformFilter, setPlatformFilter] = useState("all");
+  const [channelFilter, setChannelFilter] = useState("all");
   const [keywordSearch, setKeywordSearch] = useState("");
+  const [showChannelDropdown, setShowChannelDropdown] = useState(false);
+  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
 
-  // Get videos from watchlisted channels
+  // Get all watchlisted channel IDs and channel objects
   const watchlistedChannelIds = new Set(watchlists.flatMap(w => w.channels));
+  const watchlistedChannels = SAMPLE_CHANNELS.filter(c => watchlistedChannelIds.has(c.id));
   const feedVideos = SAMPLE_VIDEOS.filter(v => watchlistedChannelIds.has(v.channelId));
 
   // Apply filters
   const filteredVideos = (activeTab === "feed" ? feedVideos : savedVideos).filter(v => {
     if (outlierMin && v.outlierScore < parseFloat(outlierMin)) return false;
-    if (outlierMax && v.outlierScore > parseFloat(outlierMax)) return false;
+    if (outlierMax && v.outlierScore > parseFloat(outlierMax.replace("x", ""))) return false;
     if (viewsMin && v.viewsNum < parseInt(viewsMin.replace(/,/g, ""))) return false;
     if (viewsMax && v.viewsNum > parseInt(viewsMax.replace(/,/g, ""))) return false;
-    if (engagementMin && v.engagement < parseFloat(engagementMin)) return false;
-    if (engagementMax && v.engagement > parseFloat(engagementMax)) return false;
+    if (engagementMin && v.engagement < parseFloat(engagementMin.replace("%", ""))) return false;
+    if (engagementMax && v.engagement > parseFloat(engagementMax.replace("%", ""))) return false;
     if (platformFilter !== "all" && v.platform !== platformFilter) return false;
+    if (channelFilter !== "all" && v.channelId !== parseInt(channelFilter)) return false;
     if (keywordSearch && !v.title.toLowerCase().includes(keywordSearch.toLowerCase()) && !v.hook.toLowerCase().includes(keywordSearch.toLowerCase())) return false;
     return true;
   }).sort((a, b) => {
+    if (sortBy === "newest") return 0;
+    if (sortBy === "oldest") return 0;
     if (sortBy === "outlier") return b.outlierScore - a.outlierScore;
     if (sortBy === "views") return b.viewsNum - a.viewsNum;
     if (sortBy === "engagement") return b.engagement - a.engagement;
-    if (sortBy === "recent") return 0;
     return 0;
   });
 
   const displayedVideos = filteredVideos.slice(0, visibleCount);
-  const platforms = ["YouTube Shorts", "TikTok", "Instagram Reels"];
 
   const formatViews = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
-    if (num >= 1000) return (num / 1000).toFixed(0) + "K";
+    if (num >= 1000) return Math.round(num / 1000) + "K";
     return num.toString();
   };
 
-  const getPlatformIcon = (platform) => {
-    if (platform.includes("YouTube")) return { color: "bg-red-500", label: "YT" };
-    if (platform.includes("TikTok")) return { color: "bg-black", label: "TT" };
-    if (platform.includes("Instagram")) return { color: "bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400", label: "IG" };
-    return { color: "bg-gray-400", label: "?" };
+  const formatFollowers = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+    if (num >= 1000) return Math.round(num / 1000) + "K";
+    return num.toString();
   };
 
   const clearFilters = () => {
-    setOutlierMin(""); setOutlierMax(""); setViewsMin(""); setViewsMax("");
+    setOutlierMin("1"); setOutlierMax("100"); setViewsMin(""); setViewsMax("");
     setEngagementMin(""); setEngagementMax(""); setPostedInLast("");
-    setPlatformFilter("all"); setKeywordSearch("");
+    setPostedInLastUnit("Months"); setPlatformFilter("all"); setChannelFilter("all"); setKeywordSearch("");
   };
 
+  const sortOptions = [
+    { key: "newest", label: "Newest" },
+    { key: "oldest", label: "Oldest" },
+    { key: "outlier", label: "Outlier score" },
+    { key: "views", label: "Views" },
+    { key: "engagement", label: "Engagement rate" },
+  ];
+
   return (
-    <div>
+    <div style={{ backgroundColor: "#1a1a2e", margin: "-32px", padding: "32px", minHeight: "calc(100vh - 80px)" }}>
       {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-xl font-semibold text-gray-900">Videos</h1>
-        <p className="text-sm text-gray-500 mt-0.5">
+      <div className="mb-5">
+        <h1 className="text-2xl font-bold text-white">Videos</h1>
+        <p className="text-sm text-gray-400 mt-1">
           {activeTab === "feed" ? "Save high-performing videos to your vault to unlock deep analysis" : "Browse videos you\u2019ve saved to your vault"}
         </p>
       </div>
 
       {/* Feed / Vault toggle + toolbar */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="relative inline-flex rounded-lg bg-gray-100 h-[37px] p-0.5">
+      <div className="flex items-center justify-between mb-5">
+        <div className="relative inline-flex rounded-full p-1" style={{ backgroundColor: "#2a2a3e" }}>
           {["feed", "vault"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-5 h-full rounded-md text-sm font-medium transition-colors duration-200 ${
-                activeTab === tab ? "text-gray-900 bg-white shadow-sm" : "text-gray-500 hover:text-gray-700"
+              className={`relative px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                activeTab === tab ? "text-white shadow-sm" : "text-gray-400 hover:text-gray-200"
               }`}
+              style={activeTab === tab ? { backgroundColor: "#3a3a50" } : {}}
             >
               {tab === "feed" ? "Feed" : "Vault"}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-4 text-sm text-gray-500">
-          <button className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
-            <Settings size={14} />
-            <span>{activeTab === "feed" ? "Configure channels" : "Add video URL"}</span>
-          </button>
+        <div className="flex items-center gap-5 text-sm text-gray-400">
+          {activeTab === "feed" ? (
+            <button onClick={() => setCurrentPage && setCurrentPage("channels")} className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <Settings size={14} />
+              <span>Configure channels</span>
+            </button>
+          ) : (
+            <button className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <Plus size={14} />
+              <span>Add video URL</span>
+            </button>
+          )}
           <div className="relative">
-            <button onClick={() => setShowSortMenu(!showSortMenu)} className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
+            <button onClick={() => setShowSortMenu(!showSortMenu)} className="flex items-center gap-1.5 hover:text-white transition-colors">
               <BarChart3 size={14} />
               <span>Sort by</span>
             </button>
             {showSortMenu && (
               <>
                 <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />
-                <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-44">
-                  {[{ key: "outlier", label: "Outlier Score" }, { key: "views", label: "Views" }, { key: "engagement", label: "Engagement" }, { key: "recent", label: "Most Recent" }].map(opt => (
+                <div className="absolute right-0 top-8 rounded-lg shadow-lg py-1 z-30 w-48" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}>
+                  {sortOptions.map(opt => (
                     <button key={opt.key} onClick={() => { setSortBy(opt.key); setShowSortMenu(false); }}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${sortBy === opt.key ? "text-gray-900 font-medium" : "text-gray-600"}`}>
-                      {opt.label} {sortBy === opt.key && <Check size={14} className="inline ml-2 text-green-500" />}
+                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 ${sortBy === opt.key ? "text-white font-medium" : "text-gray-400"}`}>
+                      {opt.label}
                     </button>
                   ))}
                 </div>
               </>
             )}
           </div>
-          <button className="flex items-center gap-1.5 hover:text-gray-900 transition-colors">
+          <button onClick={() => setShowExportModal(true)} className="flex items-center gap-1.5 hover:text-white transition-colors">
             <Download size={14} />
             <span>Export</span>
           </button>
         </div>
       </div>
 
-      {/* Main grid: sidebar (col 1) + video cards (cols 2-4) */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {/* Filters Sidebar — takes 1 column, sticky */}
-        <div className="hidden sm:block sticky top-4 self-start max-h-[calc(100vh-2rem)] overflow-y-auto space-y-4 pr-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Filters</span>
-            <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600">Clear</button>
-          </div>
+      {/* Main layout: sidebar + video grid */}
+      <div className="flex gap-5">
+        {/* Filters Sidebar */}
+        <div className="hidden md:block w-[220px] flex-shrink-0 sticky top-0 self-start">
+          <div className="rounded-xl p-4 space-y-4" style={{ backgroundColor: "#222238", border: "1px solid #2e2e45" }}>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-white uppercase tracking-wider">Filters</span>
+              <button onClick={clearFilters} className="text-xs text-gray-500 hover:text-gray-300">Clear</button>
+            </div>
 
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Saved Filters</label>
-            <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500"><option>Pick one to apply</option></select>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Channels</label>
-            <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-500"><option>All channels</option></select>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Outlier score</label>
-            <div className="flex gap-2">
-              <input type="text" placeholder="0x" value={outlierMin} onChange={e => setOutlierMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
-              <input type="text" placeholder="100x" value={outlierMax} onChange={e => setOutlierMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+            {/* Saved Filters */}
+            <div>
+              <label className="text-xs text-gray-400 mb-1.5 block">Saved Filters</label>
+              <select className="w-full rounded-lg px-3 py-2 text-sm text-gray-400 appearance-none cursor-pointer" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center"}}>
+                <option>Pick one to apply</option>
+              </select>
             </div>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Views</label>
-            <div className="flex gap-2">
-              <input type="text" placeholder="0" value={viewsMin} onChange={e => setViewsMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
-              <input type="text" placeholder="10,000,000" value={viewsMax} onChange={e => setViewsMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+
+            {/* Channels dropdown */}
+            <div className="relative">
+              <label className="text-xs text-gray-400 mb-1.5 block">Channels</label>
+              <button
+                onClick={() => { setShowChannelDropdown(!showChannelDropdown); setShowPlatformDropdown(false); }}
+                className="w-full rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between"
+                style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}
+              >
+                <span className={channelFilter === "all" ? "text-gray-400" : "text-white"}>
+                  {channelFilter === "all" ? "All channels" : watchlistedChannels.find(c => c.id === parseInt(channelFilter))?.handle || "All channels"}
+                </span>
+                <ChevronDown size={14} className="text-gray-500" />
+              </button>
+              {showChannelDropdown && (
+                <>
+                  <div className="fixed inset-0 z-20" onClick={() => setShowChannelDropdown(false)} />
+                  <div className="absolute left-0 top-full mt-1 rounded-lg shadow-lg py-1 z-30 w-64 max-h-80 overflow-y-auto" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}>
+                    <button
+                      onClick={() => { setChannelFilter("all"); setShowChannelDropdown(false); }}
+                      className={`w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 ${channelFilter === "all" ? "bg-white/5 font-medium" : ""}`}
+                    >
+                      All channels
+                    </button>
+                    {watchlistedChannels.sort((a, b) => a.handle.localeCompare(b.handle)).map(ch => (
+                      <button
+                        key={ch.id}
+                        onClick={() => { setChannelFilter(String(ch.id)); setShowChannelDropdown(false); }}
+                        className={`w-full text-left px-3 py-2.5 text-sm hover:bg-white/5 flex items-center gap-2.5 ${channelFilter === String(ch.id) ? "bg-white/5" : ""}`}
+                      >
+                        <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${ch.avatar} flex-shrink-0`} />
+                        <span className="text-gray-200 truncate">{ch.handle}</span>
+                        <span className="text-gray-500 text-xs ml-auto whitespace-nowrap">{formatFollowers(ch.followersNum)} followers</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Engagement</label>
-            <div className="flex gap-2">
-              <input type="text" placeholder="0%" value={engagementMin} onChange={e => setEngagementMin(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
-              <input type="text" placeholder="100%" value={engagementMax} onChange={e => setEngagementMax(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
+
+            {/* Outlier score */}
+            <div>
+              <label className="text-xs text-gray-400 mb-1.5 block">Outlier score</label>
+              <div className="flex gap-2">
+                <input type="text" placeholder="1" value={outlierMin} onChange={e => setOutlierMin(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+                <input type="text" placeholder="100x" value={outlierMax} onChange={e => setOutlierMax(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+              </div>
             </div>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Posted in last</label>
-            <div className="flex gap-2">
-              <input type="text" placeholder="0" value={postedInLast} onChange={e => setPostedInLast(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
-              <select className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600"><option>Months</option><option>Weeks</option><option>Days</option></select>
+
+            {/* Views */}
+            <div>
+              <label className="text-xs text-gray-400 mb-1.5 block">Views</label>
+              <div className="flex gap-2">
+                <input type="text" placeholder="0" value={viewsMin} onChange={e => setViewsMin(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+                <input type="text" placeholder="10,000,000" value={viewsMax} onChange={e => setViewsMax(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+              </div>
             </div>
+
+            {/* Engagement */}
+            <div>
+              <label className="text-xs text-gray-400 mb-1.5 block">Engagement</label>
+              <div className="flex gap-2">
+                <input type="text" placeholder="0%" value={engagementMin} onChange={e => setEngagementMin(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+                <input type="text" placeholder="100%" value={engagementMax} onChange={e => setEngagementMax(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+              </div>
+            </div>
+
+            {/* Posted in last */}
+            <div>
+              <label className="text-xs text-gray-400 mb-1.5 block">Posted in last</label>
+              <div className="flex gap-2">
+                <input type="text" placeholder="0" value={postedInLast} onChange={e => setPostedInLast(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+                <select value={postedInLastUnit} onChange={e => setPostedInLastUnit(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-gray-300 appearance-none cursor-pointer" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center"}}>
+                  <option>Months</option><option>Weeks</option><option>Days</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Platform dropdown */}
+            <div className="relative">
+              <label className="text-xs text-gray-400 mb-1.5 block">Platform</label>
+              <button
+                onClick={() => { setShowPlatformDropdown(!showPlatformDropdown); setShowChannelDropdown(false); }}
+                className="w-full rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between"
+                style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}
+              >
+                <span className="text-gray-400">
+                  {platformFilter === "all" ? "All platforms" : platformFilter}
+                </span>
+                <ChevronDown size={14} className="text-gray-500" />
+              </button>
+              {showPlatformDropdown && (
+                <>
+                  <div className="fixed inset-0 z-20" onClick={() => setShowPlatformDropdown(false)} />
+                  <div className="absolute left-0 top-full mt-1 rounded-lg shadow-lg py-1 z-30 w-full" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}>
+                    <button
+                      onClick={() => { setPlatformFilter("all"); setShowPlatformDropdown(false); }}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5"
+                    >
+                      All platforms
+                    </button>
+                    {[
+                      { value: "YouTube Shorts", label: "YouTube" },
+                      { value: "TikTok", label: "TikTok" },
+                      { value: "Instagram Reels", label: "Instagram" },
+                    ].map(p => (
+                      <button
+                        key={p.value}
+                        onClick={() => { setPlatformFilter(p.value); setShowPlatformDropdown(false); }}
+                        className="w-full text-left px-3 py-2.5 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2.5"
+                      >
+                        <PlatformIcon platform={p.value} />
+                        <span>{p.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Keywords */}
+            <div>
+              <label className="text-xs text-gray-400 mb-1.5 block">Keywords</label>
+              <input type="text" placeholder="Search captions and titles" value={keywordSearch} onChange={e => setKeywordSearch(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+            </div>
+
+            {/* Save filter button */}
+            <button className="w-full text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-colors" style={{ backgroundColor: "#3a3a50" }}>Save filter</button>
           </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Platform</label>
-            <select value={platformFilter} onChange={e => setPlatformFilter(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600">
-              <option value="all">All platforms</option>
-              {platforms.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1 block">Keywords</label>
-            <input type="text" placeholder="Search captions and titles" value={keywordSearch} onChange={e => setKeywordSearch(e.target.value)} className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
-          </div>
-          <button className="w-full bg-gray-900 text-white text-sm font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-colors">Save filter</button>
         </div>
 
-        {/* Video Cards — span remaining columns */}
-        {activeTab === "feed" && watchlistedChannelIds.size === 0 ? (
-          <div className="md:col-span-2 lg:col-span-3 bg-blue-50 border border-blue-200 rounded-2xl p-8 text-center">
-            <AlertCircle size={24} className="mx-auto text-blue-600 mb-2" />
-            <p className="text-blue-900 font-semibold">No watchlists created yet</p>
-            <p className="text-blue-700 text-sm mt-1">Go to Channels to add creators to your watchlists and see their videos here.</p>
-          </div>
-        ) : (
-          <>
-            {displayedVideos.map(video => {
-              const isSaved = savedVideos.some(v => v.id === video.id);
-              const isHovered = hoveredVideoId === video.id;
-              return (
-                <div
-                  key={video.id}
-                  className="w-full flex flex-col group cursor-pointer rounded-xl transition-colors duration-300"
-                  onMouseEnter={() => setHoveredVideoId(video.id)}
-                  onMouseLeave={() => setHoveredVideoId(null)}
-                  onClick={() => setSelectedVideoDetail(video)}
-                >
-                  {/* Thumbnail */}
-                  <div className="relative overflow-hidden rounded-xl group-hover:shadow-md transition-all duration-300">
-                    <img
-                      src={video.thumbnail}
-                      alt=""
-                      className="group-hover:opacity-80 transition-all duration-300 h-[400px] w-full object-cover scale-105"
-                    />
-                    {/* Platform icon — top right */}
-                    <div className="absolute top-1 right-1">
-                      <PlatformIcon platform={video.platform} />
-                    </div>
-                    {/* Save to vault — bottom, on hover */}
-                    <div className={`absolute top-0 left-0 flex flex-col w-full items-end justify-end h-full p-1.5 transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
+        {/* Video Grid */}
+        <div className="flex-1 min-w-0">
+          {activeTab === "feed" && watchlistedChannelIds.size === 0 ? (
+            <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: "#222238", border: "1px solid #2e2e45" }}>
+              <AlertCircle size={24} className="mx-auto text-blue-400 mb-2" />
+              <p className="text-white font-semibold">No watchlists created yet</p>
+              <p className="text-gray-400 text-sm mt-1">Go to Channels to add creators to your watchlists and see their videos here.</p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+                {displayedVideos.map(video => {
+                  const isSaved = savedVideos.some(v => v.id === video.id);
+                  const isHovered = hoveredVideoId === video.id;
+                  const channelObj = SAMPLE_CHANNELS.find(c => c.id === video.channelId);
+                  return (
+                    <div
+                      key={video.id}
+                      className="w-full flex flex-col group"
+                      onMouseEnter={() => setHoveredVideoId(video.id)}
+                      onMouseLeave={() => setHoveredVideoId(null)}
+                    >
+                      {/* Thumbnail */}
+                      <div
+                        className="relative overflow-hidden rounded-lg cursor-pointer"
+                        style={{ paddingBottom: "177.78%" }}
+                        onClick={() => {
                           setSavedVideos(prev => isSaved ? prev.filter(v => v.id !== video.id) : [...prev, video]);
                         }}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shadow-sm transition-all ${
-                          isSaved ? "bg-green-500 text-white" : "bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-white"
-                        }`}
                       >
-                        {isSaved ? <Check size={12} /> : <Download size={12} />}
-                        {isSaved ? "Saved" : "Save to vault"}
-                      </button>
-                    </div>
-                  </div>
+                        <img
+                          src={video.thumbnail}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        {/* Platform icon */}
+                        <div className="absolute top-2 right-2">
+                          <PlatformIcon platform={video.platform} size="lg" />
+                        </div>
+                        {/* Save overlay on hover */}
+                        <div className={`absolute inset-0 flex items-end justify-center pb-4 transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
+                          <span className={`px-4 py-2 rounded-lg text-xs font-medium shadow-lg transition-all ${
+                            isSaved ? "bg-green-500 text-white" : "bg-black/70 backdrop-blur-sm text-white"
+                          }`}>
+                            {isSaved ? "Saved" : "Save to vault"}
+                          </span>
+                        </div>
+                      </div>
 
-                  {/* Meta info */}
-                  <div className="flex flex-col gap-1 px-1.5 pt-1.5 pb-1 h-[88px]">
-                    <div className="relative">
-                      <div className="w-full">
-                        <p className="text-xs font-medium text-gray-900 line-clamp-2 leading-tight">{video.title}</p>
+                      {/* Meta info */}
+                      <div className="flex flex-col gap-1 pt-2 pb-1">
+                        <a
+                          href="#"
+                          onClick={(e) => { e.preventDefault(); setSelectedVideoDetail(video); }}
+                          className="text-sm font-semibold text-white line-clamp-1 leading-snug hover:underline cursor-pointer"
+                        >
+                          {video.title}
+                        </a>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-gray-400 truncate">@{channelObj?.handle || video.channel.toLowerCase().replace(/\s/g, "")}</p>
+                          <p className="text-xs text-gray-500 whitespace-nowrap ml-2">{video.uploadDate}</p>
+                        </div>
+                        {/* Stat badges */}
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: "rgba(34,197,94,0.15)" }}>
+                            <TrendingUp size={12} className="text-green-400" />
+                            <span className="font-medium text-green-400">{video.outlierScore}x</span>
+                          </div>
+                          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: "rgba(59,130,246,0.15)" }}>
+                            <Eye size={12} className="text-blue-400" />
+                            <span className="font-medium text-blue-400">{formatViews(video.viewsNum)}</span>
+                          </div>
+                          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: "rgba(249,115,22,0.15)" }}>
+                            <Sparkles size={12} className="text-orange-400" />
+                            <span className="font-medium text-orange-400">{video.engagement}%</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-500 truncate hover:underline cursor-pointer">@{video.channel.toLowerCase().replace(/\s/g, "")}</p>
-                      <p className="text-xs text-gray-400 whitespace-nowrap ml-2">{video.uploadDate}</p>
-                    </div>
-                    <div className="w-full grid grid-cols-3 gap-1 items-center mt-auto">
-                      <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(34,197,94,0.15)", color: "rgb(21,128,61)" }}>
-                        <TrendingUp size={12} className="text-green-500" />
-                        <span className="font-medium">{video.outlierScore}x</span>
-                      </div>
-                      <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(59,130,246,0.15)", color: "rgb(29,78,216)" }}>
-                        <Eye size={12} className="text-blue-500" />
-                        <span className="font-medium">{formatViews(video.viewsNum)}</span>
-                      </div>
-                      <div className="flex items-center justify-center gap-1 rounded-md px-1.5 py-0.5 text-xs" style={{ backgroundColor: "rgba(249,115,22,0.15)", color: "rgb(194,65,12)" }}>
-                        <Sparkles size={12} className="text-orange-500" />
-                        <span className="font-medium">{video.engagement}%</span>
-                      </div>
-                    </div>
-                  </div>
+                  );
+                })}
+              </div>
+
+              {filteredVideos.length === 0 && (
+                <div className="text-center py-16 text-gray-500">
+                  <Video size={32} className="mx-auto mb-3 opacity-30" />
+                  <p className="font-semibold text-gray-300">No videos found</p>
+                  <p className="text-sm mt-1 text-gray-500">Try adjusting your filters or add channels to your watchlist</p>
                 </div>
-              );
-            })}
+              )}
 
-            {filteredVideos.length === 0 && (
-              <div className="md:col-span-2 lg:col-span-3 text-center py-16 text-gray-500">
-                <Video size={32} className="mx-auto mb-3 opacity-30" />
-                <p className="font-semibold">No videos found</p>
-                <p className="text-sm mt-1">Try adjusting your filters or add channels to your watchlist</p>
-              </div>
-            )}
-
-            {visibleCount < filteredVideos.length && (
-              <div className="md:col-span-2 lg:col-span-3 flex justify-center mt-4 mb-4">
-                <button onClick={() => setVisibleCount(prev => prev + 20)} className="px-6 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                  Load more
-                </button>
-              </div>
-            )}
-          </>
-        )}
+              {visibleCount < filteredVideos.length && (
+                <div className="flex justify-center mt-6 mb-4">
+                  <button onClick={() => setVisibleCount(prev => prev + 20)} className="px-8 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}>
+                    Load more
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="rounded-2xl shadow-xl max-w-md w-full mx-4 p-6" style={{ backgroundColor: "#222238", border: "1px solid #2e2e45" }}>
+            <h3 className="text-lg font-bold text-white mb-2">Start an export</h3>
+            <p className="text-sm text-gray-400 mb-4">Exports allow you to work with your videos and scripts off-platform.</p>
+            <div className="border-2 border-dashed border-yellow-600/50 rounded-xl p-4 text-center mb-5" style={{ backgroundColor: "rgba(234,179,8,0.08)" }}>
+              <span className="text-2xl mb-2 block">&#9888;</span>
+              <p className="text-sm text-gray-300">Exports are only available to paid subscribers of the Visionary tier or higher.</p>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button onClick={() => setShowExportModal(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">Close</button>
+              <button className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">Start export</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1924,13 +2060,13 @@ export default function App() {
       {/* Main Content */}
       <div className="flex-1 overflow-auto flex flex-col">
         {/* Header */}
-        <div className="border-b border-gray-200 bg-white px-8 py-6">
+        <div className={`border-b px-8 py-6 ${currentPage === "videos" ? "border-gray-700/50 bg-[#1a1a2e]" : "border-gray-200 bg-white"}`}>
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className={`text-2xl font-bold ${currentPage === "videos" ? "text-white" : "text-gray-900"}`}>
               {NAV_ITEMS.find(n => n.id === currentPage)?.label}
             </h1>
             <div className="flex items-center gap-4">
-              <button className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-600">
+              <button className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${currentPage === "videos" ? "bg-white/10 hover:bg-white/20 text-gray-300" : "bg-gray-100 hover:bg-gray-200 text-gray-600"}`}>
                 <Search size={18} />
               </button>
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500" />
@@ -1939,7 +2075,7 @@ export default function App() {
         </div>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-auto p-8">
+        <div className={`flex-1 overflow-auto p-8 ${currentPage === "videos" ? "bg-[#1a1a2e]" : ""}`}>
           {selectedVideoDetail && currentPage === "videos" ? (
             <VideoDetailPage
               video={selectedVideoDetail}
@@ -1957,6 +2093,7 @@ export default function App() {
               savedVideos={savedVideos}
               setSavedVideos={setSavedVideos}
               setSelectedVideoDetail={setSelectedVideoDetail}
+              setCurrentPage={setCurrentPage}
             />
           ) : currentPage === "scripts" ? (
             <ScriptsPage vaultItems={vaultItems} scriptsWritten={scriptsWritten} setScriptsWritten={setScriptsWritten} />
