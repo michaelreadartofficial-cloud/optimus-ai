@@ -6,7 +6,7 @@ import {
   PenTool, Layers, Play, Filter, Grid, List, Trash2, Download, Check,
   ChevronLeft, Share2, Code, Zap as ZapIcon, AlertCircle, Heart, Palette,
   FileText, Target, LayoutGrid, Activity, Bell, Moon, Sun, Key, Globe,
-  ChevronRight, ExternalLink, Hash, Calendar, Wand2
+  ChevronRight, ExternalLink, Hash, Calendar, Wand2, Link
 } from "lucide-react";
 
 // ============================================================
