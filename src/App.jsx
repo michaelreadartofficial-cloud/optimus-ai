@@ -6,67 +6,65 @@ import {
   PenTool, Layers, Play, Filter, Grid, List, Trash2, Download, Check,
   ChevronLeft, Share2, Code, Zap as ZapIcon, AlertCircle, Heart, Palette,
   FileText, Target, LayoutGrid, Activity, Bell, Moon, Sun, Key, Globe,
-  ChevronRight, ExternalLink, Hash, Calendar, Wand2, Link
+  ChevronRight, ExternalLink, Hash, Calendar, Wand2, Link, SlidersHorizontal,
+  HelpCircle, Upload
 } from "lucide-react";
 
 // ============================================================
 // SAMPLE DATA
 // ============================================================
 
-// Flat watchlist of creators
 const SAMPLE_WATCHLIST = [
-  { id: 1, name: "_macro_daddy", platform: "instagram", platformUrl: "https://instagram.com/_macro_daddy", followers: "773K", avatar: "https://ui-avatars.com/api/?name=MD&background=FF6B6B&color=fff" },
-  { id: 2, name: "alexastancofit", platform: "instagram", platformUrl: "https://instagram.com/alexastancofit", followers: "409K", avatar: "https://ui-avatars.com/api/?name=AC&background=4ECDC4&color=fff" },
-  { id: 3, name: "coachdango", platform: "instagram", platformUrl: "https://instagram.com/coachdango", followers: "1.4M", avatar: "https://ui-avatars.com/api/?name=CD&background=95E1D3&color=fff" },
-  { id: 4, name: "danmartell", platform: "instagram", platformUrl: "https://instagram.com/danmartell", followers: "2.2M", avatar: "https://ui-avatars.com/api/?name=DM&background=F38181&color=fff" },
-  { id: 5, name: "falkefit", platform: "tiktok", platformUrl: "https://tiktok.com/@falkefit", followers: "339K", avatar: "https://ui-avatars.com/api/?name=FF&background=AA96DA&color=fff" },
-  { id: 6, name: "therealbrianmark", platform: "instagram", platformUrl: "https://instagram.com/therealbrianmark", followers: "642K", avatar: "https://ui-avatars.com/api/?name=BM&background=FCBAD3&color=fff" },
-  { id: 7, name: "devinfitofficial", platform: "instagram", platformUrl: "https://instagram.com/devinfitofficial", followers: "639K", avatar: "https://ui-avatars.com/api/?name=DF&background=A8D8EA&color=fff" },
-  { id: 8, name: "kelseypoulter", platform: "youtube", platformUrl: "https://youtube.com/@kelseypoulter", followers: "993K", avatar: "https://ui-avatars.com/api/?name=KP&background=FF9FF3&color=fff" },
+  { id: 1, name: "_macro_daddy", platform: "instagram", platformUrl: "https://instagram.com/_macro_daddy", followers: "773K", followersNum: 773000, avatar: "https://ui-avatars.com/api/?name=MD&background=FF6B6B&color=fff" },
+  { id: 2, name: "alexastancofit", platform: "instagram", platformUrl: "https://instagram.com/alexastancofit", followers: "409K", followersNum: 409000, avatar: "https://ui-avatars.com/api/?name=AC&background=4ECDC4&color=fff" },
+  { id: 3, name: "coachdango", platform: "instagram", platformUrl: "https://instagram.com/coachdango", followers: "1.4M", followersNum: 1400000, avatar: "https://ui-avatars.com/api/?name=CD&background=95E1D3&color=fff" },
+  { id: 4, name: "danmartell", platform: "instagram", platformUrl: "https://instagram.com/danmartell", followers: "2.2M", followersNum: 2200000, avatar: "https://ui-avatars.com/api/?name=DM&background=F38181&color=fff" },
+  { id: 5, name: "falkefit", platform: "tiktok", platformUrl: "https://tiktok.com/@falkefit", followers: "339K", followersNum: 339000, avatar: "https://ui-avatars.com/api/?name=FF&background=AA96DA&color=fff" },
+  { id: 6, name: "therealbrianmark", platform: "instagram", platformUrl: "https://instagram.com/therealbrianmark", followers: "642K", followersNum: 642000, avatar: "https://ui-avatars.com/api/?name=BM&background=FCBAD3&color=fff" },
+  { id: 7, name: "devinfitofficial", platform: "instagram", platformUrl: "https://instagram.com/devinfitofficial", followers: "639K", followersNum: 639000, avatar: "https://ui-avatars.com/api/?name=DF&background=A8D8EA&color=fff" },
+  { id: 8, name: "kelseypoulter", platform: "youtube", platformUrl: "https://youtube.com/@kelseypoulter", followers: "993K", followersNum: 993000, avatar: "https://ui-avatars.com/api/?name=KP&background=FF9FF3&color=fff" },
 ];
 
-// Suggestions (creators NOT in watchlist)
 const SAMPLE_SUGGESTIONS = [
-  { id: 101, name: "thedolcediet", platform: "instagram", platformUrl: "https://instagram.com/thedolcediet", followers: "247K", avatar: "https://ui-avatars.com/api/?name=TD&background=A8E6CF&color=fff" },
-  { id: 102, name: "jonmango", platform: "tiktok", platformUrl: "https://tiktok.com/@jonmango", followers: "36K", avatar: "https://ui-avatars.com/api/?name=JM&background=FFD3B6&color=fff" },
-  { id: 103, name: "vladimirfitness", platform: "youtube", platformUrl: "https://youtube.com/@vladimirfitness", followers: "9.4M", avatar: "https://ui-avatars.com/api/?name=VF&background=FFAAA5&color=fff" },
-  { id: 104, name: "fitnessblender", platform: "youtube", platformUrl: "https://youtube.com/@fitnessblender", followers: "6.6M", avatar: "https://ui-avatars.com/api/?name=FB&background=FF8B94&color=fff" },
-  { id: 105, name: "saschafitness", platform: "instagram", platformUrl: "https://instagram.com/saschafitness", followers: "5.8M", avatar: "https://ui-avatars.com/api/?name=SF&background=A8D8EA&color=fff" },
-  { id: 106, name: "jordanyeohfitness", platform: "instagram", platformUrl: "https://instagram.com/jordanyeohfitness", followers: "4.5M", avatar: "https://ui-avatars.com/api/?name=JY&background=AA96DA&color=fff" },
-  { id: 107, name: "_aussiefitness", platform: "instagram", platformUrl: "https://instagram.com/_aussiefitness", followers: "3.2M", avatar: "https://ui-avatars.com/api/?name=AF&background=FCBAD3&color=fff" },
-  { id: 108, name: "marpefitness_", platform: "instagram", platformUrl: "https://instagram.com/marpefitness_", followers: "2.5M", avatar: "https://ui-avatars.com/api/?name=MF&background=F0A500&color=fff" },
-  { id: 109, name: "littlefitness", platform: "instagram", platformUrl: "https://instagram.com/littlefitness", followers: "2.5M", avatar: "https://ui-avatars.com/api/?name=LF&background=4ECDC4&color=fff" },
-  { id: 110, name: "thefitnesschef_", platform: "instagram", platformUrl: "https://instagram.com/thefitnesschef_", followers: "2.3M", avatar: "https://ui-avatars.com/api/?name=TFC&background=FF6B6B&color=fff" },
-  { id: 111, name: "scaseyfitness", platform: "instagram", platformUrl: "https://instagram.com/scaseyfitness", followers: "2.2M", avatar: "https://ui-avatars.com/api/?name=SC&background=95E1D3&color=fff" },
-  { id: 112, name: "fitnessfaqs", platform: "youtube", platformUrl: "https://youtube.com/@fitnessfaqs", followers: "2.2M", avatar: "https://ui-avatars.com/api/?name=FF&background=A8D8EA&color=fff" },
-  { id: 113, name: "jeffnippardfitness", platform: "youtube", platformUrl: "https://youtube.com/@jeffnippardfitness", followers: "2.2M", avatar: "https://ui-avatars.com/api/?name=JN&background=AA96DA&color=fff" },
-  { id: 114, name: "fitnessbymaddy_", platform: "instagram", platformUrl: "https://instagram.com/fitnessbymaddy_", followers: "2.1M", avatar: "https://ui-avatars.com/api/?name=FM&background=FCBAD3&color=fff" },
-  { id: 115, name: "ericjanickifitness", platform: "instagram", platformUrl: "https://instagram.com/ericjanickifitness", followers: "2M", avatar: "https://ui-avatars.com/api/?name=EJ&background=FFD3B6&color=fff" },
-  { id: 116, name: "ulrich_fitness", platform: "tiktok", platformUrl: "https://tiktok.com/@ulrich_fitness", followers: "1.9M", avatar: "https://ui-avatars.com/api/?name=UF&background=FFAAA5&color=fff" },
+  { id: 101, name: "thedolcediet", platform: "instagram", platformUrl: "https://instagram.com/thedolcediet", followers: "247K", followersNum: 247000, avatar: "https://ui-avatars.com/api/?name=TD&background=A8E6CF&color=fff" },
+  { id: 102, name: "jonmango", platform: "tiktok", platformUrl: "https://tiktok.com/@jonmango", followers: "36K", followersNum: 36000, avatar: "https://ui-avatars.com/api/?name=JM&background=FFD3B6&color=fff" },
+  { id: 103, name: "vladimirfitness", platform: "youtube", platformUrl: "https://youtube.com/@vladimirfitness", followers: "9.4M", followersNum: 9400000, avatar: "https://ui-avatars.com/api/?name=VF&background=FFAAA5&color=fff" },
+  { id: 104, name: "fitnessblender", platform: "youtube", platformUrl: "https://youtube.com/@fitnessblender", followers: "6.6M", followersNum: 6600000, avatar: "https://ui-avatars.com/api/?name=FB&background=FF8B94&color=fff" },
+  { id: 105, name: "saschafitness", platform: "instagram", platformUrl: "https://instagram.com/saschafitness", followers: "5.8M", followersNum: 5800000, avatar: "https://ui-avatars.com/api/?name=SF&background=A8D8EA&color=fff" },
+  { id: 106, name: "jordanyeohfitness", platform: "instagram", platformUrl: "https://instagram.com/jordanyeohfitness", followers: "4.5M", followersNum: 4500000, avatar: "https://ui-avatars.com/api/?name=JY&background=AA96DA&color=fff" },
+  { id: 107, name: "_aussiefitness", platform: "instagram", platformUrl: "https://instagram.com/_aussiefitness", followers: "3.2M", followersNum: 3200000, avatar: "https://ui-avatars.com/api/?name=AF&background=FCBAD3&color=fff" },
+  { id: 108, name: "marpefitness_", platform: "instagram", platformUrl: "https://instagram.com/marpefitness_", followers: "2.5M", followersNum: 2500000, avatar: "https://ui-avatars.com/api/?name=MF&background=F0A500&color=fff" },
+  { id: 109, name: "littlefitness", platform: "instagram", platformUrl: "https://instagram.com/littlefitness", followers: "2.5M", followersNum: 2500000, avatar: "https://ui-avatars.com/api/?name=LF&background=4ECDC4&color=fff" },
+  { id: 110, name: "thefitnesschef_", platform: "instagram", platformUrl: "https://instagram.com/thefitnesschef_", followers: "2.3M", followersNum: 2300000, avatar: "https://ui-avatars.com/api/?name=TFC&background=FF6B6B&color=fff" },
+  { id: 111, name: "scaseyfitness", platform: "instagram", platformUrl: "https://instagram.com/scaseyfitness", followers: "2.2M", followersNum: 2200000, avatar: "https://ui-avatars.com/api/?name=SC&background=95E1D3&color=fff" },
+  { id: 112, name: "fitnessfaqs", platform: "youtube", platformUrl: "https://youtube.com/@fitnessfaqs", followers: "2.2M", followersNum: 2200000, avatar: "https://ui-avatars.com/api/?name=FF&background=A8D8EA&color=fff" },
+  { id: 113, name: "jeffnippardfitness", platform: "youtube", platformUrl: "https://youtube.com/@jeffnippardfitness", followers: "2.2M", followersNum: 2200000, avatar: "https://ui-avatars.com/api/?name=JN&background=AA96DA&color=fff" },
+  { id: 114, name: "fitnessbymaddy_", platform: "instagram", platformUrl: "https://instagram.com/fitnessbymaddy_", followers: "2.1M", followersNum: 2100000, avatar: "https://ui-avatars.com/api/?name=FM&background=FCBAD3&color=fff" },
+  { id: 115, name: "ericjanickifitness", platform: "instagram", platformUrl: "https://instagram.com/ericjanickifitness", followers: "2M", followersNum: 2000000, avatar: "https://ui-avatars.com/api/?name=EJ&background=FFD3B6&color=fff" },
+  { id: 116, name: "ulrich_fitness", platform: "tiktok", platformUrl: "https://tiktok.com/@ulrich_fitness", followers: "1.9M", followersNum: 1900000, avatar: "https://ui-avatars.com/api/?name=UF&background=FFAAA5&color=fff" },
 ];
 
-// Videos from watchlist creators (mix of platforms)
 const SAMPLE_VIDEOS = [
-  { id: 1, title: "Low calorie protein swaps you need to try", creator: "_macro_daddy", platform: "youtube", platformUrl: "https://youtube.com/shorts/example1", thumbnail: "https://picsum.photos/seed/v1/270/480", outlier: 1.3, views: "18K", engagement: "4%", postedAgo: "1d ago", outlierScore: 13, viewsNum: 18000, engagement: 4 },
-  { id: 2, title: "Have you ever heard of this fitness hack?", creator: "alexastancofit", platform: "instagram", platformUrl: "https://instagram.com/reel/example2", thumbnail: "https://picsum.photos/seed/v2/270/480", outlier: 1.0, views: "13K", engagement: "4%", postedAgo: "1d ago", outlierScore: 10, viewsNum: 13000 },
-  { id: 3, title: "Transform your body with this trick", creator: "coachdango", platform: "instagram", platformUrl: "https://instagram.com/reel/example3", thumbnail: "https://picsum.photos/seed/v3/270/480", outlier: 1.5, views: "25K", engagement: "6%", postedAgo: "2d ago", outlierScore: 15, viewsNum: 25000 },
-  { id: 4, title: "Fitness myths debunked in 60 seconds", creator: "danmartell", platform: "youtube", platformUrl: "https://youtube.com/shorts/example4", thumbnail: "https://picsum.photos/seed/v4/270/480", outlier: 2.1, views: "42K", engagement: "8%", postedAgo: "3d ago", outlierScore: 21, viewsNum: 42000 },
-  { id: 5, title: "This changed my workout routine forever", creator: "falkefit", platform: "tiktok", platformUrl: "https://tiktok.com/@falkefit/video/example5", thumbnail: "https://picsum.photos/seed/v5/270/480", outlier: 1.2, views: "19K", engagement: "5%", postedAgo: "1d ago", outlierScore: 12, viewsNum: 19000 },
-  { id: 6, title: "The #1 mistake people make at the gym", creator: "therealbrianmark", platform: "instagram", platformUrl: "https://instagram.com/reel/example6", thumbnail: "https://picsum.photos/seed/v6/270/480", outlier: 1.8, views: "35K", engagement: "7%", postedAgo: "2d ago", outlierScore: 18, viewsNum: 35000 },
-  { id: 7, title: "Quick abs workout for busy people", creator: "devinfitofficial", platform: "instagram", platformUrl: "https://instagram.com/reel/example7", thumbnail: "https://picsum.photos/seed/v7/270/480", outlier: 1.4, views: "22K", engagement: "6%", postedAgo: "1d ago", outlierScore: 14, viewsNum: 22000 },
-  { id: 8, title: "Nutrition secrets from pro athletes", creator: "kelseypoulter", platform: "youtube", platformUrl: "https://youtube.com/shorts/example8", thumbnail: "https://picsum.photos/seed/v8/270/480", outlier: 1.6, views: "28K", engagement: "7%", postedAgo: "2d ago", outlierScore: 16, viewsNum: 28000 },
-  { id: 9, title: "5 minute morning energy boost", creator: "_macro_daddy", platform: "youtube", platformUrl: "https://youtube.com/shorts/example9", thumbnail: "https://picsum.photos/seed/v9/270/480", outlier: 0.9, views: "11K", engagement: "3%", postedAgo: "3d ago", outlierScore: 9, viewsNum: 11000 },
-  { id: 10, title: "How I get shredded without starving", creator: "alexastancofit", platform: "instagram", platformUrl: "https://instagram.com/reel/example10", thumbnail: "https://picsum.photos/seed/v10/270/480", outlier: 2.0, views: "38K", engagement: "8%", postedAgo: "1d ago", outlierScore: 20, viewsNum: 38000 },
-  { id: 11, title: "Mobility routine that actually works", creator: "coachdango", platform: "tiktok", platformUrl: "https://tiktok.com/@coachdango/video/example11", thumbnail: "https://picsum.photos/seed/v11/270/480", outlier: 1.1, views: "16K", engagement: "4%", postedAgo: "2d ago", outlierScore: 11, viewsNum: 16000 },
-  { id: 12, title: "Meal prep for the entire week", creator: "danmartell", platform: "instagram", platformUrl: "https://instagram.com/reel/example12", thumbnail: "https://picsum.photos/seed/v12/270/480", outlier: 1.7, views: "32K", engagement: "6%", postedAgo: "3d ago", outlierScore: 17, viewsNum: 32000 },
-  { id: 13, title: "Why you're not getting stronger", creator: "falkefit", platform: "youtube", platformUrl: "https://youtube.com/shorts/example13", thumbnail: "https://picsum.photos/seed/v13/270/480", outlier: 1.4, views: "24K", engagement: "5%", postedAgo: "1d ago", outlierScore: 14, viewsNum: 24000 },
-  { id: 14, title: "Recovery tips from elite trainers", creator: "therealbrianmark", platform: "tiktok", platformUrl: "https://tiktok.com/@therealbrianmark/video/example14", thumbnail: "https://picsum.photos/seed/v14/270/480", outlier: 1.3, views: "20K", engagement: "5%", postedAgo: "2d ago", outlierScore: 13, viewsNum: 20000 },
-  { id: 15, title: "Cardio myths that need to die", creator: "devinfitofficial", platform: "youtube", platformUrl: "https://youtube.com/shorts/example15", thumbnail: "https://picsum.photos/seed/v15/270/480", outlier: 1.9, views: "36K", engagement: "7%", postedAgo: "1d ago", outlierScore: 19, viewsNum: 36000 },
-  { id: 16, title: "How to build muscle in 30 days", creator: "kelseypoulter", platform: "instagram", platformUrl: "https://instagram.com/reel/example16", thumbnail: "https://picsum.photos/seed/v16/270/480", outlier: 2.2, views: "45K", engagement: "9%", postedAgo: "2d ago", outlierScore: 22, viewsNum: 45000 },
-  { id: 17, title: "Stretching routine for flexibility", creator: "_macro_daddy", platform: "instagram", platformUrl: "https://instagram.com/reel/example17", thumbnail: "https://picsum.photos/seed/v17/270/480", outlier: 1.0, views: "14K", engagement: "4%", postedAgo: "3d ago", outlierScore: 10, viewsNum: 14000 },
-  { id: 18, title: "The best home workout equipment", creator: "alexastancofit", platform: "youtube", platformUrl: "https://youtube.com/shorts/example18", thumbnail: "https://picsum.photos/seed/v18/270/480", outlier: 1.5, views: "26K", engagement: "6%", postedAgo: "1d ago", outlierScore: 15, viewsNum: 26000 },
-  { id: 19, title: "Post-workout meal ideas", creator: "coachdango", platform: "instagram", platformUrl: "https://instagram.com/reel/example19", thumbnail: "https://picsum.photos/seed/v19/270/480", outlier: 1.2, views: "17K", engagement: "5%", postedAgo: "2d ago", outlierScore: 12, viewsNum: 17000 },
-  { id: 20, title: "Sleep optimization for gains", creator: "danmartell", platform: "tiktok", platformUrl: "https://tiktok.com/@danmartell/video/example20", thumbnail: "https://picsum.photos/seed/v20/270/480", outlier: 1.6, views: "29K", engagement: "6%", postedAgo: "3d ago", outlierScore: 16, viewsNum: 29000 },
+  { id: 1, title: "Low calorie protein swaps you need to try", creator: "_macro_daddy", platform: "instagram", platformUrl: "https://instagram.com/reel/example1", thumbnail: "https://picsum.photos/seed/v1/270/480", outlier: 1.3, views: "18K", engagement: "4%", postedAgo: "1d ago", outlierScore: 13, viewsNum: 18000, engagementNum: 4 },
+  { id: 2, title: "Have you ever heard of this fitness hack?", creator: "alexastancofit", platform: "instagram", platformUrl: "https://instagram.com/reel/example2", thumbnail: "https://picsum.photos/seed/v2/270/480", outlier: 1.0, views: "13K", engagement: "4%", postedAgo: "1d ago", outlierScore: 10, viewsNum: 13000, engagementNum: 4 },
+  { id: 3, title: "Transform your body with this trick", creator: "coachdango", platform: "instagram", platformUrl: "https://instagram.com/reel/example3", thumbnail: "https://picsum.photos/seed/v3/270/480", outlier: 1.5, views: "25K", engagement: "6%", postedAgo: "2d ago", outlierScore: 15, viewsNum: 25000, engagementNum: 6 },
+  { id: 4, title: "Fitness myths debunked in 60 seconds", creator: "danmartell", platform: "youtube", platformUrl: "https://youtube.com/shorts/example4", thumbnail: "https://picsum.photos/seed/v4/270/480", outlier: 2.1, views: "42K", engagement: "8%", postedAgo: "3d ago", outlierScore: 21, viewsNum: 42000, engagementNum: 8 },
+  { id: 5, title: "This changed my workout routine forever", creator: "falkefit", platform: "tiktok", platformUrl: "https://tiktok.com/@falkefit/video/example5", thumbnail: "https://picsum.photos/seed/v5/270/480", outlier: 1.2, views: "19K", engagement: "5%", postedAgo: "1d ago", outlierScore: 12, viewsNum: 19000, engagementNum: 5 },
+  { id: 6, title: "The #1 mistake people make at the gym", creator: "therealbrianmark", platform: "instagram", platformUrl: "https://instagram.com/reel/example6", thumbnail: "https://picsum.photos/seed/v6/270/480", outlier: 1.8, views: "35K", engagement: "7%", postedAgo: "2d ago", outlierScore: 18, viewsNum: 35000, engagementNum: 7 },
+  { id: 7, title: "Quick abs workout for busy people", creator: "devinfitofficial", platform: "instagram", platformUrl: "https://instagram.com/reel/example7", thumbnail: "https://picsum.photos/seed/v7/270/480", outlier: 1.4, views: "22K", engagement: "6%", postedAgo: "1d ago", outlierScore: 14, viewsNum: 22000, engagementNum: 6 },
+  { id: 8, title: "Nutrition secrets from pro athletes", creator: "kelseypoulter", platform: "youtube", platformUrl: "https://youtube.com/shorts/example8", thumbnail: "https://picsum.photos/seed/v8/270/480", outlier: 1.6, views: "28K", engagement: "7%", postedAgo: "2d ago", outlierScore: 16, viewsNum: 28000, engagementNum: 7 },
+  { id: 9, title: "5 minute morning energy boost", creator: "_macro_daddy", platform: "youtube", platformUrl: "https://youtube.com/shorts/example9", thumbnail: "https://picsum.photos/seed/v9/270/480", outlier: 0.9, views: "11K", engagement: "3%", postedAgo: "3d ago", outlierScore: 9, viewsNum: 11000, engagementNum: 3 },
+  { id: 10, title: "How I get shredded without starving", creator: "alexastancofit", platform: "instagram", platformUrl: "https://instagram.com/reel/example10", thumbnail: "https://picsum.photos/seed/v10/270/480", outlier: 2.0, views: "38K", engagement: "8%", postedAgo: "1d ago", outlierScore: 20, viewsNum: 38000, engagementNum: 8 },
+  { id: 11, title: "Mobility routine that actually works", creator: "coachdango", platform: "tiktok", platformUrl: "https://tiktok.com/@coachdango/video/example11", thumbnail: "https://picsum.photos/seed/v11/270/480", outlier: 1.1, views: "16K", engagement: "4%", postedAgo: "2d ago", outlierScore: 11, viewsNum: 16000, engagementNum: 4 },
+  { id: 12, title: "Meal prep for the entire week", creator: "danmartell", platform: "instagram", platformUrl: "https://instagram.com/reel/example12", thumbnail: "https://picsum.photos/seed/v12/270/480", outlier: 1.7, views: "32K", engagement: "6%", postedAgo: "3d ago", outlierScore: 17, viewsNum: 32000, engagementNum: 6 },
+  { id: 13, title: "Why you're not getting stronger", creator: "falkefit", platform: "youtube", platformUrl: "https://youtube.com/shorts/example13", thumbnail: "https://picsum.photos/seed/v13/270/480", outlier: 1.4, views: "24K", engagement: "5%", postedAgo: "1d ago", outlierScore: 14, viewsNum: 24000, engagementNum: 5 },
+  { id: 14, title: "Recovery tips from elite trainers", creator: "therealbrianmark", platform: "tiktok", platformUrl: "https://tiktok.com/@therealbrianmark/video/example14", thumbnail: "https://picsum.photos/seed/v14/270/480", outlier: 1.3, views: "20K", engagement: "5%", postedAgo: "2d ago", outlierScore: 13, viewsNum: 20000, engagementNum: 5 },
+  { id: 15, title: "Cardio myths that need to die", creator: "devinfitofficial", platform: "youtube", platformUrl: "https://youtube.com/shorts/example15", thumbnail: "https://picsum.photos/seed/v15/270/480", outlier: 1.9, views: "36K", engagement: "7%", postedAgo: "1d ago", outlierScore: 19, viewsNum: 36000, engagementNum: 7 },
+  { id: 16, title: "How to build muscle in 30 days", creator: "kelseypoulter", platform: "instagram", platformUrl: "https://instagram.com/reel/example16", thumbnail: "https://picsum.photos/seed/v16/270/480", outlier: 2.2, views: "45K", engagement: "9%", postedAgo: "2d ago", outlierScore: 22, viewsNum: 45000, engagementNum: 9 },
+  { id: 17, title: "Stretching routine for flexibility", creator: "_macro_daddy", platform: "instagram", platformUrl: "https://instagram.com/reel/example17", thumbnail: "https://picsum.photos/seed/v17/270/480", outlier: 1.0, views: "14K", engagement: "4%", postedAgo: "3d ago", outlierScore: 10, viewsNum: 14000, engagementNum: 4 },
+  { id: 18, title: "The best home workout equipment", creator: "alexastancofit", platform: "youtube", platformUrl: "https://youtube.com/shorts/example18", thumbnail: "https://picsum.photos/seed/v18/270/480", outlier: 1.5, views: "26K", engagement: "6%", postedAgo: "1d ago", outlierScore: 15, viewsNum: 26000, engagementNum: 6 },
+  { id: 19, title: "Post-workout meal ideas", creator: "coachdango", platform: "instagram", platformUrl: "https://instagram.com/reel/example19", thumbnail: "https://picsum.photos/seed/v19/270/480", outlier: 1.2, views: "17K", engagement: "5%", postedAgo: "2d ago", outlierScore: 12, viewsNum: 17000, engagementNum: 5 },
+  { id: 20, title: "Sleep optimization for gains", creator: "danmartell", platform: "tiktok", platformUrl: "https://tiktok.com/@danmartell/video/example20", thumbnail: "https://picsum.photos/seed/v20/270/480", outlier: 1.6, views: "29K", engagement: "6%", postedAgo: "3d ago", outlierScore: 16, viewsNum: 29000, engagementNum: 6 },
 ];
 
 const SAMPLE_HOOKS = [
@@ -84,189 +82,100 @@ const SAMPLE_STRUCTURES = [
   { id: 6, type: "structure", content: "Hook (3s) → Context (5s) → 3 Key Points (20s) → Twist (5s) → CTA (3s)", source: "Jade Bowler", tags: ["framework", "short-form"] },
 ];
 
-const platformColors = {
-  "YouTube Shorts": { bg: "bg-red-100", text: "text-red-600", dot: "bg-red-500" },
-  "TikTok": { bg: "bg-cyan-100", text: "text-cyan-700", dot: "bg-cyan-500" },
-  "Instagram Reels": { bg: "bg-pink-100", text: "text-pink-600", dot: "bg-pink-500" },
-  "Instagram": { bg: "bg-pink-100", text: "text-pink-600", dot: "bg-pink-500" },
-};
-
-const PlatformBadge = ({ platform }) => {
-  const c = platformColors[platform] || { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" };
+// Platform icon helper
+const PlatformIcon = ({ platform, size = 20 }) => {
+  const colors = { instagram: "#E1306C", tiktok: "#000000", youtube: "#FF0000" };
+  const labels = { instagram: "IG", tiktok: "TT", youtube: "YT" };
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${c.bg} ${c.text}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
-      {platform}
-    </span>
-  );
-};
-
-// Simple platform badge component for watchlist/suggestions
-const SimplePlatformBadge = ({ platform }) => {
-  const colors = { 
-    instagram: { bg: "#E1306C", label: "IG" }, 
-    tiktok: { bg: "#000000", label: "TT" }, 
-    youtube: { bg: "#FF0000", label: "YT" } 
-  };
-  const c = colors[platform] || { bg: "#999", label: "?" };
-  return (
-    <span style={{ 
-      width: 24, height: 24, borderRadius: "50%", 
-      backgroundColor: c.bg,
-      color: "white", fontSize: 10, fontWeight: 700,
+    <span style={{
+      width: size, height: size, borderRadius: "50%",
+      backgroundColor: colors[platform] || "#999",
+      color: "white", fontSize: size * 0.42, fontWeight: 700,
       display: "inline-flex", alignItems: "center", justifyContent: "center",
-      position: "absolute", bottom: -4, right: -4, border: "2px solid white"
+      flexShrink: 0
     }}>
-      {c.label}
+      {labels[platform] || "?"}
     </span>
   );
 };
 
-const OutlierBadge = ({ score }) => {
-  const bg = score >= 20 ? "bg-gradient-to-r from-orange-400 to-pink-500" : score >= 10 ? "bg-gradient-to-r from-yellow-400 to-orange-400" : "bg-gray-300";
+// Platform badge for video cards (top-right corner)
+const PlatformBadge = ({ platform }) => {
+  const names = { instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube Shorts" };
+  const colors = { instagram: "#E1306C", tiktok: "#000000", youtube: "#FF0000" };
   return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-bold text-white flex items-center gap-1 ${bg}`}>
-      <TrendingUp size={11} /> {score}x
-    </span>
-  );
-};
-
-// ============================================================
-// DASHBOARD PAGE
-// ============================================================
-
-const DashboardPage = ({ stats, setCurrentPage }) => {
-  const topOutlier = [...SAMPLE_VIDEOS].sort((a, b) => b.outlierScore - a.outlierScore)[0];
-  const recentActivity = [
-    { icon: Users, text: "Added creator to watchlist", time: "2 hours ago", color: "text-blue-500" },
-    { icon: Bookmark, text: "Saved 3 videos to Vault", time: "4 hours ago", color: "text-pink-500" },
-    { icon: PenTool, text: "Generated script", time: "Yesterday", color: "text-purple-500" },
-    { icon: TrendingUp, text: "New outlier detected", time: "Yesterday", color: "text-orange-500" },
-    { icon: Users, text: "Added creator to watchlist", time: "2 days ago", color: "text-green-500" },
-  ];
-
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-extrabold text-gray-900">Welcome back, Michael</h1>
-        <p className="text-gray-500 mt-1">Here's what's blowing up in short-form right now.</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { icon: Flame, label: "Creators Watched", value: stats.channelsWatched, gradient: "from-orange-400 to-pink-500", change: "+2 this week" },
-          { icon: Video, label: "Videos Saved", value: stats.videosSaved, gradient: "from-blue-400 to-indigo-500", change: "Feed active" },
-          { icon: PenTool, label: "Scripts Written", value: stats.scriptsWritten, gradient: "from-purple-400 to-pink-500", change: "Ready to write" },
-          { icon: Bookmark, label: "Vault Items", value: stats.vaultItems, gradient: "from-emerald-400 to-teal-500", change: `${stats.vaultItems} saved` },
-        ].map((s, i) => (
-          <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center mb-3`}>
-              <s.icon size={18} className="text-white" />
-            </div>
-            <div className="text-2xl font-extrabold text-gray-900">{s.value}</div>
-            <div className="text-xs text-gray-400 font-medium mt-0.5">{s.label}</div>
-            <div className="text-xs text-green-500 font-medium mt-1">{s.change}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          { icon: Users, label: "Discover Creators", desc: "Find new creators to watch", page: "channels", gradient: "from-blue-500 to-cyan-500" },
-          { icon: Video, label: "Browse Feed", desc: "See latest from your watchlist", page: "videos", gradient: "from-purple-500 to-pink-500" },
-          { icon: Wand2, label: "Write a Script", desc: "Generate viral content", page: "scripts", gradient: "from-orange-500 to-red-500" },
-        ].map((action, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentPage(action.page)}
-            className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all text-left group"
-          >
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.gradient} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-              <action.icon size={18} className="text-white" />
-            </div>
-            <h3 className="font-bold text-gray-900 text-sm">{action.label}</h3>
-            <p className="text-xs text-gray-500 mt-1">{action.desc}</p>
-            <ChevronRight size={14} className="text-gray-400 mt-2 group-hover:translate-x-1 transition-transform" />
-          </button>
-        ))}
-      </div>
-
-      {/* Top Outlier Banner */}
-      <div className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 rounded-2xl p-6 text-white">
-        <h2 className="text-sm font-bold uppercase tracking-wider opacity-80">Top Outlier Today</h2>
-        <div className="mt-3 flex items-start gap-4">
-          <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-3xl">📹</div>
-          <div className="flex-1">
-            <h3 className="text-xl font-bold">{topOutlier.title}</h3>
-            <p className="text-white/70 text-sm mt-1">{topOutlier.creator} · {topOutlier.views} views · {topOutlier.outlierScore}x outlier</p>
-          </div>
-          <OutlierBadge score={topOutlier.outlierScore} />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-6">
-        {/* Trending Outliers */}
-        <div className="col-span-2">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Trending Outliers</h2>
-          <div className="grid gap-3">
-            {[...SAMPLE_VIDEOS].sort((a, b) => b.outlierScore - a.outlierScore).slice(0, 5).map((v, idx) => (
-              <div key={v.id} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer group">
-                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500">{idx + 1}</div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-gray-900 text-sm font-semibold truncate group-hover:text-pink-600 transition-colors">{v.title}</h3>
-                  <p className="text-gray-400 text-xs mt-0.5">{v.creator} · {v.platform}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <span className="text-sm font-semibold text-gray-900 block">{v.views}</span>
-                    <span className="text-xs text-gray-400">{v.postedAgo}</span>
-                  </div>
-                  <OutlierBadge score={v.outlierScore} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div>
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
-          <div className="space-y-3">
-            {recentActivity.map((a, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                <a.icon size={14} className={`${a.color} mt-0.5 flex-shrink-0`} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs text-gray-700 leading-snug">{a.text}</p>
-                  <p className="text-xs text-gray-400 mt-1">{a.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+    <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-semibold" style={{
+      backgroundColor: "rgba(255,255,255,0.9)",
+      color: colors[platform] || "#666",
+      backdropFilter: "blur(4px)"
+    }}>
+      <span style={{
+        width: 14, height: 14, borderRadius: "50%",
+        backgroundColor: colors[platform] || "#999",
+        display: "inline-flex", alignItems: "center", justifyContent: "center"
+      }}>
+        <span style={{ color: "white", fontSize: 7, fontWeight: 700 }}>
+          {platform === "instagram" ? "IG" : platform === "tiktok" ? "TT" : "YT"}
+        </span>
+      </span>
+      {names[platform] || platform}
     </div>
   );
 };
 
+const OutlierBadge = ({ score }) => {
+  if (!score) return null;
+  const x = typeof score === "number" ? score : parseFloat(score);
+  const color = x >= 2 ? "text-orange-600" : x >= 1.5 ? "text-amber-600" : "text-gray-500";
+  return (
+    <span className={`text-xs font-semibold ${color} flex items-center gap-0.5`}>
+      <TrendingUp size={10} />
+      {(x / 10).toFixed(1)}x
+    </span>
+  );
+};
+
 // ============================================================
-// CHANNELS PAGE
+// CHANNELS PAGE (Sandcastles-matching: Suggestions/Watchlist tabs)
 // ============================================================
 
 const ChannelsPage = ({ watchlist, setWatchlist }) => {
+  const [activeTab, setActiveTab] = useState("suggestions");
   const [searchQuery, setSearchQuery] = useState("");
+  const [handleSearch, setHandleSearch] = useState("");
   const [platformFilter, setPlatformFilter] = useState("all");
   const [accountSizeFilter, setAccountSizeFilter] = useState("all");
   const [suggestions, setSuggestions] = useState(SAMPLE_SUGGESTIONS);
-  const [hoveredSuggestion, setHoveredSuggestion] = useState(null);
-  const [hoveredWatchlistItem, setHoveredWatchlistItem] = useState(null);
+  const [showPlatformDrop, setShowPlatformDrop] = useState(false);
+  const [showSizeDrop, setShowSizeDrop] = useState(false);
 
-  const filteredSuggestions = suggestions.filter(s => {
-    if (platformFilter !== "all" && s.platform !== platformFilter) return false;
-    if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+  const parseFollowers = (str) => {
+    if (!str) return 0;
+    const s = str.replace(/,/g, "");
+    if (s.includes("M")) return parseFloat(s) * 1000000;
+    if (s.includes("K")) return parseFloat(s) * 1000;
+    return parseInt(s) || 0;
+  };
+
+  const filterBySize = (creator) => {
+    if (accountSizeFilter === "all") return true;
+    const num = creator.followersNum || parseFollowers(creator.followers);
+    if (accountSizeFilter === "large") return num >= 1000000;
+    if (accountSizeFilter === "medium") return num >= 100000 && num < 1000000;
+    if (accountSizeFilter === "small") return num < 100000;
     return true;
-  });
+  };
+
+  const filterCreator = (creator) => {
+    if (platformFilter !== "all" && creator.platform !== platformFilter) return false;
+    if (!filterBySize(creator)) return false;
+    const q = (searchQuery + " " + handleSearch).trim().toLowerCase();
+    if (q && !creator.name.toLowerCase().includes(q)) return false;
+    return true;
+  };
+
+  const filteredSuggestions = suggestions.filter(filterCreator);
+  const filteredWatchlist = watchlist.filter(filterCreator);
 
   const addToWatchlist = (creator) => {
     setWatchlist(prev => [...prev, creator]);
@@ -281,176 +190,264 @@ const ChannelsPage = ({ watchlist, setWatchlist }) => {
     }
   };
 
+  const platformLabel = { all: "Platform", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube" };
+  const sizeLabel = { all: "Account size", large: "Large (1M+)", medium: "Medium (100K-1M)", small: "Small (<100K)" };
+
+  const displayList = activeTab === "suggestions" ? filteredSuggestions : filteredWatchlist;
+
   return (
-    <div className="flex gap-6">
-      {/* Main Content Area */}
-      <div className="flex-1">
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">Channels</h2>
-          <p className="text-sm text-gray-500 mt-1">Pick which channels to include in your videos feed</p>
-        </div>
+    <div>
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-gray-900">Channels</h2>
+        <p className="text-sm text-gray-500 mt-1">Pick which channels to include in your videos feed</p>
+      </div>
 
-        {/* Search & Filters */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-          <div className="flex gap-3 mb-3">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Describe your content, or find a channel by handle"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <select
-              value={platformFilter}
-              onChange={(e) => setPlatformFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500"
+      {/* Tabs */}
+      <div className="flex gap-2 mb-5">
+        {["suggestions", "watchlist"].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === tab
+                ? "bg-gray-900 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {tab === "suggestions" ? "Suggestions" : "Watchlist"}
+          </button>
+        ))}
+      </div>
+
+      {/* Search & Filters Bar */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+        <div className="flex gap-3 items-center flex-wrap">
+          <input
+            type="text"
+            placeholder="Describe your content, or find a channel by handle"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 min-w-[200px] px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+          />
+          <input
+            type="text"
+            placeholder="Search for a channel by handle"
+            value={handleSearch}
+            onChange={(e) => setHandleSearch(e.target.value)}
+            className="w-56 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+          />
+
+          {/* Platform Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => { setShowPlatformDrop(!showPlatformDrop); setShowSizeDrop(false); }}
+              className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:bg-gray-50 transition-colors"
             >
-              <option value="all">All Platforms</option>
-              <option value="instagram">Instagram</option>
-              <option value="tiktok">TikTok</option>
-              <option value="youtube">YouTube</option>
-            </select>
-            <select
-              value={accountSizeFilter}
-              onChange={(e) => setAccountSizeFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500"
-            >
-              <option value="all">All Sizes</option>
-              <option value="large">Large (1M+)</option>
-              <option value="medium">Medium (100K-1M)</option>
-              <option value="small">Small (Under 100K)</option>
-            </select>
-            <button className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800">
-              Search
+              {platformLabel[platformFilter]}
+              <ChevronDown size={14} />
             </button>
-          </div>
-        </div>
-
-        {/* Suggestions Grid */}
-        <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Suggestions</h3>
-          <div className="grid grid-cols-2 gap-4">
-            {filteredSuggestions.map(creator => (
-              <div
-                key={creator.id}
-                className="bg-white rounded-xl border border-gray-200 p-4 hover:border-pink-300 transition-all group relative"
-                onMouseEnter={() => setHoveredSuggestion(creator.id)}
-                onMouseLeave={() => setHoveredSuggestion(null)}
-              >
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="relative">
-                    <img
-                      src={creator.avatar}
-                      alt={creator.name}
-                      className="w-12 h-12 rounded-full"
-                    />
-                    <SimplePlatformBadge platform={creator.platform} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-semibold text-gray-900 truncate">{creator.name}</h4>
-                    <p className="text-xs text-gray-500">{creator.followers}</p>
-                  </div>
+            {showPlatformDrop && (
+              <>
+                <div className="fixed inset-0 z-20" onClick={() => setShowPlatformDrop(false)} />
+                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-40">
+                  {Object.entries(platformLabel).map(([val, label]) => (
+                    <button
+                      key={val}
+                      onClick={() => { setPlatformFilter(val); setShowPlatformDrop(false); }}
+                      className={`w-full text-left px-3 py-2 text-sm ${platformFilter === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
-                
-                {hoveredSuggestion === creator.id && (
-                  <div className="absolute top-2 right-2 flex gap-1">
-                    <button
-                      onClick={() => window.open(creator.platformUrl, "_blank")}
-                      className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-600 transition-colors"
-                      title="View Profile"
-                    >
-                      <ExternalLink size={14} />
-                    </button>
-                    <button
-                      onClick={() => addToWatchlist(creator)}
-                      className="p-2 bg-pink-500 rounded-lg hover:bg-pink-600 text-white transition-colors"
-                      title="Add to Watchlist"
-                    >
-                      <Plus size={14} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
+              </>
+            )}
           </div>
+
+          {/* Account Size Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => { setShowSizeDrop(!showSizeDrop); setShowPlatformDrop(false); }}
+              className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:bg-gray-50 transition-colors"
+            >
+              {sizeLabel[accountSizeFilter]}
+              <ChevronDown size={14} />
+            </button>
+            {showSizeDrop && (
+              <>
+                <div className="fixed inset-0 z-20" onClick={() => setShowSizeDrop(false)} />
+                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-48">
+                  {Object.entries(sizeLabel).map(([val, label]) => (
+                    <button
+                      key={val}
+                      onClick={() => { setAccountSizeFilter(val); setShowSizeDrop(false); }}
+                      className={`w-full text-left px-3 py-2 text-sm ${accountSizeFilter === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          <button
+            onClick={() => { /* Filters apply in real-time */ }}
+            className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+          >
+            Search
+          </button>
         </div>
       </div>
 
-      {/* Right Sidebar - Watchlist */}
-      <div className="w-72 flex-shrink-0">
-        <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-900">Your Watchlist</h3>
-            <Link size={14} className="text-gray-400" />
+      {/* Watchlist sidebar header (shown in suggestions tab) or Watchlist content */}
+      {activeTab === "suggestions" ? (
+        <div className="flex gap-6">
+          {/* Suggestions Grid */}
+          <div className="flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredSuggestions.map(creator => (
+                <div key={creator.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3 hover:border-blue-300 transition-all group">
+                  <div className="relative flex-shrink-0">
+                    <img src={creator.avatar} alt={creator.name} className="w-10 h-10 rounded-full" />
+                    <div className="absolute -bottom-1 -right-1">
+                      <PlatformIcon platform={creator.platform} size={18} />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <a href={creator.platformUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-gray-900 hover:text-blue-600 truncate block transition-colors">
+                      {creator.name}
+                    </a>
+                    <p className="text-xs text-gray-500">{creator.followers} followers</p>
+                  </div>
+                  <button
+                    onClick={() => addToWatchlist(creator)}
+                    className="p-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                    title="Add to Watchlist"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            {filteredSuggestions.length === 0 && (
+              <div className="text-center py-12 text-gray-500 text-sm">No suggestions found matching your filters.</div>
+            )}
           </div>
 
-          <button className="w-full mb-4 px-4 py-2 bg-pink-500 text-white rounded-lg text-sm font-medium hover:bg-pink-600 transition-colors">
-            Save
-          </button>
-
-          <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
-            {watchlist.map(creator => (
-              <div
-                key={creator.id}
-                className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 group hover:bg-gray-100 transition-colors relative"
-                onMouseEnter={() => setHoveredWatchlistItem(creator.id)}
-                onMouseLeave={() => setHoveredWatchlistItem(null)}
-              >
-                <div className="relative">
-                  <img
-                    src={creator.avatar}
-                    alt={creator.name}
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <SimplePlatformBadge platform={creator.platform} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <button
-                    onClick={() => window.open(creator.platformUrl, "_blank")}
-                    className="text-xs font-semibold text-gray-900 hover:text-pink-600 truncate block text-left transition-colors"
-                  >
-                    {creator.name}
-                  </button>
-                  <p className="text-xs text-gray-500">{creator.followers}</p>
-                </div>
-
-                {hoveredWatchlistItem === creator.id && (
-                  <div className="absolute top-2 right-2 flex gap-1">
-                    <button
-                      onClick={() => window.open(creator.platformUrl, "_blank")}
-                      className="p-1 hover:bg-gray-300 rounded text-gray-600 transition-colors"
-                      title="View Profile"
-                    >
-                      <ExternalLink size={12} />
-                    </button>
+          {/* Right Sidebar - Your Watchlist */}
+          <div className="w-72 flex-shrink-0">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-gray-900">Your Watchlist</h3>
+                <span className="text-xs text-gray-400">{watchlist.length} / 100</span>
+              </div>
+              <button className="w-full mb-3 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+                Save
+              </button>
+              <div className="space-y-1.5 max-h-[calc(100vh-340px)] overflow-y-auto">
+                {watchlist.map(creator => (
+                  <div key={creator.id} className="flex items-center gap-2.5 p-2.5 rounded-lg hover:bg-gray-50 transition-colors group">
+                    <div className="relative flex-shrink-0">
+                      <img src={creator.avatar} alt={creator.name} className="w-8 h-8 rounded-full" />
+                      <div className="absolute -bottom-0.5 -right-0.5">
+                        <PlatformIcon platform={creator.platform} size={14} />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <a href={creator.platformUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-gray-900 hover:text-blue-600 truncate block transition-colors">
+                        {creator.name}
+                      </a>
+                      <p className="text-xs text-gray-400">{creator.followers}</p>
+                    </div>
                     <button
                       onClick={() => removeFromWatchlist(creator.id)}
-                      className="p-1 hover:bg-red-200 rounded text-red-600 transition-colors"
-                      title="Remove"
+                      className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
                     >
                       <X size={12} />
                     </button>
                   </div>
-                )}
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Watchlist Tab - Full width list */
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-gray-900">Your Watchlist</h3>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-400">{watchlist.length} / 100 channels</span>
+              <button className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-medium hover:bg-blue-600 transition-colors">
+                Save
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filteredWatchlist.map(creator => (
+              <div key={creator.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3 group hover:border-gray-300 transition-all">
+                <div className="relative flex-shrink-0">
+                  <img src={creator.avatar} alt={creator.name} className="w-10 h-10 rounded-full" />
+                  <div className="absolute -bottom-1 -right-1">
+                    <PlatformIcon platform={creator.platform} size={18} />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <a href={creator.platformUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-gray-900 hover:text-blue-600 truncate block transition-colors">
+                    {creator.name}
+                  </a>
+                  <p className="text-xs text-gray-500">{creator.followers} followers</p>
+                </div>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => window.open(creator.platformUrl, "_blank")}
+                    className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+                  >
+                    <ExternalLink size={14} />
+                  </button>
+                  <button
+                    onClick={() => removeFromWatchlist(creator.id)}
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
+          {filteredWatchlist.length === 0 && (
+            <div className="text-center py-12 text-gray-500 text-sm">No channels in your watchlist match the current filters.</div>
+          )}
+          {watchlist.length > 0 && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => {
+                  watchlist.forEach(c => setSuggestions(prev => [...prev, c]));
+                  setWatchlist([]);
+                }}
+                className="text-xs text-red-500 hover:text-red-600 transition-colors"
+              >
+                Remove all
+              </button>
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 };
 
 // ============================================================
-// VIDEOS PAGE (with Feed/Vault tabs)
+// VIDEOS PAGE (Sandcastles-matching: toggleable filter sidebar)
 // ============================================================
 
 const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) => {
   const [activeTab, setActiveTab] = useState("feed");
   const [sortBy, setSortBy] = useState("newest");
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [hoveredVideoId, setHoveredVideoId] = useState(null);
 
   // Filters
@@ -466,26 +463,20 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
   const [platformFilter, setPlatformFilter] = useState("all");
   const [keywords, setKeywords] = useState("");
   const [showChannelDropdown, setShowChannelDropdown] = useState(false);
+  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
+  const [showUnitDropdown, setShowUnitDropdown] = useState(false);
 
-  // Get videos from watchlist creators
   const feedVideos = SAMPLE_VIDEOS.filter(v =>
     watchlist.some(w => w.name === v.creator)
   );
 
-  // Apply filters
   const filteredVideos = (activeTab === "feed" ? feedVideos : savedVideos).filter(v => {
     if (outlierMin && v.outlierScore < parseFloat(outlierMin)) return false;
     if (outlierMax && v.outlierScore > parseFloat(outlierMax)) return false;
-    if (viewsMin) {
-      const minViews = parseInt(viewsMin.replace(/K|M/g, m => m === "K" ? 1000 : 1000000));
-      if (v.viewsNum < minViews) return false;
-    }
-    if (viewsMax) {
-      const maxViews = parseInt(viewsMax.replace(/K|M/g, m => m === "K" ? 1000 : 1000000));
-      if (v.viewsNum > maxViews) return false;
-    }
-    if (engagementMin && v.engagement < parseFloat(engagementMin)) return false;
-    if (engagementMax && v.engagement > parseFloat(engagementMax)) return false;
+    if (viewsMin && v.viewsNum < parseInt(viewsMin)) return false;
+    if (viewsMax && v.viewsNum > parseInt(viewsMax)) return false;
+    if (engagementMin && v.engagementNum < parseFloat(engagementMin)) return false;
+    if (engagementMax && v.engagementNum > parseFloat(engagementMax)) return false;
     if (channelFilter !== "all" && v.creator !== channelFilter) return false;
     if (platformFilter !== "all" && v.platform !== platformFilter) return false;
     if (keywords && !v.title.toLowerCase().includes(keywords.toLowerCase())) return false;
@@ -493,8 +484,8 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
   }).sort((a, b) => {
     if (sortBy === "outlier") return b.outlierScore - a.outlierScore;
     if (sortBy === "views") return b.viewsNum - a.viewsNum;
-    if (sortBy === "engagement") return b.engagement - a.engagement;
-    return 0;
+    if (sortBy === "engagement") return (b.engagementNum || 0) - (a.engagementNum || 0);
+    return 0; // newest = default order
   });
 
   const saveToVault = (video) => {
@@ -503,27 +494,44 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
     }
   };
 
+  const removeFromVault = (videoId) => {
+    setSavedVideos(prev => prev.filter(v => v.id !== videoId));
+  };
+
+  const isInVault = (videoId) => savedVideos.some(v => v.id === videoId);
+
+  const clearFilters = () => {
+    setOutlierMin(""); setOutlierMax("");
+    setViewsMin(""); setViewsMax("");
+    setEngagementMin(""); setEngagementMax("");
+    setChannelFilter("all"); setPlatformFilter("all");
+    setKeywords(""); setPostedInLast("");
+  };
+
+  const platformLabel = { all: "All platforms", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube" };
+
   return (
-    <div className="space-y-6">
+    <div>
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Videos</h1>
+      <div className="mb-4">
+        <h1 className="text-xl font-bold text-gray-900">Videos</h1>
         <p className="text-sm text-gray-500 mt-1">
           {activeTab === "feed" ? "Save high-performing videos to your vault to unlock deep analysis" : "Videos you've saved to your vault"}
         </p>
       </div>
 
-      {/* Feed / Vault Tabs */}
-      <div className="flex items-center justify-between border-b border-gray-200">
-        <div className="flex gap-6">
+      {/* Tabs + Toolbar Row */}
+      <div className="flex items-center justify-between mb-5">
+        {/* Left: Tabs */}
+        <div className="flex gap-2">
           {["feed", "vault"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-1 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 activeTab === tab
-                  ? "text-gray-900 border-pink-500"
-                  : "text-gray-500 border-transparent hover:text-gray-700"
+                  ? "bg-gray-900 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               {tab === "feed" ? "Feed" : "Vault"}
@@ -531,27 +539,38 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
           ))}
         </div>
 
-        {/* Toolbar */}
-        <div className="flex items-center gap-4 text-sm">
-          {activeTab === "feed" ? (
+        {/* Right: Toolbar buttons */}
+        <div className="flex items-center gap-3">
+          {activeTab === "feed" && (
             <button
               onClick={() => setCurrentPage("channels")}
-              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <Settings size={14} />
               Configure channels
             </button>
-          ) : (
-            <button className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors">
+          )}
+          {activeTab === "vault" && (
+            <button className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
               <Plus size={14} />
               Add video URL
             </button>
           )}
 
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors ${
+              showFilters ? "bg-gray-900 text-white" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+          >
+            <Filter size={14} />
+            Filter
+          </button>
+
           <div className="relative">
             <button
               onClick={() => setShowSortMenu(!showSortMenu)}
-              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <BarChart3 size={14} />
               Sort by
@@ -559,7 +578,7 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
             {showSortMenu && (
               <>
                 <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />
-                <div className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-30 w-40">
+                <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-30 w-44">
                   {[
                     { key: "newest", label: "Newest" },
                     { key: "outlier", label: "Outlier score" },
@@ -568,12 +587,9 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
                   ].map(opt => (
                     <button
                       key={opt.key}
-                      onClick={() => {
-                        setSortBy(opt.key);
-                        setShowSortMenu(false);
-                      }}
+                      onClick={() => { setSortBy(opt.key); setShowSortMenu(false); }}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
-                        sortBy === opt.key ? "text-pink-600 font-medium" : "text-gray-700"
+                        sortBy === opt.key ? "text-blue-600 font-medium" : "text-gray-700"
                       }`}
                     >
                       {opt.label}
@@ -584,189 +600,182 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
             )}
           </div>
 
-          <button className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors">
+          <button className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
             <Download size={14} />
             Export
           </button>
         </div>
       </div>
 
-      {/* Filters + Grid Layout */}
-      <div className="flex gap-6">
-        {/* Filter Sidebar */}
-        <div className="w-56 flex-shrink-0">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Filters</h3>
-              <button
-                onClick={() => {
-                  setOutlierMin("");
-                  setOutlierMax("");
-                  setViewsMin("");
-                  setViewsMax("");
-                  setEngagementMin("");
-                  setEngagementMax("");
-                  setChannelFilter("all");
-                  setPlatformFilter("all");
-                  setKeywords("");
-                }}
-                className="text-xs text-gray-500 hover:text-gray-700"
-              >
-                Clear
-              </button>
-            </div>
+      {/* Filter Sidebar + Video Grid */}
+      <div className="flex gap-5">
+        {/* Filter Sidebar (toggleable) */}
+        {showFilters && (
+          <div className="w-56 flex-shrink-0">
+            <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Filters</h3>
+                <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Clear</button>
+              </div>
 
-            <div className="space-y-4">
-              {/* Channels Dropdown */}
-              <div className="relative">
-                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Channels</label>
-                <button
-                  onClick={() => setShowChannelDropdown(!showChannelDropdown)}
-                  className="w-full text-left px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 transition-colors flex items-center justify-between"
-                >
-                  <span className={channelFilter === "all" ? "text-gray-500" : "text-gray-900"}>
-                    {channelFilter === "all" ? "All channels" : channelFilter}
-                  </span>
-                  <ChevronDown size={14} />
-                </button>
-                {showChannelDropdown && (
-                  <>
-                    <div className="fixed inset-0 z-20" onClick={() => setShowChannelDropdown(false)} />
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg py-1 z-30 max-h-56 overflow-y-auto">
-                      <button
-                        onClick={() => {
-                          setChannelFilter("all");
-                          setShowChannelDropdown(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-sm ${
-                          channelFilter === "all" ? "bg-pink-50 text-pink-600 font-medium" : "text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        All channels
-                      </button>
-                      {watchlist.map(creator => (
+              <div className="space-y-4">
+                {/* Saved Filters */}
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Saved Filters</label>
+                  <button className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-400 bg-gray-50 hover:border-gray-300 transition-colors flex items-center justify-between">
+                    <span>Pick one to apply</span>
+                    <ChevronDown size={14} />
+                  </button>
+                </div>
+
+                {/* Channels Dropdown */}
+                <div className="relative">
+                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Channels</label>
+                  <button
+                    onClick={() => setShowChannelDropdown(!showChannelDropdown)}
+                    className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 transition-colors flex items-center justify-between"
+                  >
+                    <span className={channelFilter === "all" ? "text-gray-400" : "text-gray-900"}>
+                      {channelFilter === "all" ? "All channels" : channelFilter}
+                    </span>
+                    <ChevronDown size={14} className="text-gray-400" />
+                  </button>
+                  {showChannelDropdown && (
+                    <>
+                      <div className="fixed inset-0 z-20" onClick={() => setShowChannelDropdown(false)} />
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 max-h-56 overflow-y-auto">
                         <button
-                          key={creator.id}
-                          onClick={() => {
-                            setChannelFilter(creator.name);
-                            setShowChannelDropdown(false);
-                          }}
-                          className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
-                            channelFilter === creator.name ? "bg-pink-50 text-pink-600 font-medium" : "text-gray-700 hover:bg-gray-50"
-                          }`}
+                          onClick={() => { setChannelFilter("all"); setShowChannelDropdown(false); }}
+                          className={`w-full text-left px-3 py-2 text-sm ${channelFilter === "all" ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}
                         >
-                          <img src={creator.avatar} alt="" className="w-6 h-6 rounded-full" />
-                          <div className="flex-1 min-w-0">
-                            <span className="truncate block text-sm">{creator.name}</span>
-                            <span className="text-xs text-gray-500">{creator.followers}</span>
-                          </div>
+                          All channels
                         </button>
-                      ))}
+                        {watchlist.map(creator => (
+                          <button
+                            key={creator.id}
+                            onClick={() => { setChannelFilter(creator.name); setShowChannelDropdown(false); }}
+                            className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                              channelFilter === creator.name ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            <img src={creator.avatar} alt="" className="w-5 h-5 rounded-full" />
+                            <span className="truncate">{creator.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Outlier Score */}
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Outlier score</label>
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="0x" value={outlierMin} onChange={(e) => setOutlierMin(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
+                    <input type="text" placeholder="100x" value={outlierMax} onChange={(e) => setOutlierMax(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
+                  </div>
+                </div>
+
+                {/* Views */}
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Views</label>
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="0" value={viewsMin} onChange={(e) => setViewsMin(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
+                    <input type="text" placeholder="10,000,000" value={viewsMax} onChange={(e) => setViewsMax(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
+                  </div>
+                </div>
+
+                {/* Engagement */}
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Engagement</label>
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="0%" value={engagementMin} onChange={(e) => setEngagementMin(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
+                    <input type="text" placeholder="100%" value={engagementMax} onChange={(e) => setEngagementMax(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
+                  </div>
+                </div>
+
+                {/* Posted in last */}
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Posted in last</label>
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="0" value={postedInLast} onChange={(e) => setPostedInLast(e.target.value)}
+                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowUnitDropdown(!showUnitDropdown)}
+                        className="px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white hover:border-gray-300 flex items-center gap-1"
+                      >
+                        {postedInLastUnit}
+                        <ChevronDown size={10} />
+                      </button>
+                      {showUnitDropdown && (
+                        <>
+                          <div className="fixed inset-0 z-20" onClick={() => setShowUnitDropdown(false)} />
+                          <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-24">
+                            {["Days", "Weeks", "Months"].map(u => (
+                              <button key={u} onClick={() => { setPostedInLastUnit(u); setShowUnitDropdown(false); }}
+                                className={`w-full text-left px-3 py-1.5 text-xs ${postedInLastUnit === u ? "text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                                {u}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
-                  </>
-                )}
-              </div>
-
-              {/* Outlier Score */}
-              <div>
-                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Outlier Score</label>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    placeholder="Min"
-                    value={outlierMin}
-                    onChange={(e) => setOutlierMin(e.target.value)}
-                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    value={outlierMax}
-                    onChange={(e) => setOutlierMax(e.target.value)}
-                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
-                  />
+                  </div>
                 </div>
-              </div>
 
-              {/* Views */}
-              <div>
-                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Views</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Min"
-                    value={viewsMin}
-                    onChange={(e) => setViewsMin(e.target.value)}
-                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Max"
-                    value={viewsMax}
-                    onChange={(e) => setViewsMax(e.target.value)}
-                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
-                  />
+                {/* Platform */}
+                <div className="relative">
+                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Platform</label>
+                  <button
+                    onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
+                    className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 transition-colors flex items-center justify-between"
+                  >
+                    <span className={platformFilter === "all" ? "text-gray-400" : "text-gray-900"}>
+                      {platformLabel[platformFilter]}
+                    </span>
+                    <ChevronDown size={14} className="text-gray-400" />
+                  </button>
+                  {showPlatformDropdown && (
+                    <>
+                      <div className="fixed inset-0 z-20" onClick={() => setShowPlatformDropdown(false)} />
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30">
+                        {Object.entries(platformLabel).map(([val, label]) => (
+                          <button key={val} onClick={() => { setPlatformFilter(val); setShowPlatformDropdown(false); }}
+                            className={`w-full text-left px-3 py-2 text-sm ${platformFilter === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
 
-              {/* Engagement */}
-              <div>
-                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Engagement %</label>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    placeholder="Min"
-                    value={engagementMin}
-                    onChange={(e) => setEngagementMin(e.target.value)}
-                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    value={engagementMax}
-                    onChange={(e) => setEngagementMax(e.target.value)}
-                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
-                  />
+                {/* Keywords */}
+                <div>
+                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Keywords</label>
+                  <input type="text" placeholder="Search captions and titles" value={keywords} onChange={(e) => setKeywords(e.target.value)}
+                    className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
                 </div>
-              </div>
 
-              {/* Platform */}
-              <div>
-                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Platform</label>
-                <select
-                  value={platformFilter}
-                  onChange={(e) => setPlatformFilter(e.target.value)}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-pink-500"
-                >
-                  <option value="all">All Platforms</option>
-                  <option value="instagram">Instagram</option>
-                  <option value="tiktok">TikTok</option>
-                  <option value="youtube">YouTube</option>
-                </select>
+                <button className="w-full px-3 py-2 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-800 transition-colors">
+                  Save filter
+                </button>
               </div>
-
-              {/* Keywords */}
-              <div>
-                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Keywords</label>
-                <input
-                  type="text"
-                  placeholder="Search titles..."
-                  value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
-                />
-              </div>
-
-              <button className="w-full px-3 py-2 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-800 transition-colors">
-                Save Filter
-              </button>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Video Grid */}
         <div className="flex-1">
-          <div className="grid grid-cols-4 gap-4">
+          <div className={`grid gap-4 ${showFilters ? "grid-cols-3 xl:grid-cols-4" : "grid-cols-4 xl:grid-cols-5"}`}>
             {filteredVideos.map(video => (
               <div
                 key={video.id}
@@ -775,7 +784,7 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
                 onMouseLeave={() => setHoveredVideoId(null)}
               >
                 {/* 9:16 Thumbnail */}
-                <div className="relative bg-gray-200 rounded-lg overflow-hidden mb-2" style={{ paddingBottom: "177.78%" }}>
+                <div className="relative bg-gray-100 rounded-xl overflow-hidden mb-2" style={{ paddingBottom: "177.78%" }}>
                   <img
                     src={video.thumbnail}
                     alt={video.title}
@@ -783,24 +792,21 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
                   />
 
                   {/* Platform Badge */}
-                  <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center text-xs font-bold" style={{
-                    backgroundColor: video.platform === "instagram" ? "#E1306C" : video.platform === "tiktok" ? "#000" : "#FF0000",
-                    color: "white"
-                  }}>
-                    {video.platform === "instagram" ? "IG" : video.platform === "tiktok" ? "TT" : "YT"}
-                  </div>
+                  <PlatformBadge platform={video.platform} />
 
-                  {/* Hover Overlay */}
-                  {hoveredVideoId === video.id && (
-                    <div className="absolute inset-0 bg-black/40 flex items-end justify-center pb-3">
-                      <button
-                        onClick={() => saveToVault(video)}
-                        className="px-4 py-2 bg-pink-500 text-white text-xs font-medium rounded-lg hover:bg-pink-600 transition-colors"
-                      >
-                        Save to vault
-                      </button>
-                    </div>
-                  )}
+                  {/* Save to vault button */}
+                  <div className={`absolute top-2 right-2 transition-opacity ${hoveredVideoId === video.id || isInVault(video.id) ? "opacity-100" : "opacity-0"}`}>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); isInVault(video.id) ? removeFromVault(video.id) : saveToVault(video); }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                        isInVault(video.id)
+                          ? "bg-blue-500 text-white"
+                          : "bg-white/90 text-gray-700 hover:bg-white backdrop-blur"
+                      }`}
+                    >
+                      {isInVault(video.id) ? "Saved" : "Save to vault"}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Video Info */}
@@ -809,27 +815,24 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
                     href={video.platformUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-semibold text-gray-900 line-clamp-2 hover:text-pink-600 transition-colors block"
+                    className="text-xs font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors block leading-snug"
                   >
                     {video.title}
                   </a>
 
-                  <p className="text-xs text-gray-500 mt-1 flex items-center justify-between">
-                    <span>@{video.creator}</span>
-                    <span>{video.postedAgo}</span>
+                  <p className="text-xs text-gray-400 mt-1">
+                    @{video.creator}
                   </p>
 
-                  {/* Stats Row */}
-                  <div className="flex items-center gap-3 mt-2 text-xs">
-                    <span className="text-blue-600 font-medium flex items-center gap-0.5">
-                      <TrendingUp size={10} /> {video.outlier}x
-                    </span>
-                    <span className="text-green-600 font-medium flex items-center gap-0.5">
-                      <Eye size={10} /> {video.views}
-                    </span>
-                    <span className="text-orange-600 font-medium flex items-center gap-0.5">
-                      <Sparkles size={10} /> {video.engagement}
-                    </span>
+                  <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
+                    <span>{video.postedAgo}</span>
+                    {video.outlier >= 1.0 && (
+                      <span className="text-orange-500 font-semibold flex items-center gap-0.5">
+                        <TrendingUp size={10} />
+                        {video.outlier}x
+                      </span>
+                    )}
+                    <span>{video.views}</span>
                   </div>
                 </div>
               </div>
@@ -837,8 +840,22 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
           </div>
 
           {filteredVideos.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-sm">No videos found. Try adjusting your filters.</p>
+            <div className="text-center py-16">
+              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                <Video size={20} className="text-gray-400" />
+              </div>
+              <p className="text-gray-500 text-sm font-medium">No videos found</p>
+              <p className="text-gray-400 text-xs mt-1">
+                {activeTab === "feed" ? "Try adjusting your filters or add more channels to your watchlist." : "Save videos from your feed to see them here."}
+              </p>
+            </div>
+          )}
+
+          {filteredVideos.length > 0 && (
+            <div className="text-center mt-8">
+              <button className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                Load more
+              </button>
             </div>
           )}
         </div>
@@ -864,11 +881,11 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Scripts</h1>
+        <h1 className="text-xl font-bold text-gray-900">Scripts</h1>
         <p className="text-sm text-gray-500 mt-1">Generate viral video scripts from your saved content</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
           { label: "Scripts Written", value: scriptsWritten, gradient: "from-purple-400 to-pink-500" },
           { label: "Hooks Saved", value: vaultItems.filter(i => i.type === "hook").length, gradient: "from-blue-400 to-cyan-500" },
@@ -892,16 +909,12 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
 
       <div className="flex gap-4 mb-6">
         <input
-          type="text"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+          type="text" placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
         />
         <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500"
+          value={filterType} onChange={(e) => setFilterType(e.target.value)}
+          className="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="all">All Types</option>
           <option value="hook">Hooks</option>
@@ -910,31 +923,27 @@ const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
         </select>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         {filteredItems.map(item => (
-          <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+          <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4 hover:border-gray-300 transition-all">
             <div className="flex items-start gap-4">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold ${
-                item.type === "hook" ? "bg-blue-500" :
-                item.type === "style" ? "bg-orange-500" :
-                "bg-green-500"
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0 ${
+                item.type === "hook" ? "bg-blue-500" : item.type === "style" ? "bg-orange-500" : "bg-green-500"
               }`}>
                 {item.type === "hook" ? "H" : item.type === "style" ? "S" : "St"}
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-semibold text-gray-500 uppercase">{item.type}</span>
+                  <span className="text-xs font-semibold text-gray-400 uppercase">{item.type}</span>
                 </div>
                 <p className="text-sm text-gray-900 mb-2">{item.content}</p>
-                <p className="text-xs text-gray-500">Source: {item.source}</p>
+                <p className="text-xs text-gray-400">Source: {item.source}</p>
               </div>
-              <div className="text-right">
-                <p className="text-xs text-gray-500">{item.views}</p>
+              <div className="text-right flex-shrink-0">
+                <p className="text-xs text-gray-500 font-medium">{item.views}</p>
                 <div className="flex gap-1 mt-2">
                   {item.tags.map(tag => (
-                    <span key={tag} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                      {tag}
-                    </span>
+                    <span key={tag} className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">{tag}</span>
                   ))}
                 </div>
               </div>
@@ -954,45 +963,43 @@ const SettingsPage = () => {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <h1 className="text-xl font-bold text-gray-900">Settings</h1>
         <p className="text-sm text-gray-500 mt-1">Manage your account and preferences</p>
       </div>
 
-      {/* Account Settings */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Account</h2>
+        <h2 className="text-base font-semibold text-gray-900 mb-4">Account</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
-            <input type="email" defaultValue="michael@example.com" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" defaultValue="michael@example.com" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Name</label>
-            <input type="text" defaultValue="Michael Chen" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <input type="text" defaultValue="Michael" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50" />
           </div>
-          <button className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium">
+          <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium">
             Save Changes
           </button>
         </div>
       </div>
 
-      {/* Preferences */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Preferences</h2>
+        <h2 className="text-base font-semibold text-gray-900 mb-4">Preferences</h2>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-900">Email Notifications</p>
-              <p className="text-xs text-gray-500 mt-1">Get notified about new outliers and saved videos</p>
+              <p className="text-xs text-gray-500 mt-0.5">Get notified about new outliers</p>
             </div>
-            <input type="checkbox" defaultChecked className="w-4 h-4 rounded" />
+            <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-blue-500" />
           </div>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-900">Weekly Digest</p>
-              <p className="text-xs text-gray-500 mt-1">Receive weekly summary of trending content</p>
+              <p className="text-xs text-gray-500 mt-0.5">Receive weekly summary of trending content</p>
             </div>
-            <input type="checkbox" defaultChecked className="w-4 h-4 rounded" />
+            <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-blue-500" />
           </div>
         </div>
       </div>
@@ -1001,20 +1008,36 @@ const SettingsPage = () => {
 };
 
 // ============================================================
-// MAIN APP
+// MAIN APP (Sandcastles-matching navigation)
 // ============================================================
 
-const NAV_ITEMS = [
-  { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-  { id: "videos", label: "Videos", icon: Video, section: "Research" },
-  { id: "ideas", label: "Ideas", icon: Lightbulb, section: "Research" },
-  { id: "scripts", label: "Scripts", icon: PenTool, section: "Create" },
-  { id: "channels", label: "Channels", icon: Users, section: "Configure" },
-  { id: "settings", label: "Settings", icon: Settings, section: "Configure" },
+const NAV_SECTIONS = [
+  {
+    title: "Research",
+    items: [
+      { id: "videos", label: "Videos", icon: Video },
+      { id: "ideas", label: "Ideas", icon: Lightbulb },
+    ]
+  },
+  {
+    title: "Create",
+    items: [
+      { id: "scripts", label: "Scripts", icon: PenTool },
+    ]
+  },
+  {
+    title: "Configure",
+    items: [
+      { id: "channels", label: "Channels", icon: Users },
+      { id: "settings", label: "Settings", icon: Settings },
+    ]
+  },
 ];
 
+const ALL_NAV_ITEMS = NAV_SECTIONS.flatMap(s => s.items);
+
 export default function App() {
-  const [currentPage, setCurrentPage] = useState("dashboard");
+  const [currentPage, setCurrentPage] = useState("videos");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [watchlist, setWatchlist] = useState(SAMPLE_WATCHLIST);
   const [savedVideos, setSavedVideos] = useState([]);
@@ -1022,79 +1045,72 @@ export default function App() {
 
   const vaultItems = [...SAMPLE_HOOKS, ...SAMPLE_STYLES, ...SAMPLE_STRUCTURES];
 
-  const stats = {
-    channelsWatched: watchlist.length,
-    videosSaved: savedVideos.length,
-    scriptsWritten,
-    vaultItems: vaultItems.length,
-  };
-
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? "w-64" : "w-20"} transition-all duration-300 bg-white border-r border-gray-200 flex flex-col`}>
+      <div className={`${sidebarOpen ? "w-56" : "w-16"} transition-all duration-200 bg-white border-r border-gray-200 flex flex-col`}>
         {/* Logo */}
-        <div className="px-6 py-6 border-b border-gray-200 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-xl flex items-center justify-center text-white font-bold text-lg">
-            O
-          </div>
-          {sidebarOpen && <span className="font-bold text-gray-900">Optimus.AI</span>}
+        <div className="px-4 py-5 border-b border-gray-100 flex items-center gap-2.5">
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="flex-shrink-0">
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+              O
+            </div>
+          </button>
+          {sidebarOpen && <span className="font-bold text-gray-900 text-sm">Optimus.AI</span>}
         </div>
 
-        {/* Nav Items */}
-        <nav className="flex-1 p-4 space-y-2">
-          {NAV_ITEMS.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentPage(item.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                currentPage === item.id
-                  ? "bg-gradient-to-r from-orange-400 to-pink-500 text-white shadow-md"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
-              title={item.label}
-            >
-              <item.icon size={20} className="flex-shrink-0" />
-              {sidebarOpen && <span className="text-sm font-semibold">{item.label}</span>}
-            </button>
+        {/* Nav Sections */}
+        <nav className="flex-1 py-3 px-3 space-y-4 overflow-y-auto">
+          {NAV_SECTIONS.map(section => (
+            <div key={section.title}>
+              {sidebarOpen && (
+                <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-1.5">{section.title}</h3>
+              )}
+              <div className="space-y-0.5">
+                {section.items.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentPage(item.id)}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all text-sm ${
+                      currentPage === item.id
+                        ? "bg-gray-100 text-gray-900 font-semibold"
+                        : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                    }`}
+                    title={item.label}
+                  >
+                    <item.icon size={18} className="flex-shrink-0" />
+                    {sidebarOpen && <span>{item.label}</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
-        {/* Toggle */}
-        <div className="p-4 border-t border-gray-200">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="w-full flex items-center justify-center p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-600"
-          >
-            <ChevronDown size={18} className={`transition-transform ${sidebarOpen ? "rotate-90" : "-rotate-90"}`} />
-          </button>
-        </div>
+        {/* Help / Footer */}
+        {sidebarOpen && (
+          <div className="p-3 border-t border-gray-100">
+            <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+              <HelpCircle size={18} />
+              <span>Help Center</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto flex flex-col">
-        {/* Header */}
-        <div className="border-b border-gray-200 bg-white px-8 py-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {NAV_ITEMS.find(n => n.id === currentPage)?.label}
-            </h1>
-            <div className="flex items-center gap-4">
-              <button className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors text-gray-600">
-                <Search size={18} />
-              </button>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500" />
-            </div>
-          </div>
-        </div>
-
+      <div className="flex-1 overflow-auto">
         {/* Page Content */}
-        <div className="flex-1 overflow-auto p-8">
-          {currentPage === "dashboard" && <DashboardPage stats={stats} setCurrentPage={setCurrentPage} />}
+        <div className="p-8 max-w-[1400px]">
           {currentPage === "channels" && <ChannelsPage watchlist={watchlist} setWatchlist={setWatchlist} />}
           {currentPage === "videos" && <VideosPage watchlist={watchlist} savedVideos={savedVideos} setSavedVideos={setSavedVideos} setCurrentPage={setCurrentPage} />}
           {currentPage === "scripts" && <ScriptsPage vaultItems={vaultItems} scriptsWritten={scriptsWritten} setScriptsWritten={setScriptsWritten} />}
-          {currentPage === "ideas" && <div className="text-center py-12"><p className="text-gray-500">Ideas page coming soon</p></div>}
+          {currentPage === "ideas" && (
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 mb-2">Ideas</h1>
+              <p className="text-sm text-gray-500">Ideas page coming soon</p>
+            </div>
+          )}
           {currentPage === "settings" && <SettingsPage />}
         </div>
       </div>
