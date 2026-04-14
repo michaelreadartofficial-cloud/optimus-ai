@@ -10,143 +10,63 @@ import {
 } from "lucide-react";
 
 // ============================================================
-// SAMPLE DATA — Short-Form Only (TikTok, Reels, Shorts)
+// SAMPLE DATA
 // ============================================================
 
+// Flat watchlist of creators
+const SAMPLE_WATCHLIST = [
+  { id: 1, name: "_macro_daddy", platform: "instagram", platformUrl: "https://instagram.com/_macro_daddy", followers: "773K", avatar: "https://ui-avatars.com/api/?name=MD&background=FF6B6B&color=fff" },
+  { id: 2, name: "alexastancofit", platform: "instagram", platformUrl: "https://instagram.com/alexastancofit", followers: "409K", avatar: "https://ui-avatars.com/api/?name=AC&background=4ECDC4&color=fff" },
+  { id: 3, name: "coachdango", platform: "instagram", platformUrl: "https://instagram.com/coachdango", followers: "1.4M", avatar: "https://ui-avatars.com/api/?name=CD&background=95E1D3&color=fff" },
+  { id: 4, name: "danmartell", platform: "instagram", platformUrl: "https://instagram.com/danmartell", followers: "2.2M", avatar: "https://ui-avatars.com/api/?name=DM&background=F38181&color=fff" },
+  { id: 5, name: "falkefit", platform: "tiktok", platformUrl: "https://tiktok.com/@falkefit", followers: "339K", avatar: "https://ui-avatars.com/api/?name=FF&background=AA96DA&color=fff" },
+  { id: 6, name: "therealbrianmark", platform: "instagram", platformUrl: "https://instagram.com/therealbrianmark", followers: "642K", avatar: "https://ui-avatars.com/api/?name=BM&background=FCBAD3&color=fff" },
+  { id: 7, name: "devinfitofficial", platform: "instagram", platformUrl: "https://instagram.com/devinfitofficial", followers: "639K", avatar: "https://ui-avatars.com/api/?name=DF&background=A8D8EA&color=fff" },
+  { id: 8, name: "kelseypoulter", platform: "youtube", platformUrl: "https://youtube.com/@kelseypoulter", followers: "993K", avatar: "https://ui-avatars.com/api/?name=KP&background=FF9FF3&color=fff" },
+];
+
+// Suggestions (creators NOT in watchlist)
+const SAMPLE_SUGGESTIONS = [
+  { id: 101, name: "thedolcediet", platform: "instagram", platformUrl: "https://instagram.com/thedolcediet", followers: "247K", avatar: "https://ui-avatars.com/api/?name=TD&background=A8E6CF&color=fff" },
+  { id: 102, name: "jonmango", platform: "tiktok", platformUrl: "https://tiktok.com/@jonmango", followers: "36K", avatar: "https://ui-avatars.com/api/?name=JM&background=FFD3B6&color=fff" },
+  { id: 103, name: "vladimirfitness", platform: "youtube", platformUrl: "https://youtube.com/@vladimirfitness", followers: "9.4M", avatar: "https://ui-avatars.com/api/?name=VF&background=FFAAA5&color=fff" },
+  { id: 104, name: "fitnessblender", platform: "youtube", platformUrl: "https://youtube.com/@fitnessblender", followers: "6.6M", avatar: "https://ui-avatars.com/api/?name=FB&background=FF8B94&color=fff" },
+  { id: 105, name: "saschafitness", platform: "instagram", platformUrl: "https://instagram.com/saschafitness", followers: "5.8M", avatar: "https://ui-avatars.com/api/?name=SF&background=A8D8EA&color=fff" },
+  { id: 106, name: "jordanyeohfitness", platform: "instagram", platformUrl: "https://instagram.com/jordanyeohfitness", followers: "4.5M", avatar: "https://ui-avatars.com/api/?name=JY&background=AA96DA&color=fff" },
+  { id: 107, name: "_aussiefitness", platform: "instagram", platformUrl: "https://instagram.com/_aussiefitness", followers: "3.2M", avatar: "https://ui-avatars.com/api/?name=AF&background=FCBAD3&color=fff" },
+  { id: 108, name: "marpefitness_", platform: "instagram", platformUrl: "https://instagram.com/marpefitness_", followers: "2.5M", avatar: "https://ui-avatars.com/api/?name=MF&background=F0A500&color=fff" },
+  { id: 109, name: "littlefitness", platform: "instagram", platformUrl: "https://instagram.com/littlefitness", followers: "2.5M", avatar: "https://ui-avatars.com/api/?name=LF&background=4ECDC4&color=fff" },
+  { id: 110, name: "thefitnesschef_", platform: "instagram", platformUrl: "https://instagram.com/thefitnesschef_", followers: "2.3M", avatar: "https://ui-avatars.com/api/?name=TFC&background=FF6B6B&color=fff" },
+  { id: 111, name: "scaseyfitness", platform: "instagram", platformUrl: "https://instagram.com/scaseyfitness", followers: "2.2M", avatar: "https://ui-avatars.com/api/?name=SC&background=95E1D3&color=fff" },
+  { id: 112, name: "fitnessfaqs", platform: "youtube", platformUrl: "https://youtube.com/@fitnessfaqs", followers: "2.2M", avatar: "https://ui-avatars.com/api/?name=FF&background=A8D8EA&color=fff" },
+  { id: 113, name: "jeffnippardfitness", platform: "youtube", platformUrl: "https://youtube.com/@jeffnippardfitness", followers: "2.2M", avatar: "https://ui-avatars.com/api/?name=JN&background=AA96DA&color=fff" },
+  { id: 114, name: "fitnessbymaddy_", platform: "instagram", platformUrl: "https://instagram.com/fitnessbymaddy_", followers: "2.1M", avatar: "https://ui-avatars.com/api/?name=FM&background=FCBAD3&color=fff" },
+  { id: 115, name: "ericjanickifitness", platform: "instagram", platformUrl: "https://instagram.com/ericjanickifitness", followers: "2M", avatar: "https://ui-avatars.com/api/?name=EJ&background=FFD3B6&color=fff" },
+  { id: 116, name: "ulrich_fitness", platform: "tiktok", platformUrl: "https://tiktok.com/@ulrich_fitness", followers: "1.9M", avatar: "https://ui-avatars.com/api/?name=UF&background=FFAAA5&color=fff" },
+];
+
+// Videos from watchlist creators (mix of platforms)
 const SAMPLE_VIDEOS = [
-  {
-    id: 1, title: "I Tried Living on $1 for 24 Hours", channel: "Ryan Trahan", channelId: 1,
-    platform: "YouTube Shorts", views: "48.2M", viewsNum: 48200000, likes: "2.1M", comments: "45K",
-    outlierScore: 28.5, uploadDate: "3 days ago", duration: "0:58", niche: "Lifestyle",
-    thumbnail: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&h=711&fit=crop&crop=face",
-    hook: "What if I told you that you could survive an entire day on just one dollar?",
-    transcript: "What if I told you that you could survive an entire day on just one dollar? Most people think it's impossible, but I'm about to prove them wrong. First stop — the dollar store...",
-    engagement: 4.3,
-  },
-  {
-    id: 2, title: "This Trick Makes You Sound Smarter Instantly", channel: "Jade Bowler", channelId: 6,
-    platform: "TikTok", views: "12.7M", viewsNum: 12700000, likes: "890K", comments: "23K",
-    outlierScore: 15.2, uploadDate: "1 week ago", duration: "0:34", niche: "Education",
-    thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=711&fit=crop&crop=face",
-    hook: "Stop using the word 'very'. Here's what smart people say instead.",
-    transcript: "Stop using the word 'very'. Here's what smart people say instead. Instead of 'very tired', say 'exhausted'...",
-    engagement: 7.1,
-  },
-  {
-    id: 3, title: "POV: You Finally Quit Your 9-5", channel: "Alex Hormozi", channelId: 3,
-    platform: "Instagram Reels", views: "8.4M", viewsNum: 8400000, likes: "620K", comments: "18K",
-    outlierScore: 12.8, uploadDate: "5 days ago", duration: "0:45", niche: "Business",
-    thumbnail: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=711&fit=crop&crop=face",
-    hook: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next.",
-    transcript: "Everyone told me I was crazy for quitting my six-figure job. Here's what happened next. Month one...",
-    engagement: 7.4,
-  },
-  {
-    id: 4, title: "The Psychology Behind Why You Can't Stop Scrolling", channel: "Ali Abdaal", channelId: 2,
-    platform: "YouTube Shorts", views: "22.1M", viewsNum: 22100000, likes: "1.5M", comments: "34K",
-    outlierScore: 19.3, uploadDate: "2 days ago", duration: "0:52", niche: "Psychology",
-    thumbnail: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=400&h=711&fit=crop&crop=face",
-    hook: "Your phone is literally designed to be addictive. Here's the science behind it.",
-    transcript: "Your phone is literally designed to be addictive. Here's the science behind it...",
-    engagement: 6.8,
-  },
-  {
-    id: 5, title: "I Asked 100 Millionaires Their #1 Habit", channel: "Mark Tilbury", channelId: 4,
-    platform: "TikTok", views: "31.5M", viewsNum: 31500000, likes: "1.8M", comments: "52K",
-    outlierScore: 24.1, uploadDate: "4 days ago", duration: "0:41", niche: "Finance",
-    thumbnail: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=711&fit=crop&crop=face",
-    hook: "I spent 6 months interviewing 100 millionaires and they all said the same thing.",
-    transcript: "I spent 6 months interviewing 100 millionaires and they all said the same thing...",
-    engagement: 5.7,
-  },
-  {
-    id: 6, title: "Why Japan's Trains Are Never Late", channel: "Abroad in Japan", channelId: 5,
-    platform: "Instagram Reels", views: "15.8M", viewsNum: 15800000, likes: "1.1M", comments: "28K",
-    outlierScore: 16.7, uploadDate: "1 week ago", duration: "0:55", niche: "Travel",
-    thumbnail: "https://images.unsplash.com/photo-1528164344705-47542687000d?w=400&h=711&fit=crop&crop=face",
-    hook: "In Japan, if a train is even 60 seconds late, the company issues a formal apology.",
-    transcript: "In Japan, if a train is even 60 seconds late, the company issues a formal apology...",
-    engagement: 6.9,
-  },
-  {
-    id: 7, title: "This Meal Prep Changed My Life (5 Mins)", channel: "Ethan Chlebowski", channelId: 1,
-    platform: "TikTok", views: "9.6M", viewsNum: 9600000, likes: "740K", comments: "21K",
-    outlierScore: 11.4, uploadDate: "6 days ago", duration: "0:48", niche: "Food",
-    thumbnail: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=711&fit=crop&crop=face",
-    hook: "This 5-minute meal prep will save you $200 a month.",
-    transcript: "This 5-minute meal prep will save you $200 a month...",
-    engagement: 7.7,
-  },
-  {
-    id: 8, title: "The Real Reason You're Always Tired", channel: "Dr. Mike", channelId: 5,
-    platform: "YouTube Shorts", views: "19.3M", viewsNum: 19300000, likes: "1.3M", comments: "41K",
-    outlierScore: 17.9, uploadDate: "3 days ago", duration: "0:39", niche: "Health",
-    thumbnail: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=711&fit=crop&crop=face",
-    hook: "You're not tired because you're not sleeping enough.",
-    transcript: "You're not tired because you're not sleeping enough...",
-    engagement: 6.7,
-  },
-];
-
-const SAMPLE_CHANNELS = [
-  // Large creators
-  { id: 1, name: "Ryan Trahan", handle: "ryantrahan", platform: "YouTube Shorts", subscribers: "12.4M", avgViews: "5.2M", followers: "12.4M", followersNum: 12400000, videos: 342, niche: "Lifestyle", avatar: "from-yellow-400 to-orange-500", size: "large" },
-  { id: 2, name: "Ali Abdaal", handle: "aliabdaal", platform: "YouTube Shorts", subscribers: "5.8M", avgViews: "1.8M", followers: "5.8M", followersNum: 5800000, videos: 520, niche: "Productivity", avatar: "from-blue-400 to-indigo-500", size: "large" },
-  { id: 3, name: "Alex Hormozi", handle: "alexhormozi", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "2.1M", followers: "3.2M", followersNum: 3200000, videos: 890, niche: "Business", avatar: "from-gray-700 to-gray-900", size: "large" },
-  { id: 4, name: "Mark Tilbury", handle: "marktilbury", platform: "TikTok", subscribers: "8.1M", avgViews: "3.5M", followers: "8.1M", followersNum: 8100000, videos: 1200, niche: "Finance", avatar: "from-green-400 to-emerald-600", size: "large" },
-  { id: 5, name: "Dr. Mike", handle: "doctormike", platform: "TikTok", subscribers: "11.2M", avgViews: "4.1M", followers: "11.2M", followersNum: 11200000, videos: 650, niche: "Health", avatar: "from-teal-400 to-cyan-600", size: "large" },
-  { id: 6, name: "Jade Bowler", handle: "jadebowler", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "800K", followers: "1.9M", followersNum: 1900000, videos: 280, niche: "Education", avatar: "from-purple-400 to-pink-500", size: "large" },
-  // Fitness — large
-  { id: 20, name: "Vladimir Fitness", handle: "vladimirfitness", platform: "YouTube Shorts", subscribers: "9.4M", avgViews: "3.8M", followers: "9.4M", followersNum: 9400000, videos: 890, niche: "Fitness", avatar: "from-red-500 to-orange-500", size: "large" },
-  { id: 21, name: "Fitness Blender", handle: "fitnessblender", platform: "YouTube Shorts", subscribers: "6.6M", avgViews: "2.5M", followers: "6.6M", followersNum: 6600000, videos: 1200, niche: "Fitness", avatar: "from-blue-500 to-teal-400", size: "large" },
-  { id: 22, name: "Sascha Fitness", handle: "saschafitness", platform: "Instagram Reels", subscribers: "5.8M", avgViews: "1.9M", followers: "5.8M", followersNum: 5800000, videos: 780, niche: "Fitness", avatar: "from-pink-400 to-rose-500", size: "large" },
-  { id: 23, name: "Jordan Yeoh Fitness", handle: "jordanyeohfitness", platform: "Instagram Reels", subscribers: "4.5M", avgViews: "1.6M", followers: "4.5M", followersNum: 4500000, videos: 650, niche: "Fitness", avatar: "from-amber-500 to-orange-600", size: "large" },
-  { id: 24, name: "Aussie Fitness", handle: "_aussiefitness", platform: "Instagram Reels", subscribers: "3.2M", avgViews: "1.1M", followers: "3.2M", followersNum: 3200000, videos: 520, niche: "Fitness", avatar: "from-green-500 to-lime-400", size: "large" },
-  { id: 25, name: "Marpe Fitness", handle: "marpefitness_", platform: "Instagram Reels", subscribers: "2.5M", avgViews: "890K", followers: "2.5M", followersNum: 2500000, videos: 410, niche: "Fitness", avatar: "from-violet-500 to-purple-600", size: "large" },
-  { id: 26, name: "Little Fitness", handle: "littlefitness", platform: "Instagram Reels", subscribers: "2.5M", avgViews: "850K", followers: "2.5M", followersNum: 2500000, videos: 390, niche: "Fitness", avatar: "from-sky-400 to-blue-500", size: "large" },
-  { id: 27, name: "The Fitness Chef", handle: "thefitnesschef_", platform: "Instagram Reels", subscribers: "2.3M", avgViews: "780K", followers: "2.3M", followersNum: 2300000, videos: 560, niche: "Fitness", avatar: "from-orange-400 to-red-500", size: "large" },
-  { id: 28, name: "Jordan Yeoh", handle: "jordanyeohfitness2", platform: "TikTok", subscribers: "2.3M", avgViews: "750K", followers: "2.3M", followersNum: 2300000, videos: 340, niche: "Fitness", avatar: "from-amber-400 to-yellow-500", size: "large" },
-  { id: 29, name: "S Casey Fitness", handle: "scaseyfitness", platform: "Instagram Reels", subscribers: "2.2M", avgViews: "720K", followers: "2.2M", followersNum: 2200000, videos: 480, niche: "Fitness", avatar: "from-emerald-400 to-teal-500", size: "large" },
-  { id: 30, name: "Fitness FAQs", handle: "fitnessfaqs", platform: "YouTube Shorts", subscribers: "2.2M", avgViews: "700K", followers: "2.2M", followersNum: 2200000, videos: 620, niche: "Fitness", avatar: "from-indigo-400 to-blue-600", size: "large" },
-  { id: 31, name: "Jeff Nippard Fitness", handle: "jeffnippardfitness", platform: "YouTube Shorts", subscribers: "2.2M", avgViews: "680K", followers: "2.2M", followersNum: 2200000, videos: 450, niche: "Fitness", avatar: "from-slate-500 to-gray-700", size: "large" },
-  { id: 32, name: "Fitness By Maddy", handle: "fitnessbymaddy_", platform: "Instagram Reels", subscribers: "2.1M", avgViews: "650K", followers: "2.1M", followersNum: 2100000, videos: 380, niche: "Fitness", avatar: "from-pink-500 to-fuchsia-500", size: "large" },
-  { id: 33, name: "Eric Janicki Fitness", handle: "ericjanickifitness", platform: "Instagram Reels", subscribers: "2M", avgViews: "620K", followers: "2M", followersNum: 2000000, videos: 510, niche: "Fitness", avatar: "from-cyan-500 to-blue-500", size: "large" },
-  { id: 34, name: "Ulrich Fitness", handle: "ulrich_fitness", platform: "TikTok", subscribers: "1.9M", avgViews: "580K", followers: "1.9M", followersNum: 1900000, videos: 290, niche: "Fitness", avatar: "from-rose-400 to-pink-600", size: "large" },
-  { id: 35, name: "Koboko Fitness", handle: "kobokofitness", platform: "YouTube Shorts", subscribers: "1.9M", avgViews: "560K", followers: "1.9M", followersNum: 1900000, videos: 340, niche: "Fitness", avatar: "from-amber-600 to-yellow-500", size: "large" },
-  { id: 36, name: "Scotty K Fitness", handle: "scottykfitness", platform: "TikTok", subscribers: "1.8M", avgViews: "540K", followers: "1.8M", followersNum: 1800000, videos: 420, niche: "Fitness", avatar: "from-red-400 to-rose-600", size: "large" },
-  { id: 37, name: "MDJ Fitness", handle: "mdj_fitness", platform: "TikTok", subscribers: "1.7M", avgViews: "520K", followers: "1.7M", followersNum: 1700000, videos: 310, niche: "Fitness", avatar: "from-blue-600 to-indigo-700", size: "large" },
-  // Fitness — medium (100K–1M)
-  { id: 40, name: "Macro Daddy", handle: "_macro_daddy", platform: "Instagram Reels", subscribers: "773K", avgViews: "280K", followers: "773K", followersNum: 773000, videos: 490, niche: "Fitness", avatar: "from-orange-500 to-amber-600", size: "medium" },
-  { id: 41, name: "Alexa Stancofit", handle: "alexastancofit", platform: "Instagram Reels", subscribers: "409K", avgViews: "150K", followers: "409K", followersNum: 409000, videos: 320, niche: "Fitness", avatar: "from-pink-400 to-rose-500", size: "medium" },
-  { id: 42, name: "Alex Gamble Coach", handle: "alexgamblecoach", platform: "Instagram Reels", subscribers: "428K", avgViews: "160K", followers: "428K", followersNum: 428000, videos: 280, niche: "Fitness", avatar: "from-teal-500 to-cyan-600", size: "medium" },
-  { id: 43, name: "Alley Raymond", handle: "alleyraymond", platform: "Instagram Reels", subscribers: "184K", avgViews: "65K", followers: "184K", followersNum: 184000, videos: 210, niche: "Fitness", avatar: "from-violet-400 to-purple-500", size: "medium" },
-  { id: 44, name: "Audrey Adams Fit", handle: "audreyyadamsfit", platform: "Instagram Reels", subscribers: "237K", avgViews: "85K", followers: "237K", followersNum: 237000, videos: 310, niche: "Fitness", avatar: "from-fuchsia-400 to-pink-500", size: "medium" },
-  { id: 45, name: "Cesare Shapable", handle: "cesare_shapable", platform: "Instagram Reels", subscribers: "260K", avgViews: "95K", followers: "260K", followersNum: 260000, videos: 340, niche: "Fitness", avatar: "from-gray-500 to-slate-600", size: "medium" },
-  { id: 46, name: "Coach Dango", handle: "coachdango", platform: "Instagram Reels", subscribers: "1.4M", avgViews: "480K", followers: "1.4M", followersNum: 1400000, videos: 520, niche: "Fitness", avatar: "from-green-500 to-emerald-600", size: "large" },
-  { id: 47, name: "Devin Fit Official", handle: "devinfitofficial", platform: "Instagram Reels", subscribers: "639K", avgViews: "230K", followers: "639K", followersNum: 639000, videos: 380, niche: "Fitness", avatar: "from-blue-500 to-sky-500", size: "medium" },
-  { id: 48, name: "Julian Sollai", handle: "julian.sollai", platform: "Instagram Reels", subscribers: "95K", avgViews: "35K", followers: "95K", followersNum: 95000, videos: 190, niche: "Fitness", avatar: "from-amber-400 to-orange-500", size: "small" },
-  { id: 49, name: "Karen Mattar", handle: "karenmattar", platform: "Instagram Reels", subscribers: "423K", avgViews: "155K", followers: "423K", followersNum: 423000, videos: 290, niche: "Fitness", avatar: "from-rose-500 to-red-500", size: "medium" },
-  { id: 50, name: "Kelsey Poulter", handle: "kelseypoulter", platform: "Instagram Reels", subscribers: "312K", avgViews: "110K", followers: "312K", followersNum: 312000, videos: 260, niche: "Fitness", avatar: "from-lime-400 to-green-500", size: "medium" },
-  { id: 7, name: "Falke Fit", handle: "falkefit", platform: "Instagram Reels", subscribers: "339K", avgViews: "120K", followers: "339K", followersNum: 339000, videos: 412, niche: "Fitness", avatar: "from-orange-300 to-pink-400", size: "medium" },
-  { id: 18, name: "Ollie Rhoda", handle: "ollierhoda", platform: "Instagram Reels", subscribers: "243K", avgViews: "80K", followers: "243K", followersNum: 243000, videos: 290, niche: "Fitness", avatar: "from-purple-400 to-indigo-500", size: "medium" },
-  { id: 8, name: "The Dolce Diet", handle: "thedolcediet", platform: "Instagram Reels", subscribers: "247K", avgViews: "85K", followers: "247K", followersNum: 247000, videos: 310, niche: "Health", avatar: "from-green-400 to-teal-500", size: "medium" },
-  // Other niches
-  { id: 9, name: "Jon Mango", handle: "jonmango", platform: "TikTok", subscribers: "36K", avgViews: "15K", followers: "36K", followersNum: 36000, videos: 189, niche: "Lifestyle", avatar: "from-yellow-400 to-amber-500", size: "small" },
-  { id: 12, name: "Anthony Anisimov", handle: "anthonyanisimov", platform: "Instagram Reels", subscribers: "216K", avgViews: "72K", followers: "216K", followersNum: 216000, videos: 198, niche: "Business", avatar: "from-slate-400 to-gray-600", size: "medium" },
-  // More fitness small
-  { id: 10, name: "K Squared Fitness", handle: "k.squared.fitness", platform: "Instagram Reels", subscribers: "64K", avgViews: "22K", followers: "64K", followersNum: 64000, videos: 245, niche: "Fitness", avatar: "from-cyan-400 to-blue-500", size: "small" },
-  { id: 11, name: "The Beast Within", handle: "thebeastwithin9", platform: "TikTok", subscribers: "52K", avgViews: "18K", followers: "52K", followersNum: 52000, videos: 320, niche: "Fitness", avatar: "from-red-600 to-orange-500", size: "small" },
-  { id: 13, name: "Alex De Ajue", handle: "alexdeajue", platform: "TikTok", subscribers: "50K", avgViews: "20K", followers: "50K", followersNum: 50000, videos: 156, niche: "Fitness", avatar: "from-indigo-400 to-violet-500", size: "small" },
-  { id: 14, name: "Atrevino Strength", handle: "atrevinostrength", platform: "Instagram Reels", subscribers: "95K", avgViews: "32K", followers: "95K", followersNum: 95000, videos: 278, niche: "Fitness", avatar: "from-emerald-500 to-green-600", size: "small" },
-  { id: 15, name: "Coach JRam Fit", handle: "coach_jramfit", platform: "TikTok", subscribers: "38K", avgViews: "14K", followers: "38K", followersNum: 38000, videos: 210, niche: "Fitness", avatar: "from-blue-400 to-cyan-400", size: "small" },
-  { id: 16, name: "Ryan Fitch", handle: "ryan_fitch07", platform: "Instagram Reels", subscribers: "43K", avgViews: "16K", followers: "43K", followersNum: 43000, videos: 167, niche: "Fitness", avatar: "from-orange-400 to-red-400", size: "small" },
-  { id: 17, name: "Tom Bailey PT", handle: "tombaileypt", platform: "TikTok", subscribers: "89K", avgViews: "30K", followers: "89K", followersNum: 89000, videos: 345, niche: "Fitness", avatar: "from-sky-500 to-indigo-500", size: "small" },
-];
-
-const SAMPLE_WATCHLISTS = [
-  { id: 1, name: "AI & Tech", channels: [1, 2, 3] },
-  { id: 2, name: "Finance & Business", channels: [3, 4] },
-  { id: 3, name: "Health & Lifestyle", channels: [5, 1] },
+  { id: 1, title: "Low calorie protein swaps you need to try", creator: "_macro_daddy", platform: "youtube", platformUrl: "https://youtube.com/shorts/example1", thumbnail: "https://picsum.photos/seed/v1/270/480", outlier: 1.3, views: "18K", engagement: "4%", postedAgo: "1d ago", outlierScore: 13, viewsNum: 18000, engagement: 4 },
+  { id: 2, title: "Have you ever heard of this fitness hack?", creator: "alexastancofit", platform: "instagram", platformUrl: "https://instagram.com/reel/example2", thumbnail: "https://picsum.photos/seed/v2/270/480", outlier: 1.0, views: "13K", engagement: "4%", postedAgo: "1d ago", outlierScore: 10, viewsNum: 13000 },
+  { id: 3, title: "Transform your body with this trick", creator: "coachdango", platform: "instagram", platformUrl: "https://instagram.com/reel/example3", thumbnail: "https://picsum.photos/seed/v3/270/480", outlier: 1.5, views: "25K", engagement: "6%", postedAgo: "2d ago", outlierScore: 15, viewsNum: 25000 },
+  { id: 4, title: "Fitness myths debunked in 60 seconds", creator: "danmartell", platform: "youtube", platformUrl: "https://youtube.com/shorts/example4", thumbnail: "https://picsum.photos/seed/v4/270/480", outlier: 2.1, views: "42K", engagement: "8%", postedAgo: "3d ago", outlierScore: 21, viewsNum: 42000 },
+  { id: 5, title: "This changed my workout routine forever", creator: "falkefit", platform: "tiktok", platformUrl: "https://tiktok.com/@falkefit/video/example5", thumbnail: "https://picsum.photos/seed/v5/270/480", outlier: 1.2, views: "19K", engagement: "5%", postedAgo: "1d ago", outlierScore: 12, viewsNum: 19000 },
+  { id: 6, title: "The #1 mistake people make at the gym", creator: "therealbrianmark", platform: "instagram", platformUrl: "https://instagram.com/reel/example6", thumbnail: "https://picsum.photos/seed/v6/270/480", outlier: 1.8, views: "35K", engagement: "7%", postedAgo: "2d ago", outlierScore: 18, viewsNum: 35000 },
+  { id: 7, title: "Quick abs workout for busy people", creator: "devinfitofficial", platform: "instagram", platformUrl: "https://instagram.com/reel/example7", thumbnail: "https://picsum.photos/seed/v7/270/480", outlier: 1.4, views: "22K", engagement: "6%", postedAgo: "1d ago", outlierScore: 14, viewsNum: 22000 },
+  { id: 8, title: "Nutrition secrets from pro athletes", creator: "kelseypoulter", platform: "youtube", platformUrl: "https://youtube.com/shorts/example8", thumbnail: "https://picsum.photos/seed/v8/270/480", outlier: 1.6, views: "28K", engagement: "7%", postedAgo: "2d ago", outlierScore: 16, viewsNum: 28000 },
+  { id: 9, title: "5 minute morning energy boost", creator: "_macro_daddy", platform: "youtube", platformUrl: "https://youtube.com/shorts/example9", thumbnail: "https://picsum.photos/seed/v9/270/480", outlier: 0.9, views: "11K", engagement: "3%", postedAgo: "3d ago", outlierScore: 9, viewsNum: 11000 },
+  { id: 10, title: "How I get shredded without starving", creator: "alexastancofit", platform: "instagram", platformUrl: "https://instagram.com/reel/example10", thumbnail: "https://picsum.photos/seed/v10/270/480", outlier: 2.0, views: "38K", engagement: "8%", postedAgo: "1d ago", outlierScore: 20, viewsNum: 38000 },
+  { id: 11, title: "Mobility routine that actually works", creator: "coachdango", platform: "tiktok", platformUrl: "https://tiktok.com/@coachdango/video/example11", thumbnail: "https://picsum.photos/seed/v11/270/480", outlier: 1.1, views: "16K", engagement: "4%", postedAgo: "2d ago", outlierScore: 11, viewsNum: 16000 },
+  { id: 12, title: "Meal prep for the entire week", creator: "danmartell", platform: "instagram", platformUrl: "https://instagram.com/reel/example12", thumbnail: "https://picsum.photos/seed/v12/270/480", outlier: 1.7, views: "32K", engagement: "6%", postedAgo: "3d ago", outlierScore: 17, viewsNum: 32000 },
+  { id: 13, title: "Why you're not getting stronger", creator: "falkefit", platform: "youtube", platformUrl: "https://youtube.com/shorts/example13", thumbnail: "https://picsum.photos/seed/v13/270/480", outlier: 1.4, views: "24K", engagement: "5%", postedAgo: "1d ago", outlierScore: 14, viewsNum: 24000 },
+  { id: 14, title: "Recovery tips from elite trainers", creator: "therealbrianmark", platform: "tiktok", platformUrl: "https://tiktok.com/@therealbrianmark/video/example14", thumbnail: "https://picsum.photos/seed/v14/270/480", outlier: 1.3, views: "20K", engagement: "5%", postedAgo: "2d ago", outlierScore: 13, viewsNum: 20000 },
+  { id: 15, title: "Cardio myths that need to die", creator: "devinfitofficial", platform: "youtube", platformUrl: "https://youtube.com/shorts/example15", thumbnail: "https://picsum.photos/seed/v15/270/480", outlier: 1.9, views: "36K", engagement: "7%", postedAgo: "1d ago", outlierScore: 19, viewsNum: 36000 },
+  { id: 16, title: "How to build muscle in 30 days", creator: "kelseypoulter", platform: "instagram", platformUrl: "https://instagram.com/reel/example16", thumbnail: "https://picsum.photos/seed/v16/270/480", outlier: 2.2, views: "45K", engagement: "9%", postedAgo: "2d ago", outlierScore: 22, viewsNum: 45000 },
+  { id: 17, title: "Stretching routine for flexibility", creator: "_macro_daddy", platform: "instagram", platformUrl: "https://instagram.com/reel/example17", thumbnail: "https://picsum.photos/seed/v17/270/480", outlier: 1.0, views: "14K", engagement: "4%", postedAgo: "3d ago", outlierScore: 10, viewsNum: 14000 },
+  { id: 18, title: "The best home workout equipment", creator: "alexastancofit", platform: "youtube", platformUrl: "https://youtube.com/shorts/example18", thumbnail: "https://picsum.photos/seed/v18/270/480", outlier: 1.5, views: "26K", engagement: "6%", postedAgo: "1d ago", outlierScore: 15, viewsNum: 26000 },
+  { id: 19, title: "Post-workout meal ideas", creator: "coachdango", platform: "instagram", platformUrl: "https://instagram.com/reel/example19", thumbnail: "https://picsum.photos/seed/v19/270/480", outlier: 1.2, views: "17K", engagement: "5%", postedAgo: "2d ago", outlierScore: 12, viewsNum: 17000 },
+  { id: 20, title: "Sleep optimization for gains", creator: "danmartell", platform: "tiktok", platformUrl: "https://tiktok.com/@danmartell/video/example20", thumbnail: "https://picsum.photos/seed/v20/270/480", outlier: 1.6, views: "29K", engagement: "6%", postedAgo: "3d ago", outlierScore: 16, viewsNum: 29000 },
 ];
 
 const SAMPLE_HOOKS = [
@@ -181,6 +101,27 @@ const PlatformBadge = ({ platform }) => {
   );
 };
 
+// Simple platform badge component for watchlist/suggestions
+const SimplePlatformBadge = ({ platform }) => {
+  const colors = { 
+    instagram: { bg: "#E1306C", label: "IG" }, 
+    tiktok: { bg: "#000000", label: "TT" }, 
+    youtube: { bg: "#FF0000", label: "YT" } 
+  };
+  const c = colors[platform] || { bg: "#999", label: "?" };
+  return (
+    <span style={{ 
+      width: 24, height: 24, borderRadius: "50%", 
+      backgroundColor: c.bg,
+      color: "white", fontSize: 10, fontWeight: 700,
+      display: "inline-flex", alignItems: "center", justifyContent: "center",
+      position: "absolute", bottom: -4, right: -4, border: "2px solid white"
+    }}>
+      {c.label}
+    </span>
+  );
+};
+
 const OutlierBadge = ({ score }) => {
   const bg = score >= 20 ? "bg-gradient-to-r from-orange-400 to-pink-500" : score >= 10 ? "bg-gradient-to-r from-yellow-400 to-orange-400" : "bg-gray-300";
   return (
@@ -197,11 +138,11 @@ const OutlierBadge = ({ score }) => {
 const DashboardPage = ({ stats, setCurrentPage }) => {
   const topOutlier = [...SAMPLE_VIDEOS].sort((a, b) => b.outlierScore - a.outlierScore)[0];
   const recentActivity = [
-    { icon: Users, text: "Added Ryan Trahan to AI & Tech watchlist", time: "2 hours ago", color: "text-blue-500" },
+    { icon: Users, text: "Added creator to watchlist", time: "2 hours ago", color: "text-blue-500" },
     { icon: Bookmark, text: "Saved 3 videos to Vault", time: "4 hours ago", color: "text-pink-500" },
-    { icon: PenTool, text: "Generated script about morning routines", time: "Yesterday", color: "text-purple-500" },
-    { icon: TrendingUp, text: "New 28.5x outlier detected from Ryan Trahan", time: "Yesterday", color: "text-orange-500" },
-    { icon: Users, text: "Added Mark Tilbury to Finance watchlist", time: "2 days ago", color: "text-green-500" },
+    { icon: PenTool, text: "Generated script", time: "Yesterday", color: "text-purple-500" },
+    { icon: TrendingUp, text: "New outlier detected", time: "Yesterday", color: "text-orange-500" },
+    { icon: Users, text: "Added creator to watchlist", time: "2 days ago", color: "text-green-500" },
   ];
 
   return (
@@ -214,7 +155,7 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Flame, label: "Channels Watched", value: stats.channelsWatched, gradient: "from-orange-400 to-pink-500", change: "+2 this week" },
+          { icon: Flame, label: "Creators Watched", value: stats.channelsWatched, gradient: "from-orange-400 to-pink-500", change: "+2 this week" },
           { icon: Video, label: "Videos Saved", value: stats.videosSaved, gradient: "from-blue-400 to-indigo-500", change: "Feed active" },
           { icon: PenTool, label: "Scripts Written", value: stats.scriptsWritten, gradient: "from-purple-400 to-pink-500", change: "Ready to write" },
           { icon: Bookmark, label: "Vault Items", value: stats.vaultItems, gradient: "from-emerald-400 to-teal-500", change: `${stats.vaultItems} saved` },
@@ -233,8 +174,8 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
       {/* Quick Actions */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { icon: Users, label: "Discover Channels", desc: "Find new creators to watch", page: "channels", gradient: "from-blue-500 to-cyan-500" },
-          { icon: Video, label: "Browse Feed", desc: "See latest from watchlists", page: "videos", gradient: "from-purple-500 to-pink-500" },
+          { icon: Users, label: "Discover Creators", desc: "Find new creators to watch", page: "channels", gradient: "from-blue-500 to-cyan-500" },
+          { icon: Video, label: "Browse Feed", desc: "See latest from your watchlist", page: "videos", gradient: "from-purple-500 to-pink-500" },
           { icon: Wand2, label: "Write a Script", desc: "Generate viral content", page: "scripts", gradient: "from-orange-500 to-red-500" },
         ].map((action, i) => (
           <button
@@ -256,15 +197,10 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
       <div className="bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 rounded-2xl p-6 text-white">
         <h2 className="text-sm font-bold uppercase tracking-wider opacity-80">Top Outlier Today</h2>
         <div className="mt-3 flex items-start gap-4">
-          <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-3xl">{topOutlier.emoji}</div>
+          <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center text-3xl">📹</div>
           <div className="flex-1">
             <h3 className="text-xl font-bold">{topOutlier.title}</h3>
-            <p className="text-white/70 text-sm mt-1">{topOutlier.channel} · {topOutlier.views} views · {topOutlier.outlierScore}x outlier</p>
-            <div className="flex gap-4 mt-2 text-white/60 text-xs">
-              <span><Eye size={12} className="inline mr-1" />{topOutlier.views}</span>
-              <span><Heart size={12} className="inline mr-1" />{topOutlier.likes}</span>
-              <span><MessageCircle size={12} className="inline mr-1" />{topOutlier.comments}</span>
-            </div>
+            <p className="text-white/70 text-sm mt-1">{topOutlier.creator} · {topOutlier.views} views · {topOutlier.outlierScore}x outlier</p>
           </div>
           <OutlierBadge score={topOutlier.outlierScore} />
         </div>
@@ -273,20 +209,19 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
       <div className="grid grid-cols-3 gap-6">
         {/* Trending Outliers */}
         <div className="col-span-2">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Trending Short-Form Outliers</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Trending Outliers</h2>
           <div className="grid gap-3">
             {[...SAMPLE_VIDEOS].sort((a, b) => b.outlierScore - a.outlierScore).slice(0, 5).map((v, idx) => (
               <div key={v.id} className="bg-white rounded-2xl border border-gray-100 p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer group">
                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-500">{idx + 1}</div>
-                <div className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">{v.emoji}</div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-gray-900 text-sm font-semibold truncate group-hover:text-pink-600 transition-colors">{v.title}</h3>
-                  <p className="text-gray-400 text-xs mt-0.5">{v.channel} · {v.platform}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">{v.creator} · {v.platform}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="text-right">
                     <span className="text-sm font-semibold text-gray-900 block">{v.views}</span>
-                    <span className="text-xs text-gray-400">{v.uploadDate}</span>
+                    <span className="text-xs text-gray-400">{v.postedAgo}</span>
                   </div>
                   <OutlierBadge score={v.outlierScore} />
                 </div>
@@ -298,50 +233,17 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
         {/* Recent Activity */}
         <div>
           <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
-          <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-            <div className="space-y-4">
-              {recentActivity.map((item, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className={`w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center flex-shrink-0 ${item.color}`}>
-                    <item.icon size={14} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900 leading-snug">{item.text}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{item.time}</p>
-                  </div>
+          <div className="space-y-3">
+            {recentActivity.map((a, i) => (
+              <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                <a.icon size={14} className={`${a.color} mt-0.5 flex-shrink-0`} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-gray-700 leading-snug">{a.text}</p>
+                  <p className="text-xs text-gray-400 mt-1">{a.time}</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
-
-      {/* Platform Breakdown */}
-      <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Platform Overview</h2>
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { name: "YouTube Shorts", count: SAMPLE_VIDEOS.filter(v => v.platform === "YouTube Shorts").length, avgOutlier: "21.9x", color: "from-red-400 to-red-600", icon: "▶" },
-            { name: "TikTok", count: SAMPLE_VIDEOS.filter(v => v.platform === "TikTok").length, avgOutlier: "16.9x", color: "from-cyan-400 to-cyan-600", icon: "♪" },
-            { name: "Instagram Reels", count: SAMPLE_VIDEOS.filter(v => v.platform === "Instagram Reels").length, avgOutlier: "14.8x", color: "from-pink-400 to-purple-500", icon: "📷" },
-          ].map((p, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center mb-3 text-white text-lg`}>
-                {p.icon}
-              </div>
-              <h3 className="font-bold text-gray-900 text-sm">{p.name}</h3>
-              <div className="mt-2 space-y-1 text-xs text-gray-600">
-                <div className="flex justify-between">
-                  <span>Videos tracked</span>
-                  <span className="font-semibold text-gray-900">{p.count}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Avg outlier</span>
-                  <span className="font-semibold text-gray-900">{p.avgOutlier}</span>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>
@@ -349,418 +251,211 @@ const DashboardPage = ({ stats, setCurrentPage }) => {
 };
 
 // ============================================================
-// CHANNELS PAGE (Creators & Watchlists)
+// CHANNELS PAGE
 // ============================================================
 
-const ChannelsPage = ({ watchlists, setWatchlists }) => {
-  const [searchTerm, setSearchTerm] = useState("fitness");
-  const [creators, setCreators] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+const ChannelsPage = ({ watchlist, setWatchlist }) => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [platformFilter, setPlatformFilter] = useState("all");
-  const [platformDropdownOpen, setPlatformDropdownOpen] = useState(false);
-  const [myChannels, setMyChannels] = useState(() => {
-    const ids = new Set();
-    watchlists.forEach(w => w.channels.forEach(id => ids.add(id)));
-    return [...ids];
+  const [accountSizeFilter, setAccountSizeFilter] = useState("all");
+  const [suggestions, setSuggestions] = useState(SAMPLE_SUGGESTIONS);
+  const [hoveredSuggestion, setHoveredSuggestion] = useState(null);
+  const [hoveredWatchlistItem, setHoveredWatchlistItem] = useState(null);
+
+  const filteredSuggestions = suggestions.filter(s => {
+    if (platformFilter !== "all" && s.platform !== platformFilter) return false;
+    if (searchQuery && !s.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
   });
-  const [hasSearched, setHasSearched] = useState(false);
-  const [showInfoModal, setShowInfoModal] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null);
-
-  const doSearch = async (query) => {
-    if (!query.trim()) return;
-    setLoading(true);
-    setError("");
-    setHasSearched(true);
-    try {
-      const results = [];
-
-      // Search YouTube
-      if (platformFilter === "all" || platformFilter === "YouTube Shorts") {
-        try {
-          const ytRes = await fetch("/api/search-creators", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: query.trim() }),
-          });
-          const ytData = await ytRes.json();
-          if (ytData.creators) results.push(...ytData.creators);
-          if (ytData.error) console.warn("YouTube:", ytData.error);
-        } catch (e) {
-          console.warn("YouTube search failed:", e);
-        }
-      }
-
-      // Search Instagram
-      if (platformFilter === "all" || platformFilter === "Instagram Reels") {
-        try {
-          const igRes = await fetch("/api/search-creators-instagram", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: query.trim() }),
-          });
-          const igData = await igRes.json();
-          if (igData.creators) results.push(...igData.creators);
-          if (igData.error) console.warn("Instagram:", igData.error);
-        } catch (e) {
-          console.warn("Instagram search failed:", e);
-        }
-      }
-
-      // Search TikTok
-      if (platformFilter === "all" || platformFilter === "TikTok") {
-        try {
-          const tkRes = await fetch("/api/search-creators-tiktok", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: query.trim() }),
-          });
-          const tkData = await tkRes.json();
-          if (tkData.creators) results.push(...tkData.creators);
-          if (tkData.error) console.warn("TikTok:", tkData.error);
-        } catch (e) {
-          console.warn("TikTok search failed:", e);
-        }
-      }
-
-      // Sort by subscriber count
-      results.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
-      setCreators(results);
-      if (results.length === 0) setError("No creators found. Try a different search term.");
-    } catch (err) {
-      setError("Search failed: " + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    doSearch("fitness");
-  }, []);
-
-  const handleSearch = () => doSearch(searchTerm);
-  const handleKeyDown = (e) => { if (e.key === "Enter") handleSearch(); };
-
-  const findSimilar = (creator) => {
-    // Extract niche keywords from the creator's description or name
-    const desc = (creator.description || "").toLowerCase();
-    const name = (creator.name || "").toLowerCase();
-    const combined = desc + " " + name;
-    const nicheKeywords = ["fitness", "cooking", "food", "travel", "beauty", "makeup", "fashion", "tech", "gaming", "music", "dance", "comedy", "art", "health", "yoga", "workout", "recipe", "vlog", "diy", "craft", "education", "science", "sports", "basketball", "soccer", "football", "photography", "finance", "motivation", "lifestyle"];
-    const matched = nicheKeywords.filter(k => combined.includes(k));
-    const query = matched.length > 0 ? matched.slice(0, 2).join(" ") : (creator.name || "").split(/\s+/)[0];
-    setSearchTerm(query);
-    doSearch(query);
-  };
 
   const addToWatchlist = (creator) => {
-    const cid = creator.id;
-    if (!myChannels.includes(cid)) {
-      setMyChannels(prev => [...prev, cid]);
-      // Auto-save to watchlist
-      setWatchlists(prev => {
-        if (prev.length === 0) return [{ id: 1, name: "My Watchlist", channels: [...myChannels, cid] }];
-        return prev.map((w, i) => i === 0 ? { ...w, channels: [...new Set([...w.channels, cid])] } : w);
-      });
+    setWatchlist(prev => [...prev, creator]);
+    setSuggestions(prev => prev.filter(s => s.id !== creator.id));
+  };
+
+  const removeFromWatchlist = (creatorId) => {
+    const removed = watchlist.find(w => w.id === creatorId);
+    if (removed) {
+      setWatchlist(prev => prev.filter(w => w.id !== creatorId));
+      setSuggestions(prev => [...prev, removed]);
     }
   };
-
-  const platformIcon = (platform) => {
-    if (platform === "YouTube Shorts") return { color: "bg-red-500", icon: "\u25B6" };
-    if (platform === "TikTok") return { color: "bg-black", icon: "\u266A" };
-    if (platform === "Instagram Reels" || platform === "Instagram") return { color: "bg-gradient-to-br from-purple-500 to-pink-500", icon: "\uD83D\uDCF7" };
-    return { color: "bg-gray-400", icon: "?" };
-  };
-
-  const toggleChannel = (creator) => {
-    const cid = creator.id;
-    if (myChannels.includes(cid)) {
-      setMyChannels(prev => prev.filter(id => id !== cid));
-    } else {
-      setMyChannels(prev => [...prev, cid]);
-    }
-  };
-
-  const handleSave = () => {
-    setWatchlists(prev => {
-      if (prev.length === 0) return [{ id: 1, name: "My Watchlist", channels: [...myChannels] }];
-      return prev.map((w, i) => i === 0 ? { ...w, channels: [...myChannels] } : w);
-    });
-  };
-
-  const getInitials = (name) => name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
-
-  const watchlistCreators = myChannels.map(id => creators.find(c => c.id === id)).filter(Boolean);
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Channels</h1>
-        <p className="text-gray-500 mt-1 text-sm">Search real creators across YouTube, Instagram & TikTok</p>
-      </div>
+    <div className="flex gap-6">
+      {/* Main Content Area */}
+      <div className="flex-1">
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-gray-900">Channels</h2>
+          <p className="text-sm text-gray-500 mt-1">Pick which channels to include in your videos feed</p>
+        </div>
 
-      <div className="flex gap-6">
-        {/* Main Content */}
-        <div className="flex-1 space-y-5">
-          {/* Search Bar */}
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Search for creators by niche, name, or handle..."
-              className="w-full bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
-            />
-            <div className="flex items-center gap-3 mt-3">
-              {/* Platform Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setPlatformDropdownOpen(!platformDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  {platformFilter === "all" ? "All Platforms" : platformFilter}
-                  <ChevronDown size={14} className={`transition-transform ${platformDropdownOpen ? "rotate-180" : ""}`} />
-                </button>
-                {platformDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 py-1">
-                    {["all", "YouTube Shorts", "Instagram Reels", "TikTok"].map(p => (
-                      <button
-                        key={p}
-                        onClick={() => { setPlatformFilter(p); setPlatformDropdownOpen(false); }}
-                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${platformFilter === p ? "text-pink-600 font-medium bg-pink-50" : "text-gray-700"}`}
-                      >
-                        {p === "all" ? "All Platforms" : p}
-                      </button>
-                    ))}
+        {/* Search & Filters */}
+        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
+          <div className="flex gap-3 mb-3">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Describe your content, or find a channel by handle"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+              />
+            </div>
+            <select
+              value={platformFilter}
+              onChange={(e) => setPlatformFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500"
+            >
+              <option value="all">All Platforms</option>
+              <option value="instagram">Instagram</option>
+              <option value="tiktok">TikTok</option>
+              <option value="youtube">YouTube</option>
+            </select>
+            <select
+              value={accountSizeFilter}
+              onChange={(e) => setAccountSizeFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500"
+            >
+              <option value="all">All Sizes</option>
+              <option value="large">Large (1M+)</option>
+              <option value="medium">Medium (100K-1M)</option>
+              <option value="small">Small (Under 100K)</option>
+            </select>
+            <button className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800">
+              Search
+            </button>
+          </div>
+        </div>
+
+        {/* Suggestions Grid */}
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Suggestions</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {filteredSuggestions.map(creator => (
+              <div
+                key={creator.id}
+                className="bg-white rounded-xl border border-gray-200 p-4 hover:border-pink-300 transition-all group relative"
+                onMouseEnter={() => setHoveredSuggestion(creator.id)}
+                onMouseLeave={() => setHoveredSuggestion(null)}
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="relative">
+                    <img
+                      src={creator.avatar}
+                      alt={creator.name}
+                      className="w-12 h-12 rounded-full"
+                    />
+                    <SimplePlatformBadge platform={creator.platform} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-gray-900 truncate">{creator.name}</h4>
+                    <p className="text-xs text-gray-500">{creator.followers}</p>
+                  </div>
+                </div>
+                
+                {hoveredSuggestion === creator.id && (
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    <button
+                      onClick={() => window.open(creator.platformUrl, "_blank")}
+                      className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-600 transition-colors"
+                      title="View Profile"
+                    >
+                      <ExternalLink size={14} />
+                    </button>
+                    <button
+                      onClick={() => addToWatchlist(creator)}
+                      className="p-2 bg-pink-500 rounded-lg hover:bg-pink-600 text-white transition-colors"
+                      title="Add to Watchlist"
+                    >
+                      <Plus size={14} />
+                    </button>
                   </div>
                 )}
               </div>
-
-              <div className="flex-1" />
-              <button
-                onClick={handleSearch}
-                disabled={loading}
-                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors cursor-pointer disabled:opacity-50"
-              >
-                {loading ? "Searching..." : "Search"} <ArrowRight size={14} />
-              </button>
-            </div>
-          </div>
-
-          {/* Results */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                {loading ? "Searching platforms..." : hasSearched ? `${creators.length} creators found` : "SUGGESTIONS"}
-              </p>
-              <button onClick={() => setShowInfoModal(true)} className="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-600 transition-colors">
-                <AlertCircle size={13} />
-                How to add channels to Optimus
-              </button>
-            </div>
-
-            {/* Loading State */}
-            {loading && (
-              <div className="grid grid-cols-2 gap-3">
-                {[1,2,3,4,5,6].map(i => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-white animate-pulse">
-                    <div className="w-11 h-11 rounded-full bg-gray-200" />
-                    <div className="flex-1">
-                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-1.5" />
-                      <div className="h-3 bg-gray-100 rounded w-1/2" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Error State */}
-            {error && !loading && (
-              <div className="py-12 text-center text-gray-400 text-sm">{error}</div>
-            )}
-
-            {/* Channels Grid */}
-            {!loading && creators.length > 0 && (
-              <div className="grid grid-cols-2 gap-3">
-                {creators.map(creator => {
-                  const pi = platformIcon(creator.platform);
-                  const isAdded = myChannels.includes(creator.id);
-                  return (
-                    <div
-                      key={creator.id}
-                      onMouseEnter={() => setHoveredCard(creator.id)}
-                      onMouseLeave={() => setHoveredCard(null)}
-                      className={`relative flex items-center gap-3 p-3 rounded-xl border text-left transition-all hover:shadow-sm ${isAdded ? "border-pink-400 bg-pink-50/50" : "border-gray-100 bg-white hover:border-gray-200"}`}
-                    >
-                      <div className="relative flex-shrink-0">
-                        {creator.thumbnail ? (
-                          <img
-                            src={creator.thumbnail}
-                            alt={creator.name}
-                            className="w-11 h-11 rounded-full object-cover"
-                            onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
-                          />
-                        ) : null}
-                        <div className={`w-11 h-11 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 items-center justify-center text-white text-xs font-bold ${creator.thumbnail ? "hidden" : "flex"}`}>
-                          {getInitials(creator.name)}
-                        </div>
-                        <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 ${pi.color} rounded-full flex items-center justify-center border-2 border-white`}>
-                          <span className="text-white text-[7px]">{pi.icon}</span>
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">{creator.username || creator.name}</p>
-                        <p className="text-xs text-gray-500">{creator.subscribers} followers</p>
-                      </div>
-                      {/* Action icons — always visible */}
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); findSimilar(creator); }}
-                          title="Find similar creators"
-                          className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                          <RefreshCw size={16} />
-                        </button>
-                        {isAdded ? (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); toggleChannel(creator); }}
-                            title="Remove from watchlist"
-                            className="p-1.5 rounded-full hover:bg-red-50 text-pink-500 hover:text-red-500 transition-colors"
-                          >
-                            <Check size={16} />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); addToWatchlist(creator); }}
-                            title="Add to watchlist"
-                            className="p-1.5 rounded-full border border-gray-200 hover:bg-pink-50 text-gray-400 hover:text-pink-500 transition-colors"
-                          >
-                            <Plus size={16} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Sidebar — Your Watchlist */}
-        <div className="w-72 flex-shrink-0">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-gray-900">Your Watchlist</h2>
-              <div className="flex items-center gap-2">
-                <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors text-gray-400">
-                  <ExternalLink size={15} />
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-0.5 max-h-[calc(100vh-280px)] overflow-y-auto">
-              {watchlistCreators.length > 0 ? (
-                watchlistCreators.map(creator => {
-                  const pi = platformIcon(creator.platform);
-                  return (
-                    <div key={creator.id} className="flex items-center gap-3 py-2 px-1 hover:bg-gray-50 rounded-lg transition-colors group">
-                      <div className="relative flex-shrink-0">
-                        {creator.thumbnail ? (
-                          <img src={creator.thumbnail} alt={creator.name} className="w-9 h-9 rounded-full object-cover" />
-                        ) : (
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-white text-[10px] font-bold">
-                            {getInitials(creator.name)}
-                          </div>
-                        )}
-                        <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 ${pi.color} rounded-full flex items-center justify-center border-2 border-white`}>
-                          <span className="text-white text-[6px]">{pi.icon}</span>
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">{creator.username || creator.name}</p>
-                        <p className="text-xs text-gray-500">{creator.subscribers} followers</p>
-                      </div>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleChannel(creator); }}
-                        className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="text-xs text-gray-400 py-8 text-center">Click creators on the left to add them to your watchlist</p>
-              )}
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Info Modal */}
-      {showInfoModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowInfoModal(false)}>
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4 p-8" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-xl font-bold text-gray-900 mb-5">How to add channels to Optimus</h3>
-            <p className="text-gray-600 text-base mb-4">
-              If you're looking for a channel that's not already in our database, you can add it.
-            </p>
-            <p className="text-gray-600 text-base mb-4">
-              Each add costs 1 credit. You can add as many channels as permitted by your plan quota.
-            </p>
-            <p className="text-gray-600 text-base mb-8">
-              Click on the link icon in the header of the watchlist card to get started.
-            </p>
-            <div className="flex items-center justify-end gap-4">
-              <button
-                onClick={() => setShowInfoModal(false)}
-                className="px-4 py-2 text-base text-gray-400 hover:text-gray-600 transition-colors"
+      {/* Right Sidebar - Watchlist */}
+      <div className="w-72 flex-shrink-0">
+        <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-gray-900">Your Watchlist</h3>
+            <Link size={14} className="text-gray-400" />
+          </div>
+
+          <button className="w-full mb-4 px-4 py-2 bg-pink-500 text-white rounded-lg text-sm font-medium hover:bg-pink-600 transition-colors">
+            Save
+          </button>
+
+          <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+            {watchlist.map(creator => (
+              <div
+                key={creator.id}
+                className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 group hover:bg-gray-100 transition-colors relative"
+                onMouseEnter={() => setHoveredWatchlistItem(creator.id)}
+                onMouseLeave={() => setHoveredWatchlistItem(null)}
               >
-                Close
-              </button>
-              <button
-                onClick={() => { setShowInfoModal(false); document.querySelector('input[placeholder*="Search for creators"]')?.focus(); }}
-                className="px-4 py-2 text-base font-semibold text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                Add a channel now
-              </button>
-            </div>
+                <div className="relative">
+                  <img
+                    src={creator.avatar}
+                    alt={creator.name}
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <SimplePlatformBadge platform={creator.platform} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <button
+                    onClick={() => window.open(creator.platformUrl, "_blank")}
+                    className="text-xs font-semibold text-gray-900 hover:text-pink-600 truncate block text-left transition-colors"
+                  >
+                    {creator.name}
+                  </button>
+                  <p className="text-xs text-gray-500">{creator.followers}</p>
+                </div>
+
+                {hoveredWatchlistItem === creator.id && (
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    <button
+                      onClick={() => window.open(creator.platformUrl, "_blank")}
+                      className="p-1 hover:bg-gray-300 rounded text-gray-600 transition-colors"
+                      title="View Profile"
+                    >
+                      <ExternalLink size={12} />
+                    </button>
+                    <button
+                      onClick={() => removeFromWatchlist(creator.id)}
+                      className="p-1 hover:bg-red-200 rounded text-red-600 transition-colors"
+                      title="Remove"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-// VIDEOS PAGE (Feed & Vault) — Sandcastles-matching design
+// ============================================================
+// VIDEOS PAGE (with Feed/Vault tabs)
 // ============================================================
 
-const PlatformIcon = ({ platform, size = "sm" }) => {
-  const cls = size === "lg" ? "w-6 h-6" : "w-5 h-5";
-  if (platform.includes("YouTube")) return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/YouTube_full-color_icon_%282017%29.svg/120px-YouTube_full-color_icon_%282017%29.svg.png" alt="YouTube" className={`${cls} rounded object-cover`} />;
-  if (platform.includes("TikTok")) return <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/120px-TikTok_logo.svg.png" alt="TikTok" className={`${cls} rounded object-cover bg-black p-0.5`} />;
-  return <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/120px-Instagram_logo_2016.svg.png" alt="Instagram" className={`${cls} rounded object-cover`} />;
-};
-
-const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoDetail, setCurrentPage }) => {
+const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) => {
   const [activeTab, setActiveTab] = useState("feed");
   const [sortBy, setSortBy] = useState("newest");
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [hoveredVideoId, setHoveredVideoId] = useState(null);
-  const [visibleCount, setVisibleCount] = useState(20);
-  const [showExportModal, setShowExportModal] = useState(false);
 
-  // Filter state
-  const [outlierMin, setOutlierMin] = useState("1");
+  // Filters
+  const [channelFilter, setChannelFilter] = useState("all");
+  const [outlierMin, setOutlierMin] = useState("");
   const [outlierMax, setOutlierMax] = useState("");
   const [viewsMin, setViewsMin] = useState("");
   const [viewsMax, setViewsMax] = useState("");
@@ -769,116 +464,118 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
   const [postedInLast, setPostedInLast] = useState("");
   const [postedInLastUnit, setPostedInLastUnit] = useState("Months");
   const [platformFilter, setPlatformFilter] = useState("all");
-  const [channelFilter, setChannelFilter] = useState("all");
-  const [keywordSearch, setKeywordSearch] = useState("");
+  const [keywords, setKeywords] = useState("");
   const [showChannelDropdown, setShowChannelDropdown] = useState(false);
-  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
 
-  // Get all watchlisted channel IDs and channel objects
-  const watchlistedChannelIds = new Set(watchlists.flatMap(w => w.channels));
-  const watchlistedChannels = SAMPLE_CHANNELS.filter(c => watchlistedChannelIds.has(c.id));
-  const feedVideos = SAMPLE_VIDEOS.filter(v => watchlistedChannelIds.has(v.channelId));
+  // Get videos from watchlist creators
+  const feedVideos = SAMPLE_VIDEOS.filter(v =>
+    watchlist.some(w => w.name === v.creator)
+  );
 
   // Apply filters
   const filteredVideos = (activeTab === "feed" ? feedVideos : savedVideos).filter(v => {
     if (outlierMin && v.outlierScore < parseFloat(outlierMin)) return false;
-    if (outlierMax && v.outlierScore > parseFloat(outlierMax.replace("x", ""))) return false;
-    if (viewsMin && v.viewsNum < parseInt(viewsMin.replace(/,/g, ""))) return false;
-    if (viewsMax && v.viewsNum > parseInt(viewsMax.replace(/,/g, ""))) return false;
-    if (engagementMin && v.engagement < parseFloat(engagementMin.replace("%", ""))) return false;
-    if (engagementMax && v.engagement > parseFloat(engagementMax.replace("%", ""))) return false;
+    if (outlierMax && v.outlierScore > parseFloat(outlierMax)) return false;
+    if (viewsMin) {
+      const minViews = parseInt(viewsMin.replace(/K|M/g, m => m === "K" ? 1000 : 1000000));
+      if (v.viewsNum < minViews) return false;
+    }
+    if (viewsMax) {
+      const maxViews = parseInt(viewsMax.replace(/K|M/g, m => m === "K" ? 1000 : 1000000));
+      if (v.viewsNum > maxViews) return false;
+    }
+    if (engagementMin && v.engagement < parseFloat(engagementMin)) return false;
+    if (engagementMax && v.engagement > parseFloat(engagementMax)) return false;
+    if (channelFilter !== "all" && v.creator !== channelFilter) return false;
     if (platformFilter !== "all" && v.platform !== platformFilter) return false;
-    if (channelFilter !== "all" && v.channelId !== parseInt(channelFilter)) return false;
-    if (keywordSearch && !v.title.toLowerCase().includes(keywordSearch.toLowerCase()) && !v.hook.toLowerCase().includes(keywordSearch.toLowerCase())) return false;
+    if (keywords && !v.title.toLowerCase().includes(keywords.toLowerCase())) return false;
     return true;
   }).sort((a, b) => {
-    if (sortBy === "newest") return 0;
-    if (sortBy === "oldest") return 0;
     if (sortBy === "outlier") return b.outlierScore - a.outlierScore;
     if (sortBy === "views") return b.viewsNum - a.viewsNum;
     if (sortBy === "engagement") return b.engagement - a.engagement;
     return 0;
   });
 
-  const displayedVideos = filteredVideos.slice(0, visibleCount);
-
-  const formatViews = (num) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
-    if (num >= 1000) return Math.round(num / 1000) + "K";
-    return num.toString();
+  const saveToVault = (video) => {
+    if (!savedVideos.find(v => v.id === video.id)) {
+      setSavedVideos(prev => [...prev, video]);
+    }
   };
-
-  const formatFollowers = (num) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
-    if (num >= 1000) return Math.round(num / 1000) + "K";
-    return num.toString();
-  };
-
-  const clearFilters = () => {
-    setOutlierMin("1"); setOutlierMax("100"); setViewsMin(""); setViewsMax("");
-    setEngagementMin(""); setEngagementMax(""); setPostedInLast("");
-    setPostedInLastUnit("Months"); setPlatformFilter("all"); setChannelFilter("all"); setKeywordSearch("");
-  };
-
-  const sortOptions = [
-    { key: "newest", label: "Newest" },
-    { key: "oldest", label: "Oldest" },
-    { key: "outlier", label: "Outlier score" },
-    { key: "views", label: "Views" },
-    { key: "engagement", label: "Engagement rate" },
-  ];
 
   return (
-    <div style={{ backgroundColor: "#1a1a2e", margin: "-32px", padding: "32px", minHeight: "calc(100vh - 80px)" }}>
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold text-white">Videos</h1>
-        <p className="text-sm text-gray-400 mt-1">
-          {activeTab === "feed" ? "Save high-performing videos to your vault to unlock deep analysis" : "Browse videos you\u2019ve saved to your vault"}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Videos</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          {activeTab === "feed" ? "Save high-performing videos to your vault to unlock deep analysis" : "Videos you've saved to your vault"}
         </p>
       </div>
 
-      {/* Feed / Vault toggle + toolbar */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="relative inline-flex rounded-full p-1" style={{ backgroundColor: "#2a2a3e" }}>
+      {/* Feed / Vault Tabs */}
+      <div className="flex items-center justify-between border-b border-gray-200">
+        <div className="flex gap-6">
           {["feed", "vault"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                activeTab === tab ? "text-white shadow-sm" : "text-gray-400 hover:text-gray-200"
+              className={`px-1 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === tab
+                  ? "text-gray-900 border-pink-500"
+                  : "text-gray-500 border-transparent hover:text-gray-700"
               }`}
-              style={activeTab === tab ? { backgroundColor: "#3a3a50" } : {}}
             >
               {tab === "feed" ? "Feed" : "Vault"}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-5 text-sm text-gray-400">
+        {/* Toolbar */}
+        <div className="flex items-center gap-4 text-sm">
           {activeTab === "feed" ? (
-            <button onClick={() => setCurrentPage && setCurrentPage("channels")} className="flex items-center gap-1.5 hover:text-white transition-colors">
+            <button
+              onClick={() => setCurrentPage("channels")}
+              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+            >
               <Settings size={14} />
-              <span>Configure channels</span>
+              Configure channels
             </button>
           ) : (
-            <button className="flex items-center gap-1.5 hover:text-white transition-colors">
+            <button className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors">
               <Plus size={14} />
-              <span>Add video URL</span>
+              Add video URL
             </button>
           )}
+
           <div className="relative">
-            <button onClick={() => setShowSortMenu(!showSortMenu)} className="flex items-center gap-1.5 hover:text-white transition-colors">
+            <button
+              onClick={() => setShowSortMenu(!showSortMenu)}
+              className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors"
+            >
               <BarChart3 size={14} />
-              <span>Sort by</span>
+              Sort by
             </button>
             {showSortMenu && (
               <>
                 <div className="fixed inset-0 z-20" onClick={() => setShowSortMenu(false)} />
-                <div className="absolute right-0 top-8 rounded-lg shadow-lg py-1 z-30 w-48" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}>
-                  {sortOptions.map(opt => (
-                    <button key={opt.key} onClick={() => { setSortBy(opt.key); setShowSortMenu(false); }}
-                      className={`w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 ${sortBy === opt.key ? "text-white font-medium" : "text-gray-400"}`}>
+                <div className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-30 w-40">
+                  {[
+                    { key: "newest", label: "Newest" },
+                    { key: "outlier", label: "Outlier score" },
+                    { key: "views", label: "Views" },
+                    { key: "engagement", label: "Engagement rate" },
+                  ].map(opt => (
+                    <button
+                      key={opt.key}
+                      onClick={() => {
+                        setSortBy(opt.key);
+                        setShowSortMenu(false);
+                      }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${
+                        sortBy === opt.key ? "text-pink-600 font-medium" : "text-gray-700"
+                      }`}
+                    >
                       {opt.label}
                     </button>
                   ))}
@@ -886,424 +583,264 @@ const VideosPage = ({ watchlists, savedVideos, setSavedVideos, setSelectedVideoD
               </>
             )}
           </div>
-          <button onClick={() => setShowExportModal(true)} className="flex items-center gap-1.5 hover:text-white transition-colors">
+
+          <button className="flex items-center gap-1.5 text-gray-600 hover:text-gray-900 transition-colors">
             <Download size={14} />
-            <span>Export</span>
+            Export
           </button>
         </div>
       </div>
 
-      {/* Main layout: sidebar + video grid */}
-      <div className="flex gap-5">
-        {/* Filters Sidebar */}
-        <div className="hidden md:block w-[220px] flex-shrink-0 sticky top-0 self-start">
-          <div className="rounded-xl p-4 space-y-4" style={{ backgroundColor: "#222238", border: "1px solid #2e2e45" }}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-white uppercase tracking-wider">Filters</span>
-              <button onClick={clearFilters} className="text-xs text-gray-500 hover:text-gray-300">Clear</button>
-            </div>
-
-            {/* Saved Filters */}
-            <div>
-              <label className="text-xs text-gray-400 mb-1.5 block">Saved Filters</label>
-              <select className="w-full rounded-lg px-3 py-2 text-sm text-gray-400 appearance-none cursor-pointer" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center"}}>
-                <option>Pick one to apply</option>
-              </select>
-            </div>
-
-            {/* Channels dropdown */}
-            <div className="relative">
-              <label className="text-xs text-gray-400 mb-1.5 block">Channels</label>
+      {/* Filters + Grid Layout */}
+      <div className="flex gap-6">
+        {/* Filter Sidebar */}
+        <div className="w-56 flex-shrink-0">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Filters</h3>
               <button
-                onClick={() => { setShowChannelDropdown(!showChannelDropdown); setShowPlatformDropdown(false); }}
-                className="w-full rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between"
-                style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}
+                onClick={() => {
+                  setOutlierMin("");
+                  setOutlierMax("");
+                  setViewsMin("");
+                  setViewsMax("");
+                  setEngagementMin("");
+                  setEngagementMax("");
+                  setChannelFilter("all");
+                  setPlatformFilter("all");
+                  setKeywords("");
+                }}
+                className="text-xs text-gray-500 hover:text-gray-700"
               >
-                <span className={channelFilter === "all" ? "text-gray-400" : "text-white"}>
-                  {channelFilter === "all" ? "All channels" : watchlistedChannels.find(c => c.id === parseInt(channelFilter))?.handle || "All channels"}
-                </span>
-                <ChevronDown size={14} className="text-gray-500" />
+                Clear
               </button>
-              {showChannelDropdown && (
-                <>
-                  <div className="fixed inset-0 z-20" onClick={() => setShowChannelDropdown(false)} />
-                  <div className="absolute left-0 top-full mt-1 rounded-lg shadow-lg py-1 z-30 w-64 max-h-80 overflow-y-auto" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}>
-                    <button
-                      onClick={() => { setChannelFilter("all"); setShowChannelDropdown(false); }}
-                      className={`w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 ${channelFilter === "all" ? "bg-white/5 font-medium" : ""}`}
-                    >
-                      All channels
-                    </button>
-                    {watchlistedChannels.sort((a, b) => a.handle.localeCompare(b.handle)).map(ch => (
+            </div>
+
+            <div className="space-y-4">
+              {/* Channels Dropdown */}
+              <div className="relative">
+                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Channels</label>
+                <button
+                  onClick={() => setShowChannelDropdown(!showChannelDropdown)}
+                  className="w-full text-left px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:border-gray-400 transition-colors flex items-center justify-between"
+                >
+                  <span className={channelFilter === "all" ? "text-gray-500" : "text-gray-900"}>
+                    {channelFilter === "all" ? "All channels" : channelFilter}
+                  </span>
+                  <ChevronDown size={14} />
+                </button>
+                {showChannelDropdown && (
+                  <>
+                    <div className="fixed inset-0 z-20" onClick={() => setShowChannelDropdown(false)} />
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg py-1 z-30 max-h-56 overflow-y-auto">
                       <button
-                        key={ch.id}
-                        onClick={() => { setChannelFilter(String(ch.id)); setShowChannelDropdown(false); }}
-                        className={`w-full text-left px-3 py-2.5 text-sm hover:bg-white/5 flex items-center gap-2.5 ${channelFilter === String(ch.id) ? "bg-white/5" : ""}`}
+                        onClick={() => {
+                          setChannelFilter("all");
+                          setShowChannelDropdown(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-sm ${
+                          channelFilter === "all" ? "bg-pink-50 text-pink-600 font-medium" : "text-gray-700 hover:bg-gray-50"
+                        }`}
                       >
-                        <div className={`w-7 h-7 rounded-full bg-gradient-to-br ${ch.avatar} flex-shrink-0`} />
-                        <span className="text-gray-200 truncate">{ch.handle}</span>
-                        <span className="text-gray-500 text-xs ml-auto whitespace-nowrap">{formatFollowers(ch.followersNum)} followers</span>
+                        All channels
                       </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Outlier score */}
-            <div>
-              <label className="text-xs text-gray-400 mb-1.5 block">Outlier score</label>
-              <div className="flex gap-2">
-                <input type="text" placeholder="1" value={outlierMin} onChange={e => setOutlierMin(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
-                <input type="text" placeholder="100x" value={outlierMax} onChange={e => setOutlierMax(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+                      {watchlist.map(creator => (
+                        <button
+                          key={creator.id}
+                          onClick={() => {
+                            setChannelFilter(creator.name);
+                            setShowChannelDropdown(false);
+                          }}
+                          className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                            channelFilter === creator.name ? "bg-pink-50 text-pink-600 font-medium" : "text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          <img src={creator.avatar} alt="" className="w-6 h-6 rounded-full" />
+                          <div className="flex-1 min-w-0">
+                            <span className="truncate block text-sm">{creator.name}</span>
+                            <span className="text-xs text-gray-500">{creator.followers}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
 
-            {/* Views */}
-            <div>
-              <label className="text-xs text-gray-400 mb-1.5 block">Views</label>
-              <div className="flex gap-2">
-                <input type="text" placeholder="0" value={viewsMin} onChange={e => setViewsMin(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
-                <input type="text" placeholder="10,000,000" value={viewsMax} onChange={e => setViewsMax(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+              {/* Outlier Score */}
+              <div>
+                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Outlier Score</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={outlierMin}
+                    onChange={(e) => setOutlierMin(e.target.value)}
+                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={outlierMax}
+                    onChange={(e) => setOutlierMax(e.target.value)}
+                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Engagement */}
-            <div>
-              <label className="text-xs text-gray-400 mb-1.5 block">Engagement</label>
-              <div className="flex gap-2">
-                <input type="text" placeholder="0%" value={engagementMin} onChange={e => setEngagementMin(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
-                <input type="text" placeholder="100%" value={engagementMax} onChange={e => setEngagementMax(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
+              {/* Views */}
+              <div>
+                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Views</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Min"
+                    value={viewsMin}
+                    onChange={(e) => setViewsMin(e.target.value)}
+                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Max"
+                    value={viewsMax}
+                    onChange={(e) => setViewsMax(e.target.value)}
+                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Posted in last */}
-            <div>
-              <label className="text-xs text-gray-400 mb-1.5 block">Posted in last</label>
-              <div className="flex gap-2">
-                <input type="text" placeholder="0" value={postedInLast} onChange={e => setPostedInLast(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
-                <select value={postedInLastUnit} onChange={e => setPostedInLastUnit(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-gray-300 appearance-none cursor-pointer" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center"}}>
-                  <option>Months</option><option>Weeks</option><option>Days</option>
+              {/* Engagement */}
+              <div>
+                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Engagement %</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={engagementMin}
+                    onChange={(e) => setEngagementMin(e.target.value)}
+                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={engagementMax}
+                    onChange={(e) => setEngagementMax(e.target.value)}
+                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
+                  />
+                </div>
+              </div>
+
+              {/* Platform */}
+              <div>
+                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Platform</label>
+                <select
+                  value={platformFilter}
+                  onChange={(e) => setPlatformFilter(e.target.value)}
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-white cursor-pointer focus:outline-none focus:ring-1 focus:ring-pink-500"
+                >
+                  <option value="all">All Platforms</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="youtube">YouTube</option>
                 </select>
               </div>
-            </div>
 
-            {/* Platform dropdown */}
-            <div className="relative">
-              <label className="text-xs text-gray-400 mb-1.5 block">Platform</label>
-              <button
-                onClick={() => { setShowPlatformDropdown(!showPlatformDropdown); setShowChannelDropdown(false); }}
-                className="w-full rounded-lg px-3 py-2 text-sm text-left flex items-center justify-between"
-                style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}
-              >
-                <span className="text-gray-400">
-                  {platformFilter === "all" ? "All platforms" : platformFilter}
-                </span>
-                <ChevronDown size={14} className="text-gray-500" />
+              {/* Keywords */}
+              <div>
+                <label className="text-xs text-gray-600 block mb-1.5 font-medium">Keywords</label>
+                <input
+                  type="text"
+                  placeholder="Search titles..."
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-pink-500"
+                />
+              </div>
+
+              <button className="w-full px-3 py-2 bg-gray-900 text-white text-xs font-medium rounded-lg hover:bg-gray-800 transition-colors">
+                Save Filter
               </button>
-              {showPlatformDropdown && (
-                <>
-                  <div className="fixed inset-0 z-20" onClick={() => setShowPlatformDropdown(false)} />
-                  <div className="absolute left-0 top-full mt-1 rounded-lg shadow-lg py-1 z-30 w-full" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}>
-                    <button
-                      onClick={() => { setPlatformFilter("all"); setShowPlatformDropdown(false); }}
-                      className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5"
-                    >
-                      All platforms
-                    </button>
-                    {[
-                      { value: "YouTube Shorts", label: "YouTube" },
-                      { value: "TikTok", label: "TikTok" },
-                      { value: "Instagram Reels", label: "Instagram" },
-                    ].map(p => (
-                      <button
-                        key={p.value}
-                        onClick={() => { setPlatformFilter(p.value); setShowPlatformDropdown(false); }}
-                        className="w-full text-left px-3 py-2.5 text-sm text-gray-300 hover:bg-white/5 flex items-center gap-2.5"
-                      >
-                        <PlatformIcon platform={p.value} />
-                        <span>{p.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
             </div>
-
-            {/* Keywords */}
-            <div>
-              <label className="text-xs text-gray-400 mb-1.5 block">Keywords</label>
-              <input type="text" placeholder="Search captions and titles" value={keywordSearch} onChange={e => setKeywordSearch(e.target.value)} className="w-full rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }} />
-            </div>
-
-            {/* Save filter button */}
-            <button className="w-full text-white text-sm font-semibold py-2.5 rounded-lg hover:opacity-90 transition-colors" style={{ backgroundColor: "#3a3a50" }}>Save filter</button>
           </div>
         </div>
 
         {/* Video Grid */}
-        <div className="flex-1 min-w-0">
-          {activeTab === "feed" && watchlistedChannelIds.size === 0 ? (
-            <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: "#222238", border: "1px solid #2e2e45" }}>
-              <AlertCircle size={24} className="mx-auto text-blue-400 mb-2" />
-              <p className="text-white font-semibold">No watchlists created yet</p>
-              <p className="text-gray-400 text-sm mt-1">Go to Channels to add creators to your watchlists and see their videos here.</p>
-            </div>
-          ) : (
-            <>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
-                {displayedVideos.map(video => {
-                  const isSaved = savedVideos.some(v => v.id === video.id);
-                  const isHovered = hoveredVideoId === video.id;
-                  const channelObj = SAMPLE_CHANNELS.find(c => c.id === video.channelId);
-                  return (
-                    <div
-                      key={video.id}
-                      className="w-full flex flex-col group"
-                      onMouseEnter={() => setHoveredVideoId(video.id)}
-                      onMouseLeave={() => setHoveredVideoId(null)}
-                    >
-                      {/* Thumbnail */}
-                      <div
-                        className="relative overflow-hidden rounded-lg cursor-pointer"
-                        style={{ paddingBottom: "177.78%" }}
-                        onClick={() => {
-                          setSavedVideos(prev => isSaved ? prev.filter(v => v.id !== video.id) : [...prev, video]);
-                        }}
+        <div className="flex-1">
+          <div className="grid grid-cols-4 gap-4">
+            {filteredVideos.map(video => (
+              <div
+                key={video.id}
+                className="group cursor-pointer"
+                onMouseEnter={() => setHoveredVideoId(video.id)}
+                onMouseLeave={() => setHoveredVideoId(null)}
+              >
+                {/* 9:16 Thumbnail */}
+                <div className="relative bg-gray-200 rounded-lg overflow-hidden mb-2" style={{ paddingBottom: "177.78%" }}>
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+
+                  {/* Platform Badge */}
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center text-xs font-bold" style={{
+                    backgroundColor: video.platform === "instagram" ? "#E1306C" : video.platform === "tiktok" ? "#000" : "#FF0000",
+                    color: "white"
+                  }}>
+                    {video.platform === "instagram" ? "IG" : video.platform === "tiktok" ? "TT" : "YT"}
+                  </div>
+
+                  {/* Hover Overlay */}
+                  {hoveredVideoId === video.id && (
+                    <div className="absolute inset-0 bg-black/40 flex items-end justify-center pb-3">
+                      <button
+                        onClick={() => saveToVault(video)}
+                        className="px-4 py-2 bg-pink-500 text-white text-xs font-medium rounded-lg hover:bg-pink-600 transition-colors"
                       >
-                        <img
-                          src={video.thumbnail}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        {/* Platform icon */}
-                        <div className="absolute top-2 right-2">
-                          <PlatformIcon platform={video.platform} size="lg" />
-                        </div>
-                        {/* Save overlay on hover */}
-                        <div className={`absolute inset-0 flex items-end justify-center pb-4 transition-opacity duration-200 ${isHovered ? "opacity-100" : "opacity-0"}`}>
-                          <span className={`px-4 py-2 rounded-lg text-xs font-medium shadow-lg transition-all ${
-                            isSaved ? "bg-green-500 text-white" : "bg-black/70 backdrop-blur-sm text-white"
-                          }`}>
-                            {isSaved ? "Saved" : "Save to vault"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Meta info */}
-                      <div className="flex flex-col gap-1 pt-2 pb-1">
-                        <a
-                          href="#"
-                          onClick={(e) => { e.preventDefault(); setSelectedVideoDetail(video); }}
-                          className="text-sm font-semibold text-white line-clamp-1 leading-snug hover:underline cursor-pointer"
-                        >
-                          {video.title}
-                        </a>
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs text-gray-400 truncate">@{channelObj?.handle || video.channel.toLowerCase().replace(/\s/g, "")}</p>
-                          <p className="text-xs text-gray-500 whitespace-nowrap ml-2">{video.uploadDate}</p>
-                        </div>
-                        {/* Stat badges */}
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: "rgba(34,197,94,0.15)" }}>
-                            <TrendingUp size={12} className="text-green-400" />
-                            <span className="font-medium text-green-400">{video.outlierScore}x</span>
-                          </div>
-                          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: "rgba(59,130,246,0.15)" }}>
-                            <Eye size={12} className="text-blue-400" />
-                            <span className="font-medium text-blue-400">{formatViews(video.viewsNum)}</span>
-                          </div>
-                          <div className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs" style={{ backgroundColor: "rgba(249,115,22,0.15)" }}>
-                            <Sparkles size={12} className="text-orange-400" />
-                            <span className="font-medium text-orange-400">{video.engagement}%</span>
-                          </div>
-                        </div>
-                      </div>
+                        Save to vault
+                      </button>
                     </div>
-                  );
-                })}
+                  )}
+                </div>
+
+                {/* Video Info */}
+                <div>
+                  <a
+                    href={video.platformUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-semibold text-gray-900 line-clamp-2 hover:text-pink-600 transition-colors block"
+                  >
+                    {video.title}
+                  </a>
+
+                  <p className="text-xs text-gray-500 mt-1 flex items-center justify-between">
+                    <span>@{video.creator}</span>
+                    <span>{video.postedAgo}</span>
+                  </p>
+
+                  {/* Stats Row */}
+                  <div className="flex items-center gap-3 mt-2 text-xs">
+                    <span className="text-blue-600 font-medium flex items-center gap-0.5">
+                      <TrendingUp size={10} /> {video.outlier}x
+                    </span>
+                    <span className="text-green-600 font-medium flex items-center gap-0.5">
+                      <Eye size={10} /> {video.views}
+                    </span>
+                    <span className="text-orange-600 font-medium flex items-center gap-0.5">
+                      <Sparkles size={10} /> {video.engagement}
+                    </span>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
 
-              {filteredVideos.length === 0 && (
-                <div className="text-center py-16 text-gray-500">
-                  <Video size={32} className="mx-auto mb-3 opacity-30" />
-                  <p className="font-semibold text-gray-300">No videos found</p>
-                  <p className="text-sm mt-1 text-gray-500">Try adjusting your filters or add channels to your watchlist</p>
-                </div>
-              )}
-
-              {visibleCount < filteredVideos.length && (
-                <div className="flex justify-center mt-6 mb-4">
-                  <button onClick={() => setVisibleCount(prev => prev + 20)} className="px-8 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors" style={{ backgroundColor: "#2a2a3e", border: "1px solid #3a3a50" }}>
-                    Load more
-                  </button>
-                </div>
-              )}
-            </>
+          {filteredVideos.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-sm">No videos found. Try adjusting your filters.</p>
+            </div>
           )}
-        </div>
-      </div>
-
-      {/* Export Modal */}
-      {showExportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="rounded-2xl shadow-xl max-w-md w-full mx-4 p-6" style={{ backgroundColor: "#222238", border: "1px solid #2e2e45" }}>
-            <h3 className="text-lg font-bold text-white mb-2">Start an export</h3>
-            <p className="text-sm text-gray-400 mb-4">Exports allow you to work with your videos and scripts off-platform.</p>
-            <div className="border-2 border-dashed border-yellow-600/50 rounded-xl p-4 text-center mb-5" style={{ backgroundColor: "rgba(234,179,8,0.08)" }}>
-              <span className="text-2xl mb-2 block">&#9888;</span>
-              <p className="text-sm text-gray-300">Exports are only available to paid subscribers of the Visionary tier or higher.</p>
-            </div>
-            <div className="flex items-center justify-end gap-3">
-              <button onClick={() => setShowExportModal(false)} className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors">Close</button>
-              <button className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">Start export</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ============================================================
-// VIDEO DETAIL PAGE
-// ============================================================
-
-const VideoDetailPage = ({ video, setSelectedVideoDetail, savedVideos, setSavedVideos }) => {
-  const [activeTab, setActiveTab] = useState("metrics");
-  const isSaved = savedVideos.some(v => v.id === video.id);
-
-  const handleSave = () => {
-    setSavedVideos(prev =>
-      isSaved ? prev.filter(v => v.id !== video.id) : [...prev, video]
-    );
-  };
-
-  return (
-    <div className="space-y-6">
-      <button
-        onClick={() => setSelectedVideoDetail(null)}
-        className="flex items-center gap-2 text-pink-600 font-semibold hover:text-pink-700 mb-4"
-      >
-        <ChevronLeft size={18} /> Back to Feed
-      </button>
-
-      <div className="grid grid-cols-3 gap-6">
-        {/* Left: Info & Thumbnail */}
-        <div className="col-span-1 space-y-4">
-          <div className="bg-gradient-to-br from-purple-400 to-pink-500 aspect-video rounded-2xl flex items-center justify-center text-6xl">
-            {video.emoji}
-          </div>
-
-          <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <div className="flex items-start gap-3 mb-4">
-              <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.avatar || "from-orange-400 to-pink-500"} flex items-center justify-center text-white text-xs font-bold`}>
-                {(SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.name || "?").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()}
-              </div>
-              <div className="flex-1">
-                <h2 className="font-bold text-gray-900">{video.channel}</h2>
-                <p className="text-sm text-gray-500">{SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.subscribers} subscribers</p>
-              </div>
-            </div>
-
-            <PlatformBadge platform={video.platform} />
-
-            <button
-              onClick={handleSave}
-              className={`w-full mt-4 px-4 py-2 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${isSaved ? "bg-pink-100 text-pink-700 hover:bg-pink-200" : "bg-pink-600 text-white hover:bg-pink-700"}`}
-            >
-              <Bookmark size={16} className={isSaved ? "" : ""} />
-              {isSaved ? "Saved to Vault" : "Save to Vault"}
-            </button>
-          </div>
-        </div>
-
-        {/* Right: Tabbed Content */}
-        <div className="col-span-2">
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            {/* Title */}
-            <h1 className="text-2xl font-bold text-gray-900 mb-6">{video.title}</h1>
-
-            {/* Tabs */}
-            <div className="flex gap-2 mb-6 border-b border-gray-200 flex-wrap">
-              {["metrics", "transcript", "hook", "description", "structure", "style"].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-3 font-semibold text-sm transition-all border-b-2 capitalize ${activeTab === tab ? "text-pink-600 border-pink-600" : "text-gray-600 border-transparent hover:text-gray-900"}`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Tab Content */}
-            <div>
-              {activeTab === "metrics" && (
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { label: "Outlier Score", value: `${video.outlierScore}x`, icon: TrendingUp, color: "from-orange-400 to-pink-500" },
-                    { label: "Views", value: video.views, icon: Eye, color: "from-blue-400 to-cyan-400" },
-                    { label: "Engagement Rate", value: `${video.engagement}%`, icon: ThumbsUp, color: "from-green-400 to-emerald-400" },
-                    { label: "Likes", value: video.likes, icon: Heart, color: "from-red-400 to-pink-400" },
-                    { label: "Comments", value: video.comments, icon: MessageCircle, color: "from-purple-400 to-blue-400" },
-                    { label: "Channel Followers", value: SAMPLE_CHANNELS.find(c => c.id === video.channelId)?.subscribers || "N/A", icon: Users, color: "from-yellow-400 to-orange-400" },
-                  ].map((metric, i) => (
-                    <div key={i} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
-                      <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${metric.color} flex items-center justify-center mb-2`}>
-                        <metric.icon size={18} className="text-white" />
-                      </div>
-                      <p className="text-xs text-gray-600 font-medium">{metric.label}</p>
-                      <p className="text-xl font-bold text-gray-900 mt-1">{metric.value}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === "transcript" && (
-                <div className="space-y-4">
-                  <p className="text-gray-700 leading-relaxed">{video.transcript}</p>
-                  <div className="flex gap-2">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-pink-600 text-white rounded-lg font-semibold text-sm hover:bg-pink-700">
-                      <Copy size={14} /> Copy
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold text-sm hover:bg-gray-200">
-                      <Download size={14} /> Download
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "hook" && (
-                <div className="space-y-4">
-                  <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg">
-                    <p className="text-gray-900 leading-relaxed">{video.hook}</p>
-                  </div>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-pink-600 text-white rounded-lg font-semibold text-sm hover:bg-pink-700">
-                    <Copy size={14} /> Copy Hook
-                  </button>
-                </div>
-              )}
-
-              {activeTab === "description" && (
-                <div className="space-y-4">
-                  <p className="text-gray-700 leading-relaxed">No additional description available.</p>
-                </div>
-              )}
-
-              {activeTab === "structure" && (
-                <div className="space-y-4">
-                  <p className="text-gray-700">Video Structure (Analysis not available for demo data)</p>
-                </div>
-              )}
-
-              {activeTab === "style" && (
-                <div className="space-y-4">
-                  <p className="text-gray-700">Style Analysis (Analysis not available for demo data)</p>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -1315,455 +852,96 @@ const VideoDetailPage = ({ video, setSelectedVideoDetail, savedVideos, setSavedV
 // ============================================================
 
 const ScriptsPage = ({ vaultItems, scriptsWritten, setScriptsWritten }) => {
-  const [selectedHook, setSelectedHook] = useState(null);
-  const [selectedStyle, setSelectedStyle] = useState(null);
-  const [selectedStructure, setSelectedStructure] = useState(null);
-  const [topic, setTopic] = useState("");
-  const [generatedScript, setGeneratedScript] = useState(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [scriptHistory, setScriptHistory] = useState([]);
-
-  const hooks = SAMPLE_HOOKS;
-  const styles = SAMPLE_STYLES;
-  const structures = SAMPLE_STRUCTURES;
-
-  const generateScript = async () => {
-    if (!selectedHook || !selectedStyle || !topic) return;
-    setIsGenerating(true);
-    try {
-      await new Promise(r => setTimeout(r, 1500));
-      const script = {
-        hook: selectedHook.content.replace("[topic]", topic),
-        body: `Let me break this down for you. When it comes to ${topic}, most people get it completely wrong. Here's what the top 1% actually do differently.\n\nFirst, they focus on consistency over intensity. Instead of going all-in for a week and burning out, they commit to small, daily actions.\n\nSecond, they leverage systems, not willpower. The secret isn't motivation — it's building an environment that makes the right choice the easy choice.\n\nThird, they measure what matters. Not vanity metrics, but the numbers that actually move the needle.`,
-        cta: "If this changed how you think about " + topic + ", drop a comment below with your biggest takeaway. And make sure to follow for more content like this!",
-        structure: selectedStructure?.content || "Hook → Context → Key Points → CTA",
-        style: selectedStyle.content,
-        wordCount: 127,
-        estDuration: "0:45 - 1:00",
-        timestamp: new Date().toLocaleString(),
-      };
-      setGeneratedScript(script);
-      setScriptHistory(prev => [script, ...prev].slice(0, 5));
-      setScriptsWritten(scriptsWritten + 1);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const readinessCount = [selectedHook, selectedStyle, topic].filter(Boolean).length;
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-900">Script Generator</h1>
-          <p className="text-gray-500 mt-1">Combine hooks, styles, and topics to generate viral scripts.</p>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <FileText size={14} />
-          <span>{scriptsWritten} scripts generated</span>
-        </div>
-      </div>
-
-      {/* Progress indicator */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-        <div className="flex items-center gap-4">
-          {[
-            { label: "Hook", done: !!selectedHook, color: "purple" },
-            { label: "Style", done: !!selectedStyle, color: "green" },
-            { label: "Topic", done: !!topic, color: "yellow" },
-          ].map((step, i) => (
-            <div key={i} className="flex items-center gap-2 flex-1">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step.done ? `bg-${step.color}-500 text-white` : "bg-gray-200 text-gray-500"}`}>
-                {step.done ? <Check size={12} /> : i + 1}
-              </div>
-              <span className={`text-sm font-medium ${step.done ? "text-gray-900" : "text-gray-400"}`}>{step.label}</span>
-              {i < 2 && <div className="flex-1 h-0.5 bg-gray-200 mx-2" />}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
-        {/* Inputs */}
-        <div className="space-y-5">
-          {/* Hook Selection */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                <Target size={18} className="text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900">Hook</h2>
-                <p className="text-xs text-gray-500">The attention-grabbing opening line</p>
-              </div>
-            </div>
-
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {hooks.map(hook => (
-                <button
-                  key={hook.id}
-                  onClick={() => setSelectedHook(hook)}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-all text-sm ${selectedHook?.id === hook.id ? "bg-purple-100 border border-purple-300 shadow-sm" : "bg-gray-50 border border-transparent hover:bg-gray-100"}`}
-                >
-                  <p className="font-medium text-gray-900 line-clamp-2">{hook.content}</p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <span className="text-xs text-gray-500">{hook.source}</span>
-                    <span className="text-xs text-gray-400">·</span>
-                    <span className="text-xs text-gray-500">{hook.views} views</span>
-                    {hook.tags?.map((tag, i) => (
-                      <span key={i} className="text-xs bg-purple-50 text-purple-600 px-1.5 py-0.5 rounded">{tag}</span>
-                    ))}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Style Selection */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
-                <Palette size={18} className="text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900">Style</h2>
-                <p className="text-xs text-gray-500">How the video feels and flows</p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {styles.map(style => (
-                <button
-                  key={style.id}
-                  onClick={() => setSelectedStyle(style)}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-all text-sm ${selectedStyle?.id === style.id ? "bg-green-100 border border-green-300 shadow-sm" : "bg-gray-50 border border-transparent hover:bg-gray-100"}`}
-                >
-                  <p className="font-medium text-gray-900 line-clamp-2">{style.content}</p>
-                  <p className="text-xs text-gray-500 mt-1">{style.source}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Structure Selection */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                <Layers size={18} className="text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900">Structure</h2>
-                <p className="text-xs text-gray-500">The framework for your script (optional)</p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {structures.map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => setSelectedStructure(selectedStructure?.id === s.id ? null : s)}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-all text-sm ${selectedStructure?.id === s.id ? "bg-blue-100 border border-blue-300 shadow-sm" : "bg-gray-50 border border-transparent hover:bg-gray-100"}`}
-                >
-                  <p className="font-medium text-gray-900">{s.content}</p>
-                  <p className="text-xs text-gray-500 mt-1">{s.source}</p>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Topic Input */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                <ZapIcon size={18} className="text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900">Topic</h2>
-                <p className="text-xs text-gray-500">What your video is about</p>
-              </div>
-            </div>
-
-            <input
-              type="text"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g., 'morning productivity routine', '5 habits of millionaires'"
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-300"
-            />
-          </div>
-
-          {/* Generate Button */}
-          <button
-            onClick={generateScript}
-            disabled={!selectedHook || !selectedStyle || !topic || isGenerating}
-            className="w-full bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-4 rounded-xl text-base font-bold flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl"
-          >
-            {isGenerating ? (
-              <><RefreshCw size={16} className="animate-spin" /> Generating your script...</>
-            ) : (
-              <><Sparkles size={16} /> Generate Script ({readinessCount}/3 ready)</>
-            )}
-          </button>
-        </div>
-
-        {/* Output */}
-        <div className="space-y-5">
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 sticky top-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-gray-900">Generated Script</h2>
-              {generatedScript && (
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                  <span>{generatedScript.wordCount} words</span>
-                  <span>·</span>
-                  <span>{generatedScript.estDuration}</span>
-                </div>
-              )}
-            </div>
-
-            {generatedScript ? (
-              <div className="space-y-4">
-                {/* Hook Section */}
-                <div className="bg-gradient-to-r from-purple-50 to-purple-100 border-l-4 border-purple-500 rounded-lg p-4">
-                  <p className="text-xs font-bold text-purple-600 uppercase mb-2 flex items-center gap-1"><Target size={10} /> Hook</p>
-                  <p className="text-gray-900 font-semibold leading-relaxed">{generatedScript.hook}</p>
-                </div>
-
-                {/* Body Section */}
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <p className="text-xs font-bold text-gray-600 uppercase mb-2 flex items-center gap-1"><FileText size={10} /> Body</p>
-                  <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">{generatedScript.body}</p>
-                </div>
-
-                {/* CTA Section */}
-                <div className="bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 rounded-lg p-4">
-                  <p className="text-xs font-bold text-green-600 uppercase mb-2 flex items-center gap-1"><Zap size={10} /> Call to Action</p>
-                  <p className="text-gray-900 font-semibold leading-relaxed">{generatedScript.cta}</p>
-                </div>
-
-                {/* Meta info */}
-                <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
-                  <p className="font-semibold mb-1">Script Info</p>
-                  <div className="space-y-1">
-                    <p>Structure: {generatedScript.structure}</p>
-                    <p>Style: {generatedScript.style}</p>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <button className="flex-1 bg-pink-600 hover:bg-pink-700 text-white px-4 py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all">
-                    <Copy size={14} /> Copy Script
-                  </button>
-                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all">
-                    <Download size={14} />
-                  </button>
-                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all">
-                    <Bookmark size={14} />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-12 text-gray-400">
-                <Wand2 size={40} className="mx-auto mb-3 opacity-30" />
-                <p className="font-semibold text-gray-500">No script yet</p>
-                <p className="text-sm mt-1">Select a hook, style, and enter a topic to generate your viral script</p>
-              </div>
-            )}
-          </div>
-
-          {/* Script History */}
-          {scriptHistory.length > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-3 text-sm">Recent Scripts</h3>
-              <div className="space-y-2">
-                {scriptHistory.map((s, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setGeneratedScript(s)}
-                    className="w-full text-left px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all text-sm"
-                  >
-                    <p className="font-medium text-gray-900 line-clamp-1">{s.hook}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{s.timestamp} · {s.wordCount} words</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ============================================================
-// VAULT PAGE
-// ============================================================
-
-const VaultPage = ({ savedVideos, setSavedVideos, setSelectedVideoDetail, setCurrentPage }) => {
-  const [filterType, setFilterType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
 
-  const allItems = [
-    ...SAMPLE_HOOKS,
-    ...SAMPLE_STYLES,
-    ...SAMPLE_STRUCTURES,
-    ...savedVideos.map(v => ({ ...v, type: "video" })),
-  ];
-
-  const filtered = allItems.filter(item => {
+  const filteredItems = vaultItems.filter(item => {
     if (filterType !== "all" && item.type !== filterType) return false;
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      const content = (item.content || item.title || "").toLowerCase();
-      const source = (item.source || item.channel || "").toLowerCase();
-      return content.includes(searchLower) || source.includes(searchLower);
-    }
+    if (searchTerm && !item.content.toLowerCase().includes(searchTerm.toLowerCase())) return false;
     return true;
   });
 
-  const counts = {
-    all: allItems.length,
-    hook: SAMPLE_HOOKS.length,
-    style: SAMPLE_STYLES.length,
-    structure: SAMPLE_STRUCTURES.length,
-    video: savedVideos.length,
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-900">Vault</h1>
-          <p className="text-gray-500 mt-1">Your saved hooks, styles, structures, and videos — all in one place.</p>
-        </div>
-        <div className="text-sm text-gray-500 flex items-center gap-2">
-          <Archive size={14} />
-          {allItems.length} items saved
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Scripts</h1>
+        <p className="text-sm text-gray-500 mt-1">Generate viral video scripts from your saved content</p>
       </div>
 
-      {/* Search */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-        <div className="relative">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search your vault..."
-            className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-300"
-          />
-        </div>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         {[
-          { key: "all", label: "All Items", icon: LayoutGrid },
-          { key: "hook", label: "Hooks", icon: Target },
-          { key: "style", label: "Styles", icon: Palette },
-          { key: "structure", label: "Structures", icon: Layers },
-          { key: "video", label: "Videos", icon: Video },
-        ].map(type => (
-          <button
-            key={type.key}
-            onClick={() => setFilterType(type.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${filterType === type.key ? "bg-pink-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
-          >
-            <type.icon size={14} />
-            {type.label}
-            <span className={`ml-0.5 px-1.5 py-0.5 rounded-full text-xs ${filterType === type.key ? "bg-white/20" : "bg-gray-200"}`}>
-              {counts[type.key]}
-            </span>
-          </button>
+          { label: "Scripts Written", value: scriptsWritten, gradient: "from-purple-400 to-pink-500" },
+          { label: "Hooks Saved", value: vaultItems.filter(i => i.type === "hook").length, gradient: "from-blue-400 to-cyan-500" },
+          { label: "Styles Saved", value: vaultItems.filter(i => i.type === "style").length, gradient: "from-orange-400 to-pink-500" },
+          { label: "Structures Saved", value: vaultItems.filter(i => i.type === "structure").length, gradient: "from-green-400 to-emerald-500" },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white rounded-xl border border-gray-200 p-4">
+            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${stat.gradient} mb-2`} />
+            <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+            <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
+          </div>
         ))}
       </div>
 
-      {/* Items Grid */}
-      <div className="grid grid-cols-2 gap-4">
-        {filtered.map(item => {
-          if (item.type === "video") {
-            return (
-              <div key={`video-${item.id}`} className="bg-white rounded-2xl border-2 border-gray-100 overflow-hidden hover:shadow-md transition-all cursor-pointer group" onClick={() => { setSelectedVideoDetail(item); setCurrentPage("videos"); }}>
-                <div className="relative aspect-video bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-3xl">
-                  {item.emoji}
-                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur rounded-lg p-1">
-                    <PlatformBadge platform={item.platform} />
-                  </div>
-                  <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded font-medium">{item.duration}</div>
-                </div>
-                <div className="p-4">
-                  <p className="text-xs font-bold uppercase tracking-wider text-pink-500 mb-1 flex items-center gap-1"><Video size={10} /> Saved Video</p>
-                  <h3 className="font-bold text-gray-900 text-sm line-clamp-2 group-hover:text-pink-600 transition-colors">{item.title}</h3>
-                  <p className="text-xs text-gray-500 mt-1">{item.channel} · {item.views} views</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <OutlierBadge score={item.outlierScore} />
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setSavedVideos(prev => prev.filter(v => v.id !== item.id)); }}
-                      className="ml-auto text-gray-400 hover:text-red-500 transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
+      <button
+        onClick={() => setScriptsWritten(scriptsWritten + 1)}
+        className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-lg hover:shadow-lg transition-shadow"
+      >
+        Write New Script
+      </button>
+
+      <div className="flex gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+        />
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-pink-500"
+        >
+          <option value="all">All Types</option>
+          <option value="hook">Hooks</option>
+          <option value="style">Styles</option>
+          <option value="structure">Structures</option>
+        </select>
+      </div>
+
+      <div className="grid gap-4">
+        {filteredItems.map(item => (
+          <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-bold ${
+                item.type === "hook" ? "bg-blue-500" :
+                item.type === "style" ? "bg-orange-500" :
+                "bg-green-500"
+              }`}>
+                {item.type === "hook" ? "H" : item.type === "style" ? "S" : "St"}
               </div>
-            );
-          }
-
-          const colorMap = {
-            hook: { bg: "from-purple-100 to-purple-50", border: "border-purple-200", accent: "text-purple-600", icon: Target },
-            style: { bg: "from-green-100 to-green-50", border: "border-green-200", accent: "text-green-600", icon: Palette },
-            structure: { bg: "from-blue-100 to-blue-50", border: "border-blue-200", accent: "text-blue-600", icon: Layers },
-          };
-          const colors = colorMap[item.type];
-          const ItemIcon = colors.icon;
-
-          return (
-            <div key={item.id} className={`bg-gradient-to-br ${colors.bg} rounded-2xl border-2 ${colors.border} p-5`}>
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <p className={`text-xs font-bold uppercase tracking-wider ${colors.accent} flex items-center gap-1`}>
-                    <ItemIcon size={10} /> {item.type}
-                  </p>
-                  <h3 className="font-bold text-gray-900 mt-1.5 line-clamp-2 leading-snug">{item.content}</h3>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-semibold text-gray-500 uppercase">{item.type}</span>
                 </div>
-                <button className="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0 ml-2">
-                  <Trash2 size={14} />
-                </button>
+                <p className="text-sm text-gray-900 mb-2">{item.content}</p>
+                <p className="text-xs text-gray-500">Source: {item.source}</p>
               </div>
-
-              <p className="text-sm text-gray-600 mb-3">From: {item.source}</p>
-
-              {item.views && <p className="text-xs text-gray-500 mb-2"><Eye size={10} className="inline mr-1" />{item.views} views</p>}
-
-              {item.tags && (
-                <div className="flex flex-wrap gap-1.5">
-                  {item.tags.map((tag, i) => (
-                    <span key={i} className="text-xs bg-white/60 px-2 py-0.5 rounded-full font-medium text-gray-600">
-                      #{tag}
+              <div className="text-right">
+                <p className="text-xs text-gray-500">{item.views}</p>
+                <div className="flex gap-1 mt-2">
+                  {item.tags.map(tag => (
+                    <span key={tag} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                      {tag}
                     </span>
                   ))}
                 </div>
-              )}
-
-              <button className={`mt-3 flex items-center gap-1 text-xs font-semibold ${colors.accent} hover:opacity-80`}>
-                <Copy size={10} /> Copy to clipboard
-              </button>
+              </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
-
-      {filtered.length === 0 && (
-        <div className="text-center py-16 text-gray-400">
-          <Archive size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="font-semibold text-gray-500">No items found</p>
-          <p className="text-sm mt-1">
-            {searchTerm ? "Try a different search term" : "Start saving hooks, styles, and videos to your vault"}
-          </p>
-        </div>
-      )}
     </div>
   );
 };
@@ -1773,212 +951,49 @@ const VaultPage = ({ savedVideos, setSavedVideos, setSelectedVideoDetail, setCur
 // ============================================================
 
 const SettingsPage = () => {
-  const [activeSection, setActiveSection] = useState("account");
-
-  const sections = [
-    { id: "account", label: "Account", icon: Users },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "content", label: "Content Preferences", icon: Filter },
-    { id: "api", label: "API & Integrations", icon: Key },
-    { id: "about", label: "About", icon: Globe },
-  ];
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-3xl font-extrabold text-gray-900">Settings</h1>
-        <p className="text-gray-500 mt-1">Manage your preferences, integrations, and account.</p>
+        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-500 mt-1">Manage your account and preferences</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-6">
-        {/* Settings Nav */}
-        <div className="col-span-1">
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-sm sticky top-4">
-            <div className="space-y-1">
-              {sections.map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => setActiveSection(s.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${activeSection === s.id ? "bg-pink-50 text-pink-700" : "text-gray-600 hover:bg-gray-50"}`}
-                >
-                  <s.icon size={16} />
-                  {s.label}
-                </button>
-              ))}
-            </div>
+      {/* Account Settings */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Account</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
+            <input type="email" defaultValue="michael@example.com" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Name</label>
+            <input type="text" defaultValue="Michael Chen" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" />
+          </div>
+          <button className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors text-sm font-medium">
+            Save Changes
+          </button>
         </div>
+      </div>
 
-        {/* Settings Content */}
-        <div className="col-span-3 space-y-6">
-          {activeSection === "account" && (
-            <>
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h2 className="font-bold text-gray-900 mb-6">Account Information</h2>
-                <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white text-2xl font-bold">M</div>
-                  <div>
-                    <h3 className="font-bold text-gray-900">Michael</h3>
-                    <p className="text-sm text-gray-500">michaelreadartofficial@gmail.com</p>
-                    <p className="text-xs text-green-600 font-medium mt-1">Pro Plan</p>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
-                    <input type="text" defaultValue="Michael" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" defaultValue="michaelreadartofficial@gmail.com" className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h2 className="font-bold text-gray-900 mb-4">Usage Stats</h2>
-                <div className="grid grid-cols-3 gap-4">
-                  {[
-                    { label: "Channels tracked", value: "6", limit: "50" },
-                    { label: "Scripts this month", value: "0", limit: "100" },
-                    { label: "Vault items", value: "6", limit: "500" },
-                  ].map((stat, i) => (
-                    <div key={i} className="bg-gray-50 rounded-xl p-4">
-                      <p className="text-2xl font-bold text-gray-900">{stat.value}<span className="text-sm text-gray-400 font-normal">/{stat.limit}</span></p>
-                      <p className="text-xs text-gray-500 mt-1">{stat.label}</p>
-                      <div className="mt-2 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-orange-400 to-pink-500 rounded-full" style={{ width: `${(parseInt(stat.value) / parseInt(stat.limit)) * 100}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {activeSection === "notifications" && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <h2 className="font-bold text-gray-900 mb-6">Notification Preferences</h2>
-              <div className="space-y-5">
-                {[
-                  { label: "Viral alerts", desc: "Get notified when outliers hit >20x", defaultOn: true },
-                  { label: "Weekly digest", desc: "Receive a weekly summary of top-performing videos", defaultOn: true },
-                  { label: "New uploads", desc: "Alerts when watchlisted channels post new videos", defaultOn: true },
-                  { label: "Trending hooks", desc: "Discover new high-performing hooks for your niche", defaultOn: false },
-                  { label: "Script suggestions", desc: "AI-powered content ideas based on your interests", defaultOn: false },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                    <div>
-                      <p className="font-medium text-gray-900">{item.label}</p>
-                      <p className="text-sm text-gray-500">{item.desc}</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" defaultChecked={item.defaultOn} className="sr-only peer" />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
-                    </label>
-                  </div>
-                ))}
-              </div>
+      {/* Preferences */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Preferences</h2>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-900">Email Notifications</p>
+              <p className="text-xs text-gray-500 mt-1">Get notified about new outliers and saved videos</p>
             </div>
-          )}
-
-          {activeSection === "content" && (
-            <>
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h2 className="font-bold text-gray-900 mb-4">Favorite Niches</h2>
-                <p className="text-sm text-gray-500 mb-4">Select the niches you're interested in for better recommendations.</p>
-                <div className="flex flex-wrap gap-2">
-                  {["Finance", "Business", "Health", "Travel", "Lifestyle", "Education", "Tech", "Food", "Fitness", "Psychology"].map((niche, i) => (
-                    <button key={niche} className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all ${i < 4 ? "bg-pink-100 text-pink-700 hover:bg-pink-200" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
-                      {niche} {i < 4 && <X size={12} />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h2 className="font-bold text-gray-900 mb-4">Platform Preferences</h2>
-                <div className="space-y-3">
-                  {["YouTube Shorts", "TikTok", "Instagram Reels"].map(platform => (
-                    <div key={platform} className="flex items-center justify-between py-2">
-                      <PlatformBadge platform={platform} />
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" defaultChecked className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pink-500"></div>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h2 className="font-bold text-gray-900 mb-4">Outlier Threshold</h2>
-                <p className="text-sm text-gray-500 mb-4">Minimum outlier score for alerts and feed highlighting.</p>
-                <div className="flex items-center gap-4">
-                  <input type="range" min="1" max="30" defaultValue="10" className="flex-1" />
-                  <span className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">10x</span>
-                </div>
-              </div>
-            </>
-          )}
-
-          {activeSection === "api" && (
-            <>
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <h2 className="font-bold text-gray-900 mb-2">API Keys</h2>
-                <p className="text-sm text-gray-500 mb-6">Connect external services to unlock full functionality.</p>
-                <div className="space-y-5">
-                  {[
-                    { label: "YouTube Data API v3", desc: "Required for channel discovery and video tracking", placeholder: "AIza...", connected: false },
-                    { label: "Claude API (Anthropic)", desc: "Powers AI script generation", placeholder: "sk-ant-...", connected: false },
-                  ].map((api, i) => (
-                    <div key={i} className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <h3 className="font-semibold text-gray-900 text-sm">{api.label}</h3>
-                          <p className="text-xs text-gray-500">{api.desc}</p>
-                        </div>
-                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${api.connected ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-600"}`}>
-                          {api.connected ? "Connected" : "Not connected"}
-                        </span>
-                      </div>
-                      <div className="flex gap-2 mt-3">
-                        <input type="password" placeholder={api.placeholder} className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm" />
-                        <button className="bg-pink-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-pink-700 transition-colors">
-                          Save
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
-                <div className="flex items-start gap-3">
-                  <AlertCircle size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-blue-900">API keys are stored securely</p>
-                    <p className="text-xs text-blue-700 mt-1">Your keys are encrypted and never shared. They're used only to make API calls on your behalf.</p>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {activeSection === "about" && (
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-              <div className="text-center py-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-pink-500 rounded-2xl flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4">O</div>
-                <h2 className="text-2xl font-extrabold text-gray-900">Optimus.AI</h2>
-                <p className="text-gray-500 mt-1">Viral Short-Form Content Engine</p>
-                <p className="text-xs text-gray-400 mt-2">Version 1.0.0</p>
-              </div>
-              <div className="mt-6 pt-6 border-t border-gray-100 space-y-3 text-sm text-gray-600">
-                <p>Optimus.AI helps you discover viral short-form content, analyze what makes it work, and generate scripts that capture the same energy.</p>
-                <p>Track creators across YouTube Shorts, TikTok, and Instagram Reels. Save the best hooks, styles, and structures to your vault. Then combine them to write scripts that are designed to go viral.</p>
-              </div>
+            <input type="checkbox" defaultChecked className="w-4 h-4 rounded" />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-900">Weekly Digest</p>
+              <p className="text-xs text-gray-500 mt-1">Receive weekly summary of trending content</p>
             </div>
-          )}
+            <input type="checkbox" defaultChecked className="w-4 h-4 rounded" />
+          </div>
         </div>
       </div>
     </div>
@@ -1991,25 +1006,24 @@ const SettingsPage = () => {
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-  { id: "channels", label: "Channels", icon: Users },
-  { id: "videos", label: "Videos", icon: Video },
-  { id: "scripts", label: "Scripts", icon: PenTool },
-  { id: "vault", label: "Vault", icon: Archive },
-  { id: "settings", label: "Settings", icon: Settings },
+  { id: "videos", label: "Videos", icon: Video, section: "Research" },
+  { id: "ideas", label: "Ideas", icon: Lightbulb, section: "Research" },
+  { id: "scripts", label: "Scripts", icon: PenTool, section: "Create" },
+  { id: "channels", label: "Channels", icon: Users, section: "Configure" },
+  { id: "settings", label: "Settings", icon: Settings, section: "Configure" },
 ];
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [watchlists, setWatchlists] = useState(SAMPLE_WATCHLISTS);
+  const [watchlist, setWatchlist] = useState(SAMPLE_WATCHLIST);
   const [savedVideos, setSavedVideos] = useState([]);
-  const [selectedVideoDetail, setSelectedVideoDetail] = useState(null);
   const [scriptsWritten, setScriptsWritten] = useState(0);
 
   const vaultItems = [...SAMPLE_HOOKS, ...SAMPLE_STYLES, ...SAMPLE_STRUCTURES];
 
   const stats = {
-    channelsWatched: watchlists.reduce((acc, w) => acc + w.channels.length, 0),
+    channelsWatched: watchlist.length,
     videosSaved: savedVideos.length,
     scriptsWritten,
     vaultItems: vaultItems.length,
@@ -2060,13 +1074,13 @@ export default function App() {
       {/* Main Content */}
       <div className="flex-1 overflow-auto flex flex-col">
         {/* Header */}
-        <div className={`border-b px-8 py-6 ${currentPage === "videos" ? "border-gray-700/50 bg-[#1a1a2e]" : "border-gray-200 bg-white"}`}>
+        <div className="border-b border-gray-200 bg-white px-8 py-6">
           <div className="flex items-center justify-between">
-            <h1 className={`text-2xl font-bold ${currentPage === "videos" ? "text-white" : "text-gray-900"}`}>
+            <h1 className="text-2xl font-bold text-gray-900">
               {NAV_ITEMS.find(n => n.id === currentPage)?.label}
             </h1>
             <div className="flex items-center gap-4">
-              <button className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${currentPage === "videos" ? "bg-white/10 hover:bg-white/20 text-gray-300" : "bg-gray-100 hover:bg-gray-200 text-gray-600"}`}>
+              <button className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 transition-colors text-gray-600">
                 <Search size={18} />
               </button>
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500" />
@@ -2075,33 +1089,13 @@ export default function App() {
         </div>
 
         {/* Page Content */}
-        <div className={`flex-1 overflow-auto p-8 ${currentPage === "videos" ? "bg-[#1a1a2e]" : ""}`}>
-          {selectedVideoDetail && currentPage === "videos" ? (
-            <VideoDetailPage
-              video={selectedVideoDetail}
-              setSelectedVideoDetail={setSelectedVideoDetail}
-              savedVideos={savedVideos}
-              setSavedVideos={setSavedVideos}
-            />
-          ) : currentPage === "dashboard" ? (
-            <DashboardPage stats={stats} setCurrentPage={setCurrentPage} />
-          ) : currentPage === "channels" ? (
-            <ChannelsPage watchlists={watchlists} setWatchlists={setWatchlists} />
-          ) : currentPage === "videos" ? (
-            <VideosPage
-              watchlists={watchlists}
-              savedVideos={savedVideos}
-              setSavedVideos={setSavedVideos}
-              setSelectedVideoDetail={setSelectedVideoDetail}
-              setCurrentPage={setCurrentPage}
-            />
-          ) : currentPage === "scripts" ? (
-            <ScriptsPage vaultItems={vaultItems} scriptsWritten={scriptsWritten} setScriptsWritten={setScriptsWritten} />
-          ) : currentPage === "vault" ? (
-            <VaultPage savedVideos={savedVideos} setSavedVideos={setSavedVideos} setSelectedVideoDetail={setSelectedVideoDetail} setCurrentPage={setCurrentPage} />
-          ) : currentPage === "settings" ? (
-            <SettingsPage />
-          ) : null}
+        <div className="flex-1 overflow-auto p-8">
+          {currentPage === "dashboard" && <DashboardPage stats={stats} setCurrentPage={setCurrentPage} />}
+          {currentPage === "channels" && <ChannelsPage watchlist={watchlist} setWatchlist={setWatchlist} />}
+          {currentPage === "videos" && <VideosPage watchlist={watchlist} savedVideos={savedVideos} setSavedVideos={setSavedVideos} setCurrentPage={setCurrentPage} />}
+          {currentPage === "scripts" && <ScriptsPage vaultItems={vaultItems} scriptsWritten={scriptsWritten} setScriptsWritten={setScriptsWritten} />}
+          {currentPage === "ideas" && <div className="text-center py-12"><p className="text-gray-500">Ideas page coming soon</p></div>}
+          {currentPage === "settings" && <SettingsPage />}
         </div>
       </div>
     </div>
