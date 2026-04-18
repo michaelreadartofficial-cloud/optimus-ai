@@ -1,17 +1,19 @@
 // Fetch an Instagram creator's reels via mediacrawlers'
-// instagram-api-fast-reliable-data-scraper product.
+// instagram-api-fast-reliable-data-scraper product (Ultra tier).
 //
-// Confirmed working path: /reels?user_id=X
-// Returns normalized video objects with computed outlier scores.
+// Endpoint probe confirmed:
+//   /user_id_by_username?username=X   → { UserID, UserName }
+//   /reels?user_id=X                  → user's reels (Ultra required)
 //
-// Input: { username?, userId? } — pass userId if you already have it
-//        (saves a lookup), otherwise pass username and we'll resolve it.
+// Ultra tier is rate limited to 1 request/second. When we need to make two
+// back-to-back calls (lookup + reels), we sleep 1100ms between them.
 
 const HOST = "instagram-api-fast-reliable-data-scraper.p.rapidapi.com";
+const RATE_LIMIT_DELAY_MS = 1100;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-  const { username, userId: providedUserId, limit } = req.body || {};
+  const { username, userId: providedUserId, limit, debug } = req.body || {};
 
   const rapidApiKey = process.env.RAPIDAPI_KEY;
   if (!rapidApiKey) return res.status(500).json({ error: "RAPIDAPI_KEY not configured" });
@@ -19,6 +21,7 @@ export default async function handler(req, res) {
 
   const headers = { "x-rapidapi-host": HOST, "x-rapidapi-key": rapidApiKey };
   const max = Math.min(parseInt(limit) || 24, 50);
+  const debugInfo = { steps: [] };
 
   try {
     // 1. Resolve username → user_id if not provided
@@ -26,33 +29,58 @@ export default async function handler(req, res) {
     if (!userId && username) {
       const cleanUser = String(username).replace(/^@/, "").toLowerCase();
       const idRes = await fetch(`https://${HOST}/user_id_by_username?username=${encodeURIComponent(cleanUser)}`, { headers });
-      if (!idRes.ok) return res.status(idRes.status).json({ error: `Could not resolve username (${idRes.status})` });
-      const idData = await idRes.json().catch(() => ({}));
+      const idText = await idRes.text();
+      debugInfo.steps.push({ step: "user_id_by_username", status: idRes.status, preview: idText.substring(0, 200) });
+      if (!idRes.ok) {
+        return res.status(idRes.status).json({ error: `Could not resolve username (${idRes.status})`, debug: debugInfo });
+      }
+      const idData = JSON.parse(idText || "{}");
       userId = idData.UserID || idData.user_id || idData?.data?.user_id;
-      if (!userId) return res.status(404).json({ error: "User not found" });
+      if (!userId) return res.status(404).json({ error: "User not found", debug: debugInfo });
+
+      // Pause between backend calls to respect Ultra's 1 req/sec rate limit
+      await sleep(RATE_LIMIT_DELAY_MS);
     }
 
-    // 2. Fetch the reels
-    const reelsRes = await fetch(`https://${HOST}/reels?user_id=${encodeURIComponent(userId)}`, { headers });
+    // 2. Fetch the reels. include_feed_video=true is REQUIRED by this API.
+    const reelsUrl = `https://${HOST}/reels?user_id=${encodeURIComponent(userId)}&include_feed_video=true`;
+    const reelsRes = await fetch(reelsUrl, { headers });
     const reelsText = await reelsRes.text();
+    debugInfo.steps.push({ step: "reels", status: reelsRes.status, len: reelsText.length, preview: reelsText.substring(0, 400) });
 
     if (!reelsRes.ok) {
-      // Try to parse the error so the caller gets a meaningful message
       let upstream = reelsText;
       try { upstream = JSON.parse(reelsText)?.error || reelsText; } catch {}
-      return res.status(reelsRes.status).json({ error: upstream, upstreamStatus: reelsRes.status });
+      return res.status(reelsRes.status).json({ error: upstream, upstreamStatus: reelsRes.status, debug: debugInfo });
     }
 
     let raw; try { raw = JSON.parse(reelsText); } catch {
-      return res.status(502).json({ error: "Upstream returned non-JSON" });
+      return res.status(502).json({ error: "Upstream returned non-JSON", debug: debugInfo });
+    }
+
+    // Record the top-level keys so we can see the response shape
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      debugInfo.topKeys = Object.keys(raw).slice(0, 12);
     }
 
     // The API may wrap the list under different keys; handle all common shapes
     const list = Array.isArray(raw) ? raw
-      : raw?.items || raw?.data || raw?.reels || raw?.media || raw?.results || [];
+      : raw?.items || raw?.data || raw?.reels || raw?.media || raw?.results
+      || raw?.user?.edge_owner_to_timeline_media?.edges
+      || [];
+
+    debugInfo.listLen = Array.isArray(list) ? list.length : 0;
+    if (Array.isArray(list) && list.length > 0) {
+      const first = list[0]?.node || list[0]?.media || list[0];
+      debugInfo.firstItemKeys = first ? Object.keys(first).slice(0, 20) : null;
+    }
 
     if (!Array.isArray(list) || list.length === 0) {
-      return res.json({ videos: [], stats: { total: 0, note: "No reels returned for this user." } });
+      return res.json({
+        videos: [],
+        stats: { total: 0, note: "No reels returned for this user." },
+        ...(debug ? { debug: debugInfo } : {}),
+      });
     }
 
     // 3. Normalize each item into our standard video shape
@@ -68,48 +96,45 @@ export default async function handler(req, res) {
 
     return res.json({
       videos: withOutlier,
-      stats: {
-        total: withOutlier.length,
-        avgViews: Math.round(avgViews),
-      },
+      stats: { total: withOutlier.length, avgViews: Math.round(avgViews) },
+      ...(debug ? { debug: debugInfo } : {}),
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message || "Failed to fetch reels" });
+    return res.status(500).json({ error: err.message || "Failed to fetch reels", debug: debugInfo });
   }
 }
 
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
 function normalizeReel(item) {
-  // Peel common wrapper shapes
-  const m = item?.media || item;
+  const m = item?.node || item?.media || item;
   if (!m) return null;
 
-  const id = String(m.pk || m.id || m.code || "");
+  const id = String(m.pk || m.id || m.code || m.shortcode || "");
   if (!id) return null;
 
   // View counts — try every common field name
   const views = m.play_count ?? m.view_count ?? m.ig_play_count
-    ?? m.video_view_count ?? m.video_play_count ?? 0;
-  const likes = m.like_count ?? m.likes ?? 0;
-  const comments = m.comment_count ?? m.comments ?? 0;
+    ?? m.video_view_count ?? m.video_play_count ?? m.number_of_qualities ?? 0;
+  const likes = m.like_count ?? m.likes ?? m.edge_liked_by?.count ?? m.edge_media_preview_like?.count ?? 0;
+  const comments = m.comment_count ?? m.comments ?? m.edge_media_to_comment?.count ?? 0;
 
-  // Caption text
-  const caption = m.caption?.text || m.caption_text || m.caption || "";
+  const caption = m.caption?.text || m.caption_text || m.caption
+    || m.edge_media_to_caption?.edges?.[0]?.node?.text || "";
   const title = (typeof caption === "string" ? caption : "").slice(0, 120) || "Instagram Reel";
 
-  // Published timestamp (unix seconds → ms)
   const takenAt = m.taken_at || m.taken_at_timestamp || 0;
   const publishedAt = takenAt ? new Date(takenAt * 1000).toISOString() : null;
 
-  // Thumbnail: try the many nested paths Instagram uses
   const thumb = m.image_versions2?.candidates?.[0]?.url
     || m.thumbnail_url
     || m.display_uri
+    || m.display_url
     || m.cover_frame_url
-    || m.video_url
+    || m.thumbnail_src
     || "";
   const thumbnail = thumb ? `/api/proxy-image?url=${encodeURIComponent(thumb)}` : "";
 
-  // Permalink
   const code = m.code || m.shortcode || "";
   const url = code ? `https://www.instagram.com/reel/${code}/` : "";
 
