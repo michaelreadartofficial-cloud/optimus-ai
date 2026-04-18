@@ -310,15 +310,9 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       const { creators, hasNextPage } = await fetchPage(query, 0);
       let allCreators = creators;
 
-      if (accountSizeFilter !== "all") {
-        allCreators = allCreators.filter(c => {
-          const num = c.subscriberCount || parseFollowers(c.subscribers);
-          if (accountSizeFilter === "large") return num >= 1000000;
-          if (accountSizeFilter === "medium") return num >= 100000 && num < 1000000;
-          if (accountSizeFilter === "small") return num < 100000;
-          return true;
-        });
-      }
+      // Account-size filtering is applied at render time (see filteredSuggestions
+      // below) so the user can change the dropdown after a search and see the
+      // filter apply instantly without having to re-search.
 
       const watchIds = new Set(watchlist.map(w => w.id));
       allCreators = allCreators.filter(c => !watchIds.has(c.id));
@@ -365,15 +359,9 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       const seenIds = new Set(suggestions.map(s => s.id));
       const watchIds = new Set(watchlist.map(w => w.id));
       let fresh = creators.filter(c => !seenIds.has(c.id) && !watchIds.has(c.id));
-      if (accountSizeFilter !== "all") {
-        fresh = fresh.filter(c => {
-          const num = c.subscriberCount || parseFollowers(c.subscribers);
-          if (accountSizeFilter === "large") return num >= 1000000;
-          if (accountSizeFilter === "medium") return num >= 100000 && num < 1000000;
-          if (accountSizeFilter === "small") return num < 100000;
-          return true;
-        });
-      }
+      // Account-size filter is applied at render time — we intentionally
+      // don't strip results here so the user can still see everything if
+      // they widen the filter after loading more.
       fresh.sort((a, b) => {
         const hasFollowersA = (a.subscriberCount || 0) > 0 ? 1 : 0;
         const hasFollowersB = (b.subscriberCount || 0) > 0 ? 1 : 0;
@@ -399,6 +387,11 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     if (accountSizeFilter === "small") return num < 100000;
     return true;
   };
+
+  // Live-filtered suggestions list. Applied at render time so changing the
+  // Account-size dropdown after a search instantly updates what's shown —
+  // no need to re-search.
+  const filteredSuggestions = suggestions.filter(filterBySize);
 
   const filterLocal = (creator) => {
     if (platformFilter !== "all") {
@@ -572,7 +565,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
             {!loading && !error && (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {suggestions.slice(0, visibleCount).map(creator => (
+                  {filteredSuggestions.slice(0, visibleCount).map(creator => (
                     <CreatorCard key={creator.id} creator={creator} showSimilar action={
                       <button onClick={() => addToWatchlist(creator)}
                         className="p-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
@@ -582,12 +575,12 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                     } />
                   ))}
                 </div>
-                {(suggestions.length > visibleCount || backendHasMore) && (
+                {(filteredSuggestions.length > visibleCount || backendHasMore) && (
                   <div className="mt-5 flex justify-center">
                     <button
                       disabled={loadingMore}
                       onClick={() => {
-                        if (suggestions.length > visibleCount) {
+                        if (filteredSuggestions.length > visibleCount) {
                           setVisibleCount(c => c + 25);
                         } else {
                           loadMoreFromBackend();
@@ -598,12 +591,17 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                     </button>
                   </div>
                 )}
-                {suggestions.length > 0 && suggestions.length <= visibleCount && !backendHasMore && hasSearched && (
+                {filteredSuggestions.length > 0 && filteredSuggestions.length <= visibleCount && !backendHasMore && hasSearched && (
                   <div className="mt-5 text-center text-xs text-gray-400">
-                    Showing all {suggestions.length} results — try a different search term for more.
+                    Showing all {filteredSuggestions.length} results — try a different search term for more.
                   </div>
                 )}
-                {suggestions.length === 0 && hasSearched && (
+                {hasSearched && suggestions.length > 0 && filteredSuggestions.length === 0 && (
+                  <div className="text-center py-12 text-gray-500 text-sm">
+                    No creators match the {sizeLabel[accountSizeFilter]} filter. Try a different size.
+                  </div>
+                )}
+                {hasSearched && suggestions.length === 0 && (
                   <div className="text-center py-12 text-gray-500 text-sm">No creators found. Try a different search term.</div>
                 )}
                 {!hasSearched && suggestions.length === 0 && (
