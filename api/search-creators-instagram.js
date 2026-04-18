@@ -20,33 +20,39 @@ export default async function handler(req, res) {
   try {
     // Search with multiple query variations to widen the pool of creators.
     // RapidAPI's Instagram search returns a limited set per call, so we run
-    // several related queries in parallel and dedupe.
+    // MANY related queries in parallel and dedupe to build a bigger pool.
     const q = query.trim();
-    const searchTerms = [q];
+    const searchTerms = new Set([q]);
     const words = q.split(/\s+/);
 
+    const creatorSuffixes = ["coach", "tips", "daily", "pro", "guru", "reels", "official", "life", "motivation", "hq", "journey"];
+    const creatorPrefixes = ["the", "real", "best", "top", "daily", "mr", "ms"];
+
     if (words.length > 1) {
-      searchTerms.push(words[0]);
-      searchTerms.push(words.join(""));
-      searchTerms.push(words[0] + "coach");
-      searchTerms.push(words[0] + "tips");
-      searchTerms.push(words[0] + "reels");
+      // Multi-word: query each word alone, the joined form, plus suffix combos on the first word
+      searchTerms.add(words[0]);
+      searchTerms.add(words[words.length - 1]);
+      searchTerms.add(words.join(""));
+      for (const s of creatorSuffixes.slice(0, 6)) searchTerms.add(words[0] + s);
+      for (const p of creatorPrefixes.slice(0, 4)) searchTerms.add(p + words[0]);
     } else {
-      // Single-word niche — fan out with common creator-suffix patterns
-      searchTerms.push(q + "coach");
-      searchTerms.push(q + "tips");
-      searchTerms.push(q + "daily");
-      searchTerms.push(q + "pro");
-      searchTerms.push(q + "guru");
-      searchTerms.push(q + "reels");
-      searchTerms.push("the" + q);
+      // Single-word niche: fan out with many creator-suffix and prefix patterns
+      for (const s of creatorSuffixes) searchTerms.add(q + s);
+      for (const p of creatorPrefixes) searchTerms.add(p + q);
+      // Common variants of the niche word itself
+      searchTerms.add(q + "s");
+      searchTerms.add(q + "er");
+      searchTerms.add(q + "girl");
+      searchTerms.add(q + "guy");
     }
+
+    const searchTermsArr = Array.from(searchTerms);
 
     const allUsers = [];
     const seenUsernames = new Set();
 
     // Run searches in parallel for speed
-    const searchPromises = searchTerms.map(term =>
+    const searchPromises = searchTermsArr.map(term =>
       fetchInstagramSearch(term, rapidApiKey).catch(() => [])
     );
     const results = await Promise.all(searchPromises);

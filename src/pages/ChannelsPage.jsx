@@ -268,6 +268,11 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                     </button>
                   </div>
                 )}
+                {suggestions.length > 0 && suggestions.length <= visibleCount && hasSearched && (
+                  <div className="mt-5 text-center text-xs text-gray-400">
+                    Showing all {suggestions.length} results — try a different search term for more.
+                  </div>
+                )}
                 {suggestions.length === 0 && hasSearched && (
                   <div className="text-center py-12 text-gray-500 text-sm">No creators found. Try a different search term.</div>
                 )}
