@@ -18,19 +18,28 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Search with multiple query variations to get more diverse results
-    const searchTerms = [query.trim()];
+    // Search with multiple query variations to widen the pool of creators.
+    // RapidAPI's Instagram search returns a limited set per call, so we run
+    // several related queries in parallel and dedupe.
+    const q = query.trim();
+    const searchTerms = [q];
+    const words = q.split(/\s+/);
 
-    // Add variations if the query has multiple words
-    const words = query.trim().split(/\s+/);
     if (words.length > 1) {
-      // Also search just the first word and a combined version
       searchTerms.push(words[0]);
       searchTerms.push(words.join(""));
+      searchTerms.push(words[0] + "coach");
+      searchTerms.push(words[0] + "tips");
+      searchTerms.push(words[0] + "reels");
     } else {
-      // For single words, add common suffixes to find more creators
-      searchTerms.push(query.trim() + "coach");
-      searchTerms.push(query.trim() + "tips");
+      // Single-word niche — fan out with common creator-suffix patterns
+      searchTerms.push(q + "coach");
+      searchTerms.push(q + "tips");
+      searchTerms.push(q + "daily");
+      searchTerms.push(q + "pro");
+      searchTerms.push(q + "guru");
+      searchTerms.push(q + "reels");
+      searchTerms.push("the" + q);
     }
 
     const allUsers = [];
@@ -58,7 +67,7 @@ export default async function handler(req, res) {
     }
 
     // Format results — proxy the profile image URL so it actually loads
-    const creators = allUsers.slice(0, 24).map((user) => {
+    const creators = allUsers.slice(0, 60).map((user) => {
       const followersText = user.search_social_context || "";
       const followerCount = parseFollowers(followersText);
       const rawPic = user.profile_pic_url || "";

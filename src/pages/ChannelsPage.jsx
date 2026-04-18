@@ -13,11 +13,20 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   const [platformFilter, setPlatformFilter] = useState("all");
   const [accountSizeFilter, setAccountSizeFilter] = useState("all");
   const [suggestions, setSuggestions] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(25);
   const [showPlatformDrop, setShowPlatformDrop] = useState(false);
   const [showSizeDrop, setShowSizeDrop] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+
+  const platformRank = (p) => {
+    const s = (p || "").toLowerCase();
+    if (s.includes("instagram")) return 0;
+    if (s.includes("youtube")) return 1;
+    if (s.includes("tiktok")) return 2;
+    return 3;
+  };
 
   const doSearch = async () => {
     const query = (searchQuery || handleSearch || "").trim();
@@ -53,9 +62,15 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
 
       const watchIds = new Set(watchlist.map(w => w.id));
       allCreators = allCreators.filter(c => !watchIds.has(c.id));
-      allCreators.sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0));
+      // Instagram first, then YouTube, then TikTok; within each platform sort by size
+      allCreators.sort((a, b) => {
+        const rankDiff = platformRank(a.platform) - platformRank(b.platform);
+        if (rankDiff !== 0) return rankDiff;
+        return (b.subscriberCount || 0) - (a.subscriberCount || 0);
+      });
 
       setSuggestions(allCreators);
+      setVisibleCount(25);
     } catch (err) {
       setError(err.message || "Failed to search creators");
     } finally {
@@ -202,7 +217,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
             {!loading && !error && (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {suggestions.map(creator => (
+                  {suggestions.slice(0, visibleCount).map(creator => (
                     <CreatorCard key={creator.id} creator={creator} action={
                       <button onClick={() => addToWatchlist(creator)}
                         className="p-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
@@ -212,6 +227,14 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                     } />
                   ))}
                 </div>
+                {suggestions.length > visibleCount && (
+                  <div className="mt-5 flex justify-center">
+                    <button onClick={() => setVisibleCount(c => c + 25)}
+                      className="px-5 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                      Load more ({suggestions.length - visibleCount} remaining)
+                    </button>
+                  </div>
+                )}
                 {suggestions.length === 0 && hasSearched && (
                   <div className="text-center py-12 text-gray-500 text-sm">No creators found. Try a different search term.</div>
                 )}
