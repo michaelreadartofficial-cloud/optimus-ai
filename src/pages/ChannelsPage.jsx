@@ -548,7 +548,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
 
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
         <div className="flex gap-3 items-center flex-wrap">
-          <input type="text" placeholder="Describe your niche (e.g., fitness, cooking, tech)"
+          <input type="text" placeholder="e.g. Online Fitness Coach"
             value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={handleKeyDown}
             className="flex-1 min-w-[200px] px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50" />
           <input type="text" placeholder="Search by handle"
