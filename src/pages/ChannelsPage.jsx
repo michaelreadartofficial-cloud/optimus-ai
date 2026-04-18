@@ -307,15 +307,34 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
 
     const query = rawQuery;
     try {
-      const { creators, hasNextPage } = await fetchPage(query, 0);
-      let allCreators = creators;
-
-      // Account-size filtering is applied at render time (see filteredSuggestions
-      // below) so the user can change the dropdown after a search and see the
-      // filter apply instantly without having to re-search.
-
+      // Fetch the first page, then if the active account-size filter
+      // restricts the pool to fewer than TARGET_INITIAL_FILTERED accounts,
+      // keep fetching additional backend pages until we hit the target or
+      // the backend runs out.
+      const TARGET_INITIAL_FILTERED = 50;
       const watchIds = new Set(watchlist.map(w => w.id));
-      allCreators = allCreators.filter(c => !watchIds.has(c.id));
+      const seenIds = new Set();
+
+      let allCreators = [];
+      let page = 0;
+      let stillHasMore = true;
+      let filteredCount = 0;
+      let firstPageResult = null;
+
+      while (stillHasMore && filteredCount < TARGET_INITIAL_FILTERED) {
+        const res = await fetchPage(query, page);
+        if (page === 0) firstPageResult = res;
+        stillHasMore = res.hasNextPage;
+        for (const c of res.creators) {
+          if (!c.id || seenIds.has(c.id) || watchIds.has(c.id)) continue;
+          seenIds.add(c.id);
+          allCreators.push(c);
+          if (filterBySize(c)) filteredCount++;
+        }
+        page += 1;
+      }
+      const hasNextPage = stillHasMore;
+      // Deduping against watchlist already happened inside the fetch loop.
 
       // No hard filter — score every creator. Highly relevant accounts float
       // to the top; marginal ones sink but aren't hidden. User can Load more
@@ -340,6 +359,10 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       setSuggestions(allCreators);
       setVisibleCount(50);
       setBackendHasMore(hasNextPage);
+      // Track the last page we've already fetched so Load more picks up
+      // from the next one (page was incremented after each fetch, so the
+      // last successfully fetched page is page - 1).
+      setCurrentPage(Math.max(0, page - 1));
     } catch (err) {
       setError(err.message || "Failed to search creators");
     } finally {
@@ -347,31 +370,54 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     }
   };
 
-  // Fetch the next page from the backend and APPEND to existing suggestions.
-  // Triggered when the user clicks Load more and we've already shown all
-  // currently-loaded results.
+  // Fetch the next page(s) from the backend and APPEND.
+  // When a restrictive filter (e.g. Large 1M+) is active, a single backend
+  // page might add very few new matching accounts. Keep fetching pages
+  // until we add enough filtered matches to justify the user's click, OR
+  // the backend runs out of pages.
+  const TARGET_NEW_FILTERED_MATCHES = 10;
+  const LOAD_MORE_INCREMENT = 10;
+
   const loadMoreFromBackend = async () => {
     if (loadingMore || !backendHasMore || !lastQuery) return;
     setLoadingMore(true);
     try {
-      const nextPage = currentPage + 1;
-      const { creators, hasNextPage } = await fetchPage(lastQuery, nextPage);
-      const seenIds = new Set(suggestions.map(s => s.id));
       const watchIds = new Set(watchlist.map(w => w.id));
-      let fresh = creators.filter(c => !seenIds.has(c.id) && !watchIds.has(c.id));
-      // Account-size filter is applied at render time — we intentionally
-      // don't strip results here so the user can still see everything if
-      // they widen the filter after loading more.
-      fresh.sort((a, b) => {
+      const seenIds = new Set(suggestions.map(s => s.id));
+      const currentFilteredLen = suggestions.filter(filterBySize).length;
+
+      let page = currentPage;
+      let stillHasMore = backendHasMore;
+      let accumulated = [];
+      let addedFilteredCount = 0;
+
+      // Keep fetching pages until we've added enough filtered matches or run out
+      while (stillHasMore && addedFilteredCount < TARGET_NEW_FILTERED_MATCHES) {
+        page += 1;
+        const { creators, hasNextPage } = await fetchPage(lastQuery, page);
+        stillHasMore = hasNextPage;
+        const fresh = creators.filter(c => !seenIds.has(c.id) && !watchIds.has(c.id));
+        for (const c of fresh) {
+          seenIds.add(c.id);
+          accumulated.push(c);
+          if (filterBySize(c)) addedFilteredCount++;
+        }
+      }
+
+      accumulated.sort((a, b) => {
         const hasFollowersA = (a.subscriberCount || 0) > 0 ? 1 : 0;
         const hasFollowersB = (b.subscriberCount || 0) > 0 ? 1 : 0;
         if (hasFollowersA !== hasFollowersB) return hasFollowersB - hasFollowersA;
         return relevanceScore(b, lastQuery) - relevanceScore(a, lastQuery);
       });
-      setSuggestions(prev => [...prev, ...fresh]);
-      setVisibleCount(c => c + 25);
-      setCurrentPage(nextPage);
-      setBackendHasMore(hasNextPage);
+
+      setSuggestions(prev => [...prev, ...accumulated]);
+      // Reveal LOAD_MORE_INCREMENT additional filtered accounts. Since
+      // visibleCount counts against the unfiltered list, bump it enough that
+      // the filtered slice grows by the target amount.
+      setVisibleCount(prev => prev + LOAD_MORE_INCREMENT + accumulated.length);
+      setCurrentPage(page);
+      setBackendHasMore(stillHasMore);
     } catch {} finally {
       setLoadingMore(false);
     }
