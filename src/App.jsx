@@ -4,7 +4,6 @@ import {
   UserCircle, HelpCircle,
 } from "lucide-react";
 import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "./utils/storage";
-import { SAMPLE_WATCHLIST } from "./utils/sampleData";
 import { ChannelsPage } from "./pages/ChannelsPage";
 import { VideosPage } from "./pages/VideosPage";
 import { ScriptsPage } from "./pages/ScriptsPage";
@@ -43,7 +42,15 @@ const NAV_SECTIONS = [
 export default function App() {
   const [currentPage, setCurrentPage] = useState("videos");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [watchlist, setWatchlist] = useState(() => loadFromStorage(STORAGE_KEYS.watchlist, SAMPLE_WATCHLIST));
+  const [watchlist, setWatchlist] = useState(() => {
+    // Load watchlist from storage. If storage contains legacy SAMPLE_WATCHLIST
+    // entries (fake demo creators with IDs like "yt_1"), filter them out —
+    // they would fail every API call and block real results.
+    const raw = loadFromStorage(STORAGE_KEYS.watchlist, []);
+    return Array.isArray(raw)
+      ? raw.filter(w => w && w.id && !/^yt_\d+$/.test(String(w.id)))
+      : [];
+  });
   const [savedVideos, setSavedVideos] = useState(() => loadFromStorage(STORAGE_KEYS.savedVideos, []));
 
   useEffect(() => { saveToStorage(STORAGE_KEYS.watchlist, watchlist); }, [watchlist]);

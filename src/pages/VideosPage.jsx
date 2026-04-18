@@ -46,49 +46,80 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
     if (watchlist.length === 0) { setVideos([]); return; }
     setLoading(true);
     setError(null);
+
+    const MAX_IG_CREATORS = 8;          // cap so we don't burn Ultra quota (each creator = 2 calls)
+    const IG_DELAY_MS = 1100;           // Ultra = 1 req/sec; 2 calls per creator, space them
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    // Skip fake SAMPLE_WATCHLIST entries (their IDs look like "yt_1" / "yt_2"
+    // and aren't real Instagram accounts — they'd fail every fetch and eat
+    // the rate limit).
+    const isRealCreator = (c) => {
+      if (!c || !c.username) return false;
+      const id = String(c.id || "");
+      // Sample IDs are in the shape "yt_1" — real IDs are either pure digits
+      // (Instagram pk) or look like YouTube channel IDs (UC-prefixed).
+      if (/^yt_\d+$/.test(id)) return false;
+      return true;
+    };
+
+    const igCreators = watchlist.filter(w =>
+      (w.platform || "").toLowerCase().includes("instagram") && isRealCreator(w)
+    ).slice(0, MAX_IG_CREATORS);
+    const ytCreators = watchlist.filter(w =>
+      (w.platform || "").toLowerCase().includes("youtube") && w.id && isRealCreator(w)
+    );
+
+    const errors = [];
+    const allVideos = [];
+
     try {
-      // Split watchlist by platform; each creator is a separate fetch so we
-      // can attach the creator's identity (name + thumbnail) to every video.
-      const igCreators = watchlist.filter(w => (w.platform || "").toLowerCase().includes("instagram"));
-      const ytCreators = watchlist.filter(w => (w.platform || "").toLowerCase().includes("youtube") && w.id);
-
-      const perCreator = [];
-
-      // Instagram — uses mediacrawlers /reels which takes a user_id.
-      // If we stored the user_id on the watchlist entry (new searches),
-      // pass it. Otherwise pass username and the backend resolves it.
+      // Instagram — SERIALIZE to respect Ultra's 1 req/sec rate limit.
+      // The backend makes 2 calls per creator (user_id lookup + reels), so
+      // we pause between creators to stay under the limit.
       for (const c of igCreators) {
-        perCreator.push(
-          apiPost("/api/instagram-user-videos", {
+        try {
+          const r = await apiPost("/api/instagram-user-videos", {
             username: c.username,
             userId: c.id && /^\d+$/.test(String(c.id)) ? c.id : undefined,
             limit: 24,
-          }).then(r => (r.videos || []).map(v => ({
+          });
+          const mapped = (r.videos || []).map(v => ({
             ...v,
             channel: { name: c.name || c.username, username: c.username, thumbnail: c.thumbnail },
-          }))).catch(() => [])
-        );
+          }));
+          allVideos.push(...mapped);
+        } catch (e) {
+          errors.push(`${c.username}: ${e.message}`);
+        }
+        await sleep(IG_DELAY_MS);
       }
 
-      // YouTube — existing endpoint, already attaches channel
-      for (const c of ytCreators.slice(0, 5)) {
-        perCreator.push(
-          apiPost("/api/creator-videos", {
-            creatorId: c.id,
-            uploadsPlaylistId: c.uploadsPlaylistId,
-            platform: "YouTube Shorts",
-          }).then(r => (r.videos || []).map(v => ({
-            ...v,
-            channel: { name: c.name || c.username, username: c.username, thumbnail: c.thumbnail },
-          }))).catch(() => [])
-        );
-      }
+      // YouTube — parallel is fine, different API
+      const ytPromises = ytCreators.slice(0, 5).map(c =>
+        apiPost("/api/creator-videos", {
+          creatorId: c.id,
+          uploadsPlaylistId: c.uploadsPlaylistId,
+          platform: "YouTube Shorts",
+        }).then(r => (r.videos || []).map(v => ({
+          ...v,
+          channel: { name: c.name || c.username, username: c.username, thumbnail: c.thumbnail },
+        }))).catch(e => { errors.push(`${c.username}: ${e.message}`); return []; })
+      );
+      const ytResults = await Promise.all(ytPromises);
+      for (const list of ytResults) allVideos.push(...list);
 
-      const results = await Promise.all(perCreator);
-      const allVideos = results.flat();
+      // Dedupe
       const seen = new Set();
       const deduped = allVideos.filter(v => { if (!v.id || seen.has(v.id)) return false; seen.add(v.id); return true; });
       setVideos(deduped);
+
+      // Surface the first rate-limit-style error so the user knows why it
+      // might look empty
+      if (deduped.length === 0 && errors.length > 0) {
+        const rateErr = errors.find(e => /rate|limit|429/i.test(e));
+        setError(rateErr || errors[0]);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
