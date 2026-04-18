@@ -286,89 +286,19 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     setCurrentPage(0);
     setLastQuery(rawQuery);
 
-    // Seed-by-handle mode: pin the exact account as #1, then pull similar
-    // accounts. Strategy:
-    //   1. Use the new API's built-in "similar_accounts" endpoint (what
-    //      Instagram itself suggests) — this is the best signal available.
-    //   2. If that fails (plan doesn't expose it), fall back to bio-keyword
-    //      matching using the seed's bio.
-    //   3. If we have no bio AND no similar-accounts data, show just the
-    //      seed with a warning rather than hiding it entirely.
+    // Seed-by-handle mode: just show the requested account. No similar-
+    // accounts lookup — the API tier we have doesn't expose a reliable
+    // similar-accounts endpoint, and bio/category-based approximations
+    // weren't producing results the user wanted.
     const isHandleInput = !!handleSearch.trim() || /^@[\w._-]+$/.test(rawQuery);
     if (isHandleInput && platformFilter !== "youtube" && platformFilter !== "tiktok") {
       const handleClean = rawQuery.replace(/^@/, "").trim();
       const seed = await fetchSingleInstagramByHandle(handleClean);
       if (seed) {
-        const watchIds = new Set(watchlist.map(w => w.id));
-
-        // 1. Try the dedicated similar-accounts endpoint
-        let similar = [];
-        try {
-          const r = await apiPost("/api/instagram-similar", { handle: handleClean });
-          similar = (r.creators || []).filter(c => c.id !== seed.id && !watchIds.has(c.id));
-        } catch {}
-
-        // 2. Fall back to bio-keyword search if similar-accounts was empty
-        if (similar.length === 0) {
-          const bioKeywords = extractBioKeywords(seed.description);
-          if (bioKeywords.length > 0) {
-            const queries = new Set();
-            for (const k of bioKeywords.slice(0, 6)) queries.add(k);
-            for (let i = 0; i < Math.min(bioKeywords.length, 3); i++) {
-              for (let j = i + 1; j < Math.min(bioKeywords.length, 5); j++) {
-                queries.add(`${bioKeywords[i]} ${bioKeywords[j]}`);
-              }
-            }
-            const queryList = Array.from(queries).filter(q => q && q.length > 2);
-            const results = await Promise.all(
-              queryList.map(q =>
-                apiPost("/api/search-creators-instagram", { query: q, page: 0 })
-                  .then(r => r.creators || []).catch(() => [])
-              )
-            );
-            const seen = new Set([seed.id]);
-            const seedKeywords = new Set(bioKeywords);
-            const threshold = Math.max(2, Math.min(3, Math.floor(bioKeywords.length / 3)));
-            for (const list of results) {
-              for (const c of list) {
-                if (!c.id || seen.has(c.id) || watchIds.has(c.id)) continue;
-                seen.add(c.id);
-                const candidateBio = (c.description || "").toLowerCase();
-                if (!candidateBio) continue;
-                let hits = 0;
-                for (const k of seedKeywords) if (candidateBio.includes(k)) hits++;
-                if (hits < threshold) continue;
-                c._bioHits = hits;
-                similar.push(c);
-              }
-            }
-            similar.sort((a, b) => {
-              if (b._bioHits !== a._bioHits) return b._bioHits - a._bioHits;
-              const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
-              const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
-              if (hasA !== hasB) return hasB - hasA;
-              return (b.subscriberCount || 0) - (a.subscriberCount || 0);
-            });
-          }
-        }
-
-        // Sort similar-accounts results (if that was the source) by followers
-        if (similar.length > 0 && similar[0]._bioHits == null) {
-          similar.sort((a, b) => {
-            const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
-            const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
-            if (hasA !== hasB) return hasB - hasA;
-            return (b.subscriberCount || 0) - (a.subscriberCount || 0);
-          });
-        }
-
         setLastQuery(handleClean);
-        setSuggestions([seed, ...similar]);
+        setSuggestions([seed]);
         setVisibleCount(50);
-        setBackendHasMore(true);
-        // Do NOT setError here — we have the seed, the grid should render.
-        // The inline empty-pool state will explain if there are no similar
-        // results. The user still sees the seed account they searched for.
+        setBackendHasMore(false);
         setLoading(false);
         return;
       }
@@ -641,11 +571,6 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
             {error && <ErrorMessage message={error} onRetry={doSearch} />}
             {!loading && !error && (
               <>
-                {hasSearched && suggestions.length === 1 && (
-                  <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900">
-                    Found this account but couldn't find similar creators. The seed's category/bio didn't produce enough matches — try a different handle, or search by niche instead.
-                  </div>
-                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {suggestions.slice(0, visibleCount).map(creator => (
                     <CreatorCard key={creator.id} creator={creator} showSimilar action={
