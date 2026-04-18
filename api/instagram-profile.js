@@ -44,28 +44,24 @@ export default async function handler(req, res) {
 }
 
 async function fetchProfileFromNewApi(username, apiKey) {
+  // Verified endpoints on the current plan:
+  //   /user_id_by_username?username=X  → { UserID, UserName }
+  //   /profile?user_id=X               → full profile with biography
+  //   /profile?username=X              → also works, skips the id hop
   const headers = { "x-rapidapi-host": NEW_HOST, "x-rapidapi-key": apiKey };
   try {
-    // Step 1: username → user_id
-    const idRes = await fetch(`https://${NEW_HOST}/username_to_id?username=${encodeURIComponent(username)}`, { method: "GET", headers });
-    if (!idRes.ok) return null;
-    const idData = await idRes.json().catch(() => null);
-    const userId = idData?.user_id || idData?.data?.user_id || idData?.id || idData?.data?.id;
-    if (!userId) return null;
-
-    // Step 2: user_id → profile (returns biography)
-    const pRes = await fetch(`https://${NEW_HOST}/profile?user_id=${encodeURIComponent(userId)}`, { method: "GET", headers });
+    // Single call: /profile accepts username directly
+    const pRes = await fetch(`https://${NEW_HOST}/profile?username=${encodeURIComponent(username)}`, { method: "GET", headers });
     if (!pRes.ok) return null;
-    const pData = await pRes.json().catch(() => null);
-    const u = pData?.data || pData?.user || pData;
+    const u = await pRes.json().catch(() => null);
     if (!u || !u.username) return null;
 
-    const followerCount = u.follower_count ?? u.followers_count ?? u.edge_followed_by?.count ?? 0;
-    const rawPic = u.profile_pic_url_hd || u.profile_pic_url || u.hd_profile_pic_url_info?.url || "";
+    const followerCount = u.follower_count ?? u.followers_count ?? 0;
+    const rawPic = u.profile_pic_url_hd || u.profile_pic_url || "";
     const thumbnail = rawPic ? `/api/proxy-image?url=${encodeURIComponent(rawPic)}` : "";
 
     return {
-      id: String(userId),
+      id: String(u.pk || u.id || ""),
       name: u.full_name || u.username,
       username: u.username,
       description: u.biography || u.bio || "",
