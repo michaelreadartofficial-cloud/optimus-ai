@@ -366,9 +366,9 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
         setSuggestions([seed, ...similar]);
         setVisibleCount(50);
         setBackendHasMore(true);
-        if (similar.length === 0) {
-          setError(`Found ${seed.username} but couldn't find similar accounts. The API may not have this creator in its similar-accounts index, or the endpoint may need adjusting. Try a different handle with more followers.`);
-        }
+        // Do NOT setError here — we have the seed, the grid should render.
+        // The inline empty-pool state will explain if there are no similar
+        // results. The user still sees the seed account they searched for.
         setLoading(false);
         return;
       }
@@ -641,6 +641,11 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
             {error && <ErrorMessage message={error} onRetry={doSearch} />}
             {!loading && !error && (
               <>
+                {hasSearched && suggestions.length === 1 && (
+                  <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900">
+                    Found this account but couldn't find similar creators. The seed's category/bio didn't produce enough matches — try a different handle, or search by niche instead.
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {suggestions.slice(0, visibleCount).map(creator => (
                     <CreatorCard key={creator.id} creator={creator} showSimilar action={
