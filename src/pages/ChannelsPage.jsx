@@ -183,23 +183,45 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   const platformLabel = { all: "All platforms", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube" };
   const sizeLabel = { all: "Account size", large: "Large (1M+)", medium: "Medium (100K-1M)", small: "Small (<100K)" };
 
-  const CreatorCard = ({ creator, action }) => (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3 hover:border-blue-300 transition-all group">
-      <div className="relative flex-shrink-0">
-        <img src={creator.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(creator.name || creator.username)}&background=random&color=fff`}
-          alt={creator.name} className="w-10 h-10 rounded-full object-cover"
-          onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(creator.name || creator.username || "?")}&background=random&color=fff`; }} />
-        <div className="absolute -bottom-1 -right-1">
-          <PlatformIcon platform={creator.platform} size={18} />
+  const creatorProfileUrl = (creator) => {
+    const handle = creator.username || "";
+    const p = (creator.platform || "").toLowerCase();
+    if (!handle) return null;
+    if (p.includes("instagram")) return `https://www.instagram.com/${handle.replace(/^@/, "")}/`;
+    if (p.includes("tiktok"))    return `https://www.tiktok.com/@${handle.replace(/^@/, "")}`;
+    if (p.includes("youtube")) {
+      // YouTube handles are typically @-prefixed; fall back to channel page if we have an id
+      if (creator.id && creator.id.startsWith("UC")) return `https://www.youtube.com/channel/${creator.id}`;
+      return `https://www.youtube.com/@${handle.replace(/^@/, "")}`;
+    }
+    return null;
+  };
+
+  const CreatorCard = ({ creator, action }) => {
+    const url = creatorProfileUrl(creator);
+    const openProfile = () => { if (url) window.open(url, "_blank", "noopener,noreferrer"); };
+    return (
+      <div onClick={openProfile}
+        className={`bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3 hover:border-blue-300 transition-all group ${url ? "cursor-pointer" : ""}`}
+        title={url ? `Open ${creator.username || creator.name} on ${creator.platform}` : undefined}>
+        <div className="relative flex-shrink-0">
+          <img src={creator.thumbnail || `https://ui-avatars.com/api/?name=${encodeURIComponent(creator.name || creator.username)}&background=random&color=fff`}
+            alt={creator.name} className="w-10 h-10 rounded-full object-cover"
+            onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(creator.name || creator.username || "?")}&background=random&color=fff`; }} />
+          <div className="absolute -bottom-1 -right-1">
+            <PlatformIcon platform={creator.platform} size={18} />
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-gray-900 truncate">{creator.name || creator.username}</p>
+          <p className="text-xs text-gray-500">@{creator.username || creator.name} · {creator.subscribers || formatNumber(creator.subscriberCount)} followers</p>
+        </div>
+        <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
+          {action}
         </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-900 truncate">{creator.name || creator.username}</p>
-        <p className="text-xs text-gray-500">@{creator.username || creator.name} · {creator.subscribers || formatNumber(creator.subscriberCount)} followers</p>
-      </div>
-      {action}
-    </div>
-  );
+    );
+  };
 
   return (
     <div>
