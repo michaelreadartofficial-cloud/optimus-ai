@@ -3,11 +3,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { query } = req.body;
+  const { query, page } = req.body;
 
   if (!query || !query.trim()) {
     return res.status(400).json({ error: "Please provide a search query" });
   }
+
+  // Pagination: `page` is 0-based. Each page runs a different slice of query
+  // variations so subsequent pages return genuinely new accounts, not the
+  // same core set plus one or two new.
+  const pageNum = Math.max(0, parseInt(page) || 0);
 
   const rapidApiKey = process.env.RAPIDAPI_KEY;
 
@@ -27,34 +32,43 @@ export default async function handler(req, res) {
     // accounts (e.g. searching "online fitness coach" and getting
     // "toponlineshop" because "online" matched).
     const q = query.trim();
-    const searchTerms = new Set([q]);
     const words = q.split(/\s+/);
 
-    const creatorSuffixes = ["coach", "tips", "daily", "pro", "guru", "reels", "official", "life", "motivation", "hq", "journey"];
-    const creatorPrefixes = ["the", "real", "best", "top", "daily", "mr", "ms"];
+    // Three tiers of query variations. Page 0 runs tier A, page 1 runs tier B,
+    // page 2 runs tier C — so "Load more" clicks actually return genuinely new
+    // accounts each time instead of the same saturated set.
+    const suffixesCore = ["coach", "tips", "daily", "pro", "guru", "reels", "official"];
+    const suffixesExtra = ["life", "motivation", "hq", "journey", "academy", "fit", "hub", "world"];
+    const prefixesCore = ["the", "real", "best", "top", "daily"];
+    const prefixesExtra = ["mr", "ms", "your", "coach", "dr", "official"];
+    const niches = ["online", "1on1", "elite", "performance", "premium", "global"];
+
+    const tier = { A: new Set([q]), B: new Set(), C: new Set() };
 
     if (words.length > 1) {
-      const joined = words.join("");             // e.g. "onlinefitnesscoach"
-      const lastTwo = words.slice(-2).join("");  // e.g. "fitnesscoach"
-      searchTerms.add(joined);
-      searchTerms.add(lastTwo);
-      // Full-phrase + suffix / prefix variants (keep the topic intact)
-      for (const s of creatorSuffixes) searchTerms.add(joined + s);
-      for (const p of creatorPrefixes) searchTerms.add(p + joined);
-      // Last-two-word variants (the role usually lives at the end: "fitness coach")
-      for (const s of creatorSuffixes.slice(0, 6)) searchTerms.add(lastTwo + s);
-      for (const p of creatorPrefixes.slice(0, 4)) searchTerms.add(p + lastTwo);
+      const joined = words.join("");
+      const lastTwo = words.slice(-2).join("");
+      tier.A.add(joined); tier.A.add(lastTwo);
+      for (const s of suffixesCore) { tier.A.add(joined + s); tier.A.add(lastTwo + s); }
+      for (const p of prefixesCore) { tier.B.add(p + joined); tier.B.add(p + lastTwo); }
+      for (const s of suffixesExtra) { tier.B.add(joined + s); tier.B.add(lastTwo + s); }
+      for (const p of prefixesExtra) { tier.C.add(p + joined); tier.C.add(p + lastTwo); }
+      for (const n of niches) { tier.C.add(n + lastTwo); tier.C.add(lastTwo + n); }
     } else {
-      // Single-word niche: fan out with many creator-suffix and prefix patterns
-      for (const s of creatorSuffixes) searchTerms.add(q + s);
-      for (const p of creatorPrefixes) searchTerms.add(p + q);
-      searchTerms.add(q + "s");
-      searchTerms.add(q + "er");
-      searchTerms.add(q + "girl");
-      searchTerms.add(q + "guy");
+      tier.A.add(q);
+      for (const s of suffixesCore) tier.A.add(q + s);
+      for (const p of prefixesCore) tier.A.add(p + q);
+      for (const s of suffixesExtra) tier.B.add(q + s);
+      for (const p of prefixesExtra) tier.B.add(p + q);
+      tier.B.add(q + "s"); tier.B.add(q + "er");
+      for (const n of niches) { tier.C.add(n + q); tier.C.add(q + n); }
+      tier.C.add(q + "girl"); tier.C.add(q + "guy");
+      tier.C.add(q + "life"); tier.C.add(q + "world");
     }
 
-    const searchTermsArr = Array.from(searchTerms);
+    // Pick the tier for this page (page 2+ still gets C, just returns less new)
+    const tierKey = pageNum === 0 ? "A" : pageNum === 1 ? "B" : "C";
+    const searchTermsArr = Array.from(tier[tierKey]);
 
     const allUsers = [];
     const seenUsernames = new Set();
@@ -80,8 +94,10 @@ export default async function handler(req, res) {
       return res.json({ creators: [] });
     }
 
-    // Format results — proxy the profile image URL so it actually loads
-    const creators = allUsers.slice(0, 150).map((user) => {
+    // Format results — proxy the profile image URL so it actually loads.
+    // Return ALL deduped users (no slice cap) so the frontend can decide
+    // how many to show and can page for more.
+    const creators = allUsers.map((user) => {
       const followersText = user.search_social_context || "";
       const followerCount = parseFollowers(followersText);
       const rawPic = user.profile_pic_url || "";
@@ -111,7 +127,10 @@ export default async function handler(req, res) {
     // Sort by follower count descending
     creators.sort((a, b) => b.subscriberCount - a.subscriberCount);
 
-    return res.json({ creators });
+    // Tell the client there are more pages available (only tiers A and B have
+    // a well-defined "next" tier; after C we've exhausted our variations).
+    const hasNextPage = pageNum < 2;
+    return res.json({ creators, page: pageNum, hasNextPage });
   } catch (err) {
     console.error("Instagram search error:", err);
     return res.status(500).json({

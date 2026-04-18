@@ -14,6 +14,10 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   const [accountSizeFilter, setAccountSizeFilter] = useState("all");
   const [suggestions, setSuggestions] = useState([]);
   const [visibleCount, setVisibleCount] = useState(50);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [backendHasMore, setBackendHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [lastQuery, setLastQuery] = useState("");
   const [showPlatformDrop, setShowPlatformDrop] = useState(false);
   const [showSizeDrop, setShowSizeDrop] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -153,31 +157,67 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     return false;
   };
 
-  // Score a creator by how well name/username/description match the query.
-  // Higher score = more relevant. Follower count is only a tiebreaker later.
+  // Score a creator by how well they match the query. Higher = more relevant.
+  // Combines exact-phrase hits, per-word hits, and synonym-expanded bio hits
+  // so an account whose handle is a name but bio clearly describes the niche
+  // still ranks high.
   const relevanceScore = (creator, rawQuery) => {
     const q = (rawQuery || "").trim().toLowerCase();
     if (!q) return 0;
     const name = (creator.name || "").toLowerCase();
     const handle = (creator.username || "").toLowerCase();
     const desc = (creator.description || "").toLowerCase();
+    const handleAndName = `${handle} ${name}`;
     const words = q.split(/\s+/).filter(Boolean);
     let score = 0;
+
     // Exact phrase matches
-    if (handle.includes(q)) score += 100;
-    if (name.includes(q)) score += 90;
-    if (desc.includes(q)) score += 20;
-    // Per-word matches
+    if (handle.includes(q)) score += 120;
+    if (name.includes(q)) score += 100;
+    if (desc.includes(q)) score += 30;
+
+    // Per-word matches in handle / name
     for (const w of words) {
-      if (handle.includes(w)) score += 15;
-      if (name.includes(w)) score += 12;
-      if (desc.includes(w)) score += 4;
+      if (handle.includes(w)) score += 18;
+      if (name.includes(w)) score += 14;
+      if (desc.includes(w)) score += 6;
     }
-    // All query words present in handle/name gets a bonus
+
+    // All query words present in handle/name — strong signal
     if (words.length > 1) {
-      if (words.every(w => handle.includes(w))) score += 40;
-      if (words.every(w => name.includes(w))) score += 30;
+      if (words.every(w => handle.includes(w))) score += 60;
+      if (words.every(w => name.includes(w))) score += 45;
+      if (words.every(w => handleAndName.includes(w))) score += 25;
     }
+
+    // Role word (typically last word: coach/mentor/trainer) — big bonus when
+    // it (or a synonym) appears in handle/name
+    const roleWord = words[words.length - 1];
+    const roleSynonyms = expand(roleWord, ROLE_SYNONYMS);
+    if (roleSynonyms.some(r => handleAndName.includes(r))) score += 40;
+    if (roleSynonyms.some(r => desc.includes(r))) score += 15;
+
+    // Topic synonyms in the bio — this is the big one. Rewards accounts
+    // whose bio proves they're in the niche, even if their handle doesn't
+    // say so. Score scales with how many synonym hits we get.
+    for (const w of words) {
+      const topicWords = expand(w, TOPIC_SYNONYMS);
+      if (topicWords.length > 1) {
+        const bioHits = topicWords.filter(t => desc.includes(t)).length;
+        score += Math.min(bioHits, 8) * 6; // cap at 8 hits so one bio can't run away
+        const nameHits = topicWords.filter(t => handleAndName.includes(t)).length;
+        score += Math.min(nameHits, 3) * 10;
+      }
+    }
+
+    // Intent phrases ("I help", "I coach", "I work with") — clear signal
+    // the bio describes a coaching service
+    if (/\bi (help|coach|work with|mentor|train|teach|guide)\b/.test(desc)) score += 20;
+
+    // Penalise profiles that have NO bio at all and no word match in
+    // handle/name — they're probably unrelated
+    if (!desc && !words.some(w => handleAndName.includes(w))) score -= 40;
+
     return score;
   };
 
@@ -207,14 +247,34 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   };
 
   const fetchSingleInstagramByHandle = async (handle) => {
-    // Use the same search endpoint but query the exact handle — our search
-    // backend returns richer data than doing a separate profile lookup.
     try {
-      const r = await apiPost("/api/search-creators-instagram", { query: handle });
-      const list = r.creators || [];
-      const clean = handle.toLowerCase().replace(/^@/, "");
-      return list.find(c => (c.username || "").toLowerCase() === clean) || null;
+      const r = await apiPost("/api/instagram-profile", { handle });
+      return r.profile || null;
     } catch { return null; }
+  };
+
+  // Run a single page of query against the enabled platforms.
+  const fetchPage = async (query, page) => {
+    const requests = [];
+    if (platformFilter === "all" || platformFilter === "youtube") {
+      requests.push(apiPost("/api/search-creators", { query, platform: "youtube" }).then(r => r.creators || []).catch(() => []));
+    }
+    if (platformFilter === "all" || platformFilter === "instagram") {
+      requests.push(apiPost("/api/search-creators-instagram", { query, page }).then(r => ({ creators: r.creators || [], hasNextPage: !!r.hasNextPage })).catch(() => ({ creators: [], hasNextPage: false })));
+    }
+    if (platformFilter === "all" || platformFilter === "tiktok") {
+      requests.push(apiPost("/api/search-creators-tiktok", { query }).then(r => r.creators || []).catch(() => []));
+    }
+    const results = await Promise.all(requests);
+    // Normalize: the Instagram branch returns {creators, hasNextPage}, the
+    // others return creators array directly.
+    let creators = [];
+    let hasNextPage = false;
+    for (const r of results) {
+      if (Array.isArray(r)) creators.push(...r);
+      else { creators.push(...(r.creators || [])); if (r.hasNextPage) hasNextPage = true; }
+    }
+    return { creators, hasNextPage };
   };
 
   const doSearch = async () => {
@@ -223,65 +283,49 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     setLoading(true);
     setError(null);
     setHasSearched(true);
+    setCurrentPage(0);
+    setLastQuery(rawQuery);
 
-    // If the user pasted a handle (either box), treat it as seed mode:
-    // show that account first, then pull similar accounts from its bio
-    // keywords.
+    // Seed-by-handle mode: typing @handle in the niche bar OR using the
+    // handle bar. Pin that exact account as result #1, then search for
+    // similar accounts using keywords from the seed's bio.
     const isHandleInput = !!handleSearch.trim() || /^@[\w._-]+$/.test(rawQuery);
     if (isHandleInput && platformFilter !== "youtube" && platformFilter !== "tiktok") {
       const handleClean = rawQuery.replace(/^@/, "").trim();
       const seed = await fetchSingleInstagramByHandle(handleClean);
-      if (seed && seed.description) {
+      if (seed) {
         const keywords = extractBioKeywords(seed.description);
-        if (keywords.length > 0) {
-          try {
-            // Run a bio-keyword search for similar accounts (top 3 keywords)
-            const similarQuery = keywords.slice(0, 3).join(" ");
-            const r = await apiPost("/api/search-creators-instagram", { query: similarQuery });
-            let similar = (r.creators || []).filter(c => c.id !== seed.id);
-            const watchIds = new Set(watchlist.map(w => w.id));
-            similar = similar.filter(c => !watchIds.has(c.id));
-            // Loose relevance check against the seed's OWN bio/keywords
-            similar = similar.filter(c => {
-              const desc = (c.description || "").toLowerCase();
-              return keywords.filter(k => desc.includes(k)).length >= 2;
-            });
-            similar.sort((a, b) => {
-              const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
-              const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
-              if (hasA !== hasB) return hasB - hasA;
-              return (b.subscriberCount || 0) - (a.subscriberCount || 0);
-            });
-            setSuggestions([seed, ...similar]);
-            setVisibleCount(50);
-            setLoading(false);
-            return;
-          } catch {}
+        let similar = [];
+        let hasMore = false;
+        if (keywords.length >= 2) {
+          const similarQuery = keywords.slice(0, 3).join(" ");
+          setLastQuery(similarQuery);
+          const r = await fetchPage(similarQuery, 0);
+          hasMore = r.hasNextPage;
+          const watchIds = new Set(watchlist.map(w => w.id));
+          similar = r.creators.filter(c => c.id !== seed.id && !watchIds.has(c.id));
+          // Score similar accounts against the bio keywords + original query
+          const kwQuery = keywords.slice(0, 4).join(" ");
+          similar.sort((a, b) => {
+            const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
+            const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
+            if (hasA !== hasB) return hasB - hasA;
+            return relevanceScore(b, kwQuery) - relevanceScore(a, kwQuery);
+          });
         }
-        // Seed found but no bio keywords — just show the seed
-        setSuggestions([seed]);
+        setSuggestions([seed, ...similar]);
         setVisibleCount(50);
+        setBackendHasMore(hasMore);
         setLoading(false);
         return;
       }
-      // Seed not found → fall through to normal search
+      // Seed not found — fall through to normal search
     }
 
     const query = rawQuery;
     try {
-      const requests = [];
-      if (platformFilter === "all" || platformFilter === "youtube") {
-        requests.push(apiPost("/api/search-creators", { query, platform: "youtube" }).then(r => r.creators || []).catch(() => []));
-      }
-      if (platformFilter === "all" || platformFilter === "instagram") {
-        requests.push(apiPost("/api/search-creators-instagram", { query }).then(r => r.creators || []).catch(() => []));
-      }
-      if (platformFilter === "all" || platformFilter === "tiktok") {
-        requests.push(apiPost("/api/search-creators-tiktok", { query }).then(r => r.creators || []).catch(() => []));
-      }
-
-      const results = await Promise.all(requests);
-      let allCreators = results.flat();
+      const { creators, hasNextPage } = await fetchPage(query, 0);
+      let allCreators = creators;
 
       if (accountSizeFilter !== "all") {
         allCreators = allCreators.filter(c => {
@@ -296,9 +340,9 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       const watchIds = new Set(watchlist.map(w => w.id));
       allCreators = allCreators.filter(c => !watchIds.has(c.id));
 
-      // Drop results that aren't topically relevant to the query (full phrase
-      // or at least two of the query words must actually appear).
-      allCreators = allCreators.filter(c => queryRelevant(c, query));
+      // No hard filter — score every creator. Highly relevant accounts float
+      // to the top; marginal ones sink but aren't hidden. User can Load more
+      // to dig deeper.
 
       // Sort order:
       //   1) Accounts with known follower counts above accounts without
@@ -318,10 +362,47 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
 
       setSuggestions(allCreators);
       setVisibleCount(50);
+      setBackendHasMore(hasNextPage);
     } catch (err) {
       setError(err.message || "Failed to search creators");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch the next page from the backend and APPEND to existing suggestions.
+  // Triggered when the user clicks Load more and we've already shown all
+  // currently-loaded results.
+  const loadMoreFromBackend = async () => {
+    if (loadingMore || !backendHasMore || !lastQuery) return;
+    setLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      const { creators, hasNextPage } = await fetchPage(lastQuery, nextPage);
+      const seenIds = new Set(suggestions.map(s => s.id));
+      const watchIds = new Set(watchlist.map(w => w.id));
+      let fresh = creators.filter(c => !seenIds.has(c.id) && !watchIds.has(c.id));
+      if (accountSizeFilter !== "all") {
+        fresh = fresh.filter(c => {
+          const num = c.subscriberCount || parseFollowers(c.subscribers);
+          if (accountSizeFilter === "large") return num >= 1000000;
+          if (accountSizeFilter === "medium") return num >= 100000 && num < 1000000;
+          if (accountSizeFilter === "small") return num < 100000;
+          return true;
+        });
+      }
+      fresh.sort((a, b) => {
+        const hasFollowersA = (a.subscriberCount || 0) > 0 ? 1 : 0;
+        const hasFollowersB = (b.subscriberCount || 0) > 0 ? 1 : 0;
+        if (hasFollowersA !== hasFollowersB) return hasFollowersB - hasFollowersA;
+        return relevanceScore(b, lastQuery) - relevanceScore(a, lastQuery);
+      });
+      setSuggestions(prev => [...prev, ...fresh]);
+      setVisibleCount(c => c + 25);
+      setCurrentPage(nextPage);
+      setBackendHasMore(hasNextPage);
+    } catch {} finally {
+      setLoadingMore(false);
     }
   };
 
@@ -518,15 +599,23 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                     } />
                   ))}
                 </div>
-                {suggestions.length > visibleCount && (
+                {(suggestions.length > visibleCount || backendHasMore) && (
                   <div className="mt-5 flex justify-center">
-                    <button onClick={() => setVisibleCount(c => c + 25)}
-                      className="px-5 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors">
-                      Load more
+                    <button
+                      disabled={loadingMore}
+                      onClick={() => {
+                        if (suggestions.length > visibleCount) {
+                          setVisibleCount(c => c + 25);
+                        } else {
+                          loadMoreFromBackend();
+                        }
+                      }}
+                      className="px-5 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50 flex items-center gap-2">
+                      {loadingMore ? <><Loader2 size={14} className="animate-spin" /> Loading…</> : "Load more"}
                     </button>
                   </div>
                 )}
-                {suggestions.length > 0 && suggestions.length <= visibleCount && hasSearched && (
+                {suggestions.length > 0 && suggestions.length <= visibleCount && !backendHasMore && hasSearched && (
                   <div className="mt-5 text-center text-xs text-gray-400">
                     Showing all {suggestions.length} results — try a different search term for more.
                   </div>
