@@ -10,7 +10,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   const [activeTab, setActiveTab] = useState("suggestions");
   const [searchQuery, setSearchQuery] = useState("");
   const [handleSearch, setHandleSearch] = useState("");
-  const [platformFilter, setPlatformFilter] = useState("all");
+  const [platformFilter, setPlatformFilter] = useState("instagram");
   const [accountSizeFilter, setAccountSizeFilter] = useState("all");
   const [suggestions, setSuggestions] = useState([]);
   const [visibleCount, setVisibleCount] = useState(25);
@@ -146,7 +146,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     setWatchlist(prev => prev.filter(w => w.id !== creatorId));
   };
 
-  const platformLabel = { all: "Platform", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube" };
+  const platformLabel = { all: "All platforms", instagram: "Instagram only", tiktok: "TikTok only", youtube: "YouTube only" };
   const sizeLabel = { all: "Account size", large: "Large (1M+)", medium: "Medium (100K-1M)", small: "Small (<100K)" };
 
   const CreatorCard = ({ creator, action }) => (
