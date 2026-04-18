@@ -1,49 +1,42 @@
 // Fetch a single Instagram account by handle, WITH the full bio.
 //
-// Uses `instagram-scraper-20251` on RapidAPI, which returns full profile
-// data (biography, category, external_url, follower_count) — unlike the
-// old `instagram-scraper-stable-api` which only returns lightweight search
-// results without bios.
+// Uses `instagram-api-fast-reliable-data-scraper` on RapidAPI (by mediacrawlers).
+// That product has dedicated /profile and /similar_accounts endpoints and is
+// confirmed to return `biography`.
 //
-// Requires: your RapidAPI key must be subscribed to the
-// `instagram-scraper-20251` product (Basic tier is free, 500 calls/mo).
-// Signup: https://rapidapi.com/DataFanatic/api/instagram-scraper-20251
+// Subscribe (Basic/Free tier works):
+//   https://rapidapi.com/mediacrawlers-mediacrawlers-default/api/instagram-api-fast-reliable-data-scraper/pricing
 //
-// Falls back to the legacy search endpoint if the profile call fails, so
-// the app keeps working (just without a bio) when the new product isn't
-// subscribed yet.
+// Falls back to the legacy search endpoint (no bio) if the new product isn't
+// subscribed yet, so the app keeps working during the transition.
 
-const NEW_HOST = "instagram-scraper-20251.p.rapidapi.com";
+const NEW_HOST = "instagram-api-fast-reliable-data-scraper.p.rapidapi.com";
 const LEGACY_HOST = "instagram-scraper-stable-api.p.rapidapi.com";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
   const { handle } = req.body;
-  if (!handle || !handle.trim()) {
-    return res.status(400).json({ error: "Provide a handle" });
-  }
+  if (!handle || !handle.trim()) return res.status(400).json({ error: "Provide a handle" });
+
   const rapidApiKey = process.env.RAPIDAPI_KEY;
-  if (!rapidApiKey) {
-    return res.status(500).json({ error: "RAPIDAPI_KEY not configured" });
-  }
+  if (!rapidApiKey) return res.status(500).json({ error: "RAPIDAPI_KEY not configured" });
 
   const clean = handle.trim().replace(/^@/, "").toLowerCase();
 
-  // 1. Try the new API's profile endpoint (returns biography + category)
+  // Try the new API: username → user_id → profile
   const fromNew = await fetchProfileFromNewApi(clean, rapidApiKey);
   if (fromNew) {
-    return res.json({ profile: fromNew, source: "instagram-scraper-20251" });
+    return res.json({ profile: fromNew, source: "mediacrawlers" });
   }
 
-  // 2. Fall back to the legacy search endpoint (no bio available)
+  // Fall back to the legacy search endpoint (no bio available)
   const fromLegacy = await fetchProfileFromLegacySearch(clean, rapidApiKey);
   if (fromLegacy) {
     return res.json({
       profile: fromLegacy,
       source: "legacy-search",
-      warning: "Bio unavailable — subscribe to instagram-scraper-20251 on RapidAPI for bio + similar-accounts support.",
+      warning: "Bio unavailable — subscribe to 'instagram-api-fast-reliable-data-scraper' on RapidAPI for bio + similar accounts.",
     });
   }
 
@@ -51,15 +44,20 @@ export default async function handler(req, res) {
 }
 
 async function fetchProfileFromNewApi(username, apiKey) {
+  const headers = { "x-rapidapi-host": NEW_HOST, "x-rapidapi-key": apiKey };
   try {
-    const url = `https://${NEW_HOST}/userinfo/?username_or_id_or_url=${encodeURIComponent(username)}`;
-    const r = await fetch(url, {
-      method: "GET",
-      headers: { "x-rapidapi-host": NEW_HOST, "x-rapidapi-key": apiKey },
-    });
-    if (!r.ok) return null;
-    const data = await r.json().catch(() => null);
-    const u = data?.data || data?.user || data;
+    // Step 1: username → user_id
+    const idRes = await fetch(`https://${NEW_HOST}/username_to_id?username=${encodeURIComponent(username)}`, { method: "GET", headers });
+    if (!idRes.ok) return null;
+    const idData = await idRes.json().catch(() => null);
+    const userId = idData?.user_id || idData?.data?.user_id || idData?.id || idData?.data?.id;
+    if (!userId) return null;
+
+    // Step 2: user_id → profile (returns biography)
+    const pRes = await fetch(`https://${NEW_HOST}/profile?user_id=${encodeURIComponent(userId)}`, { method: "GET", headers });
+    if (!pRes.ok) return null;
+    const pData = await pRes.json().catch(() => null);
+    const u = pData?.data || pData?.user || pData;
     if (!u || !u.username) return null;
 
     const followerCount = u.follower_count ?? u.followers_count ?? u.edge_followed_by?.count ?? 0;
@@ -67,7 +65,7 @@ async function fetchProfileFromNewApi(username, apiKey) {
     const thumbnail = rawPic ? `/api/proxy-image?url=${encodeURIComponent(rawPic)}` : "";
 
     return {
-      id: u.pk || u.id || u.user_id || "",
+      id: String(userId),
       name: u.full_name || u.username,
       username: u.username,
       description: u.biography || u.bio || "",
