@@ -36,18 +36,60 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   // query word ("I help" = coaching, "mentor" ≈ coach). These synonym
   // groups let bio matching know that e.g. "I help women over 30 lose
   // body fat" counts as evidence for a "fitness coach" search.
+  // Role synonyms — what a "coach" / "mentor" / "trainer" look like in a bio.
+  // All of these aliases point to the same combined group so searching
+  // "business coach" and "business mentor" both match "I help entrepreneurs..."
+  const COACH_GROUP = [
+    "coach", "coaching", "mentor", "mentoring", "trainer", "training",
+    "consultant", "consulting", "strategist", "advisor", "expert",
+    "i help", "helping", "i work with", "i teach", "teaching",
+    "transform", "guide", "guiding", "specialist",
+  ];
   const ROLE_SYNONYMS = {
-    coach: ["coach", "coaching", "mentor", "trainer", "consultant", "i help", "helping", "transform", "guide"],
-    trainer: ["trainer", "coach", "training", "i help", "get you in shape"],
-    therapist: ["therapist", "therapy", "counsellor", "counselor"],
-    nutritionist: ["nutritionist", "dietitian", "nutrition"],
+    coach: COACH_GROUP, mentor: COACH_GROUP, trainer: COACH_GROUP,
+    consultant: COACH_GROUP, strategist: COACH_GROUP, advisor: COACH_GROUP,
+    therapist: ["therapist", "therapy", "counsellor", "counselor", "psychologist"],
+    nutritionist: ["nutritionist", "dietitian", "nutrition coach", "macro coach"],
   };
+
+  // Topic synonyms — overlap health/fitness/nutrition/wellness because a
+  // real fitness coach's bio usually covers all of it. Same for business
+  // coach / entrepreneur / marketing — it's all one niche in practice.
+  const FITNESS_GROUP = [
+    "fitness", "workout", "workouts", "training", "gym", "muscle", "muscles",
+    "lean", "body fat", "bodyfat", "get toned", "toned", "get in shape",
+    "in shape", "strength", "strong", "athlete", "athletic", "crossfit",
+    "calisthenics", "hypertrophy", "performance", "biohacking",
+    "nutrition", "macros", "diet", "meal prep", "mealprep", "food", "eating",
+    "weight loss", "fat loss", "lose weight", "lose fat", "transformation",
+    "health", "wellness", "hormones", "sleep", "recovery", "testosterone",
+    "energy", "mobility",
+  ];
+  const BUSINESS_GROUP = [
+    "business", "entrepreneur", "entrepreneurs", "entrepreneurship",
+    "startup", "startups", "founder", "founders", "ceo", "owner",
+    "scale", "scaling", "grow your business", "grow", "7 figure", "8 figure",
+    "marketing", "sales", "strategy", "revenue", "profit", "clients",
+    "e-commerce", "ecommerce", "online business", "agency", "saas",
+    "freelance", "freelancer", "digital", "brand", "branding",
+  ];
+  const RELATIONSHIP_GROUP = [
+    "relationship", "relationships", "dating", "love", "couples", "marriage",
+    "partner", "boyfriend", "girlfriend", "husband", "wife",
+    "attachment", "intimacy", "breakup", "communication",
+  ];
+  const MINDSET_GROUP = [
+    "mindset", "confidence", "self help", "self-help", "personal growth",
+    "mental", "mental health", "anxiety", "stress", "therapy",
+    "meditation", "manifestation", "purpose", "habits",
+  ];
   const TOPIC_SYNONYMS = {
-    fitness: ["fitness", "workout", "workouts", "training", "gym", "muscle", "lean", "body fat", "get toned", "get in shape", "strength"],
-    relationship: ["relationship", "relationships", "dating", "love", "couples", "marriage"],
-    business: ["business", "entrepreneur", "startup", "founder", "scale", "marketing"],
-    nutrition: ["nutrition", "diet", "meal prep", "macros", "food"],
-    mindset: ["mindset", "confidence", "self help", "self-help", "personal growth", "mental"],
+    fitness: FITNESS_GROUP, health: FITNESS_GROUP, nutrition: FITNESS_GROUP,
+    wellness: FITNESS_GROUP, workout: FITNESS_GROUP, gym: FITNESS_GROUP,
+    biohacking: FITNESS_GROUP,
+    business: BUSINESS_GROUP, entrepreneur: BUSINESS_GROUP, marketing: BUSINESS_GROUP,
+    relationship: RELATIONSHIP_GROUP, dating: RELATIONSHIP_GROUP, love: RELATIONSHIP_GROUP,
+    mindset: MINDSET_GROUP, confidence: MINDSET_GROUP,
   };
   const expand = (word, dict) => dict[word] ? dict[word] : [word];
 
@@ -139,13 +181,93 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     return score;
   };
 
+  // Pull the most useful keywords out of an account bio for "similar
+  // accounts" search. Strips emoji and stopwords, keeps niche nouns.
+  const BIO_STOPWORDS = new Set([
+    "i", "im", "i'm", "me", "my", "we", "us", "you", "your", "the", "a", "an",
+    "and", "or", "but", "of", "for", "to", "in", "on", "at", "with", "by",
+    "as", "is", "are", "was", "were", "be", "been", "have", "has", "had",
+    "get", "got", "will", "can", "from", "this", "that", "these", "those",
+    "help", "helping", "coaching", "coach", "mentor", "mentoring",
+  ]);
+  const extractBioKeywords = (bio) => {
+    if (!bio) return [];
+    const cleaned = bio
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s.&+]/gu, " ")
+      .replace(/\s+/g, " ");
+    const words = cleaned.split(" ").filter(w => w.length > 2 && !BIO_STOPWORDS.has(w));
+    const seen = new Set();
+    const keywords = [];
+    for (const w of words) {
+      if (!seen.has(w)) { seen.add(w); keywords.push(w); }
+      if (keywords.length >= 6) break;
+    }
+    return keywords;
+  };
+
+  const fetchSingleInstagramByHandle = async (handle) => {
+    // Use the same search endpoint but query the exact handle — our search
+    // backend returns richer data than doing a separate profile lookup.
+    try {
+      const r = await apiPost("/api/search-creators-instagram", { query: handle });
+      const list = r.creators || [];
+      const clean = handle.toLowerCase().replace(/^@/, "");
+      return list.find(c => (c.username || "").toLowerCase() === clean) || null;
+    } catch { return null; }
+  };
+
   const doSearch = async () => {
-    const query = (searchQuery || handleSearch || "").trim();
-    if (!query) return;
+    const rawQuery = (searchQuery || handleSearch || "").trim();
+    if (!rawQuery) return;
     setLoading(true);
     setError(null);
     setHasSearched(true);
 
+    // If the user pasted a handle (either box), treat it as seed mode:
+    // show that account first, then pull similar accounts from its bio
+    // keywords.
+    const isHandleInput = !!handleSearch.trim() || /^@[\w._-]+$/.test(rawQuery);
+    if (isHandleInput && platformFilter !== "youtube" && platformFilter !== "tiktok") {
+      const handleClean = rawQuery.replace(/^@/, "").trim();
+      const seed = await fetchSingleInstagramByHandle(handleClean);
+      if (seed && seed.description) {
+        const keywords = extractBioKeywords(seed.description);
+        if (keywords.length > 0) {
+          try {
+            // Run a bio-keyword search for similar accounts (top 3 keywords)
+            const similarQuery = keywords.slice(0, 3).join(" ");
+            const r = await apiPost("/api/search-creators-instagram", { query: similarQuery });
+            let similar = (r.creators || []).filter(c => c.id !== seed.id);
+            const watchIds = new Set(watchlist.map(w => w.id));
+            similar = similar.filter(c => !watchIds.has(c.id));
+            // Loose relevance check against the seed's OWN bio/keywords
+            similar = similar.filter(c => {
+              const desc = (c.description || "").toLowerCase();
+              return keywords.filter(k => desc.includes(k)).length >= 2;
+            });
+            similar.sort((a, b) => {
+              const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
+              const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
+              if (hasA !== hasB) return hasB - hasA;
+              return (b.subscriberCount || 0) - (a.subscriberCount || 0);
+            });
+            setSuggestions([seed, ...similar]);
+            setVisibleCount(50);
+            setLoading(false);
+            return;
+          } catch {}
+        }
+        // Seed found but no bio keywords — just show the seed
+        setSuggestions([seed]);
+        setVisibleCount(50);
+        setLoading(false);
+        return;
+      }
+      // Seed not found → fall through to normal search
+    }
+
+    const query = rawQuery;
     try {
       const requests = [];
       if (platformFilter === "all" || platformFilter === "youtube") {
@@ -178,10 +300,15 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       // or at least two of the query words must actually appear).
       allCreators = allCreators.filter(c => queryRelevant(c, query));
 
-      // Sort by relevance first (how well the creator matches the query),
-      // then prefer Instagram → YouTube → TikTok when relevance ties,
-      // then finally fall back to follower count.
+      // Sort order:
+      //   1) Accounts with known follower counts above accounts without
+      //   2) Relevance score (higher = more on-topic)
+      //   3) Platform priority (Instagram → YouTube → TikTok)
+      //   4) Follower count as final tiebreaker
       allCreators.sort((a, b) => {
+        const hasFollowersA = (a.subscriberCount || 0) > 0 ? 1 : 0;
+        const hasFollowersB = (b.subscriberCount || 0) > 0 ? 1 : 0;
+        if (hasFollowersA !== hasFollowersB) return hasFollowersB - hasFollowersA;
         const scoreDiff = relevanceScore(b, query) - relevanceScore(a, query);
         if (scoreDiff !== 0) return scoreDiff;
         const rankDiff = platformRank(a.platform) - platformRank(b.platform);
@@ -251,13 +378,17 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   };
 
   const findSimilar = (creator) => {
-    // Use display name if present (e.g. "Fitness Coach Jane"), otherwise fall
-    // back to the handle with separators stripped.
-    const seed = (creator.name || creator.username || "").replace(/[._\-]/g, " ").trim();
-    if (!seed) return;
-    setSearchQuery(seed);
-    setHandleSearch("");
-    // Run search on next tick so state is updated before doSearch reads it
+    // Prefer the creator's handle so doSearch enters seed-mode and builds
+    // a bio-driven similar search. Fall back to a name-based text search.
+    if (creator.username) {
+      setHandleSearch(creator.username);
+      setSearchQuery("");
+    } else {
+      const seed = (creator.name || "").replace(/[._\-]/g, " ").trim();
+      if (!seed) return;
+      setSearchQuery(seed);
+      setHandleSearch("");
+    }
     setTimeout(() => doSearch(), 0);
   };
 
