@@ -94,7 +94,10 @@ export default async function handler(req, res) {
         id: user.pk || user.id || "",
         name: user.full_name || user.username || "",
         username: user.username || "",
-        description: user.biography || followersText,
+        // Only include the actual biography. Do NOT fall back to follower
+        // text — the frontend matches against this field for relevance and
+        // "773K followers" would pollute results.
+        description: user.biography || "",
         thumbnail,
         platform: "Instagram Reels",
         subscribers: followersText || "N/A",

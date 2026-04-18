@@ -32,37 +32,83 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   // HARD filter — accounts that fail it are dropped entirely, so a search for
   // "online fitness coach" never surfaces something like "@toponlineshop1"
   // just because one partial word matched.
+  // Many creators signal their profession in the bio without the exact
+  // query word ("I help" = coaching, "mentor" ≈ coach). These synonym
+  // groups let bio matching know that e.g. "I help women over 30 lose
+  // body fat" counts as evidence for a "fitness coach" search.
+  const ROLE_SYNONYMS = {
+    coach: ["coach", "coaching", "mentor", "trainer", "consultant", "i help", "helping", "transform", "guide"],
+    trainer: ["trainer", "coach", "training", "i help", "get you in shape"],
+    therapist: ["therapist", "therapy", "counsellor", "counselor"],
+    nutritionist: ["nutritionist", "dietitian", "nutrition"],
+  };
+  const TOPIC_SYNONYMS = {
+    fitness: ["fitness", "workout", "workouts", "training", "gym", "muscle", "lean", "body fat", "get toned", "get in shape", "strength"],
+    relationship: ["relationship", "relationships", "dating", "love", "couples", "marriage"],
+    business: ["business", "entrepreneur", "startup", "founder", "scale", "marketing"],
+    nutrition: ["nutrition", "diet", "meal prep", "macros", "food"],
+    mindset: ["mindset", "confidence", "self help", "self-help", "personal growth", "mental"],
+  };
+  const expand = (word, dict) => dict[word] ? dict[word] : [word];
+
   const queryRelevant = (creator, rawQuery) => {
     const q = (rawQuery || "").trim().toLowerCase();
     if (!q) return true;
     const handle = (creator.username || "").toLowerCase();
     const name = (creator.name || "").toLowerCase();
+    const desc = (creator.description || "").toLowerCase();
     const handleNoSep = handle.replace(/[._\-]/g, "");
     const nameNoSpace = name.replace(/\s+/g, "");
     const handleAndName = `${handle} ${name}`;
     const words = q.split(/\s+/).filter(Boolean);
 
     if (words.length === 1) {
-      return handle.includes(words[0]) || name.includes(words[0]);
+      if (handle.includes(words[0]) || name.includes(words[0])) return true;
+      // Also accept strong bio signal for single-word niches (e.g. searching
+      // "fitness" — a bio heavy with gym/workout/muscle terms counts).
+      const synonyms = expand(words[0], TOPIC_SYNONYMS);
+      const hits = synonyms.filter(s => desc.includes(s)).length;
+      return hits >= 2;
     }
 
-    // Multi-word query: require evidence of the full topic in the handle OR
-    // the display name. Bios are unreliable — they're full of noise like
-    // "I coach clients online for fitness" that would let off-topic accounts
-    // sneak through.
+    // --- Multi-word query ---
     const joined = words.join("");
-    // Strong match: full phrase (joined or spaced) in handle/name
+
+    // Strong match 1: full phrase in handle or name (the "Mike Read | Online
+    // Fitness Coach" case — handle or name explicitly contains the phrase)
     if (handleNoSep.includes(joined)) return true;
     if (nameNoSpace.includes(joined)) return true;
     if (handleAndName.includes(words.join(" "))) return true;
 
-    // Fallback: require at least two of the query words to hit handle/name —
-    // AND one of those hits must be the "role" word (last word, typically
-    // "coach" / "trainer" / "therapist" etc.). This kills matches that only
-    // contain the adjective ("online", "fitness") without the profession.
+    // Strong match 2: role-word in handle/name AND topic evidence anywhere
+    // Example query: "online fitness coach" → roleWord = "coach",
+    // topicWord = "fitness". Accept accounts where the handle/name
+    // contains "coach" and the bio talks about fitness/workout/muscle/etc.
     const roleWord = words[words.length - 1];
-    const hitsInHandleOrName = words.filter(w => handleAndName.includes(w));
-    return hitsInHandleOrName.length >= 2 && hitsInHandleOrName.includes(roleWord);
+    const topicWord = words.length >= 2 ? words[words.length - 2] : null;
+
+    const roleSynonyms = expand(roleWord, ROLE_SYNONYMS);
+    const topicSynonyms = topicWord ? expand(topicWord, TOPIC_SYNONYMS) : [];
+
+    const roleInHandleOrName = roleSynonyms.some(r => handleAndName.includes(r));
+    const roleInBio = roleSynonyms.some(r => desc.includes(r));
+    const topicInHandleOrName = topicWord && topicSynonyms.some(t => handleAndName.includes(t));
+    const topicHitsInBio = topicSynonyms.filter(t => desc.includes(t)).length;
+    const topicStrongInBio = topicHitsInBio >= 2;
+    // Bonus: bios with phrases like "i help" often describe the niche
+    // without saying "coach" directly
+    const intentInBio = /\bi (help|coach|work with|mentor|train)\b/.test(desc);
+
+    // Accept if:
+    //   a) role term is explicit in handle/name AND topic shows up anywhere
+    if (roleInHandleOrName && (topicInHandleOrName || topicHitsInBio >= 1)) return true;
+    //   b) role term is in bio (synonym ok) AND topic is clearly the subject
+    if ((roleInBio || intentInBio) && (topicInHandleOrName || topicStrongInBio)) return true;
+    //   c) the handle/name explicitly contains the topic word AND the bio
+    //      shows clear role intent ("I help", "i coach", etc.)
+    if (topicInHandleOrName && intentInBio) return true;
+
+    return false;
   };
 
   // Score a creator by how well name/username/description match the query.
