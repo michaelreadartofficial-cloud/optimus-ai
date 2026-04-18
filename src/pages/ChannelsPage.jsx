@@ -286,90 +286,89 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     setCurrentPage(0);
     setLastQuery(rawQuery);
 
-    // Seed-by-handle mode: pin the exact account as result #1, then find
-    // similar accounts using ONLY the seed's bio. We don't search by handle
-    // or display name — those are identity, not niche. Similarity means bio
-    // overlap: the candidate's own bio must discuss the same things as the
-    // seed's bio.
+    // Seed-by-handle mode: pin the exact account as #1, then pull similar
+    // accounts. Strategy:
+    //   1. Use the new API's built-in "similar_accounts" endpoint (what
+    //      Instagram itself suggests) — this is the best signal available.
+    //   2. If that fails (plan doesn't expose it), fall back to bio-keyword
+    //      matching using the seed's bio.
+    //   3. If we have no bio AND no similar-accounts data, show just the
+    //      seed with a warning rather than hiding it entirely.
     const isHandleInput = !!handleSearch.trim() || /^@[\w._-]+$/.test(rawQuery);
     if (isHandleInput && platformFilter !== "youtube" && platformFilter !== "tiktok") {
       const handleClean = rawQuery.replace(/^@/, "").trim();
       const seed = await fetchSingleInstagramByHandle(handleClean);
       if (seed) {
-        const bioKeywords = extractBioKeywords(seed.description);
-
-        // Without a bio we literally cannot determine what the creator is
-        // about, so we can't find similar creators. Be honest about it.
-        if (bioKeywords.length === 0) {
-          setSuggestions([seed]);
-          setVisibleCount(50);
-          setBackendHasMore(false);
-          setError(`${seed.username} has no bio — we can't find similar accounts without one. Try a different handle or search by niche.`);
-          setLoading(false);
-          return;
-        }
-
-        // Run parallel searches using ONLY bio keywords: each single keyword
-        // plus a few keyword pairs. This is what defines the niche — not
-        // the handle, not the display name.
-        const queries = new Set();
-        for (const k of bioKeywords.slice(0, 8)) queries.add(k);
-        for (let i = 0; i < Math.min(bioKeywords.length, 3); i++) {
-          for (let j = i + 1; j < Math.min(bioKeywords.length, 5); j++) {
-            queries.add(`${bioKeywords[i]} ${bioKeywords[j]}`);
-          }
-        }
-
-        const queryList = Array.from(queries).filter(q => q && q.length > 2);
-
-        const results = await Promise.all(
-          queryList.map(q =>
-            apiPost("/api/search-creators-instagram", { query: q, page: 0 })
-              .then(r => r.creators || [])
-              .catch(() => [])
-          )
-        );
-
-        const seen = new Set([seed.id]);
         const watchIds = new Set(watchlist.map(w => w.id));
-        const seedKeywords = new Set(bioKeywords);
-        // How many keyword hits in a candidate's bio qualify it as "similar"?
-        // Scale with how many keywords the seed has — need meaningful overlap.
-        const threshold = Math.max(2, Math.min(3, Math.floor(bioKeywords.length / 3)));
 
-        const similar = [];
-        for (const list of results) {
-          for (const c of list) {
-            if (!c.id || seen.has(c.id) || watchIds.has(c.id)) continue;
-            seen.add(c.id);
-            // HARD filter: the candidate's BIO must contain at least
-            // `threshold` of the seed's bio keywords. No bio → no match.
-            const candidateBio = (c.description || "").toLowerCase();
-            if (!candidateBio) continue;
-            let hits = 0;
-            for (const k of seedKeywords) if (candidateBio.includes(k)) hits++;
-            if (hits < threshold) continue;
-            c._bioHits = hits;
-            similar.push(c);
+        // 1. Try the dedicated similar-accounts endpoint
+        let similar = [];
+        try {
+          const r = await apiPost("/api/instagram-similar", { handle: handleClean });
+          similar = (r.creators || []).filter(c => c.id !== seed.id && !watchIds.has(c.id));
+        } catch {}
+
+        // 2. Fall back to bio-keyword search if similar-accounts was empty
+        if (similar.length === 0) {
+          const bioKeywords = extractBioKeywords(seed.description);
+          if (bioKeywords.length > 0) {
+            const queries = new Set();
+            for (const k of bioKeywords.slice(0, 6)) queries.add(k);
+            for (let i = 0; i < Math.min(bioKeywords.length, 3); i++) {
+              for (let j = i + 1; j < Math.min(bioKeywords.length, 5); j++) {
+                queries.add(`${bioKeywords[i]} ${bioKeywords[j]}`);
+              }
+            }
+            const queryList = Array.from(queries).filter(q => q && q.length > 2);
+            const results = await Promise.all(
+              queryList.map(q =>
+                apiPost("/api/search-creators-instagram", { query: q, page: 0 })
+                  .then(r => r.creators || []).catch(() => [])
+              )
+            );
+            const seen = new Set([seed.id]);
+            const seedKeywords = new Set(bioKeywords);
+            const threshold = Math.max(2, Math.min(3, Math.floor(bioKeywords.length / 3)));
+            for (const list of results) {
+              for (const c of list) {
+                if (!c.id || seen.has(c.id) || watchIds.has(c.id)) continue;
+                seen.add(c.id);
+                const candidateBio = (c.description || "").toLowerCase();
+                if (!candidateBio) continue;
+                let hits = 0;
+                for (const k of seedKeywords) if (candidateBio.includes(k)) hits++;
+                if (hits < threshold) continue;
+                c._bioHits = hits;
+                similar.push(c);
+              }
+            }
+            similar.sort((a, b) => {
+              if (b._bioHits !== a._bioHits) return b._bioHits - a._bioHits;
+              const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
+              const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
+              if (hasA !== hasB) return hasB - hasA;
+              return (b.subscriberCount || 0) - (a.subscriberCount || 0);
+            });
           }
         }
 
-        // Sort: most bio overlap first, then real followers over N/A, then
-        // follower count descending.
-        similar.sort((a, b) => {
-          if (b._bioHits !== a._bioHits) return b._bioHits - a._bioHits;
-          const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
-          const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
-          if (hasA !== hasB) return hasB - hasA;
-          return (b.subscriberCount || 0) - (a.subscriberCount || 0);
-        });
+        // Sort similar-accounts results (if that was the source) by followers
+        if (similar.length > 0 && similar[0]._bioHits == null) {
+          similar.sort((a, b) => {
+            const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
+            const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
+            if (hasA !== hasB) return hasB - hasA;
+            return (b.subscriberCount || 0) - (a.subscriberCount || 0);
+          });
+        }
 
-        setLastQuery(bioKeywords.slice(0, 4).join(" "));
+        setLastQuery(handleClean);
         setSuggestions([seed, ...similar]);
         setVisibleCount(50);
-        // Enable Load more so the user can keep pulling matches from backend
-        // tiers. Load more in seed mode re-runs with more bio keywords.
         setBackendHasMore(true);
+        if (similar.length === 0) {
+          setError(`Found ${seed.username}, but couldn't find similar accounts automatically. Subscribe to 'instagram-scraper-20251' on RapidAPI for better results.`);
+        }
         setLoading(false);
         return;
       }
