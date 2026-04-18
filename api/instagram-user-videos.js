@@ -63,10 +63,18 @@ export default async function handler(req, res) {
       debugInfo.topKeys = Object.keys(raw).slice(0, 12);
     }
 
-    // The API may wrap the list under different keys; handle all common shapes
+    // The mediacrawlers /reels endpoint returns:
+    //   { status: "ok", data: { items: [ { media: {...} }, ... ] } }
+    // Check the nested path first, then fall back to other shapes we might
+    // encounter with different upstream versions.
     const list = Array.isArray(raw) ? raw
-      : raw?.items || raw?.data || raw?.reels || raw?.media || raw?.results
+      : raw?.data?.items
+      || raw?.items
+      || raw?.reels
+      || raw?.media
+      || raw?.results
       || raw?.user?.edge_owner_to_timeline_media?.edges
+      || (Array.isArray(raw?.data) ? raw.data : null)
       || [];
 
     debugInfo.listLen = Array.isArray(list) ? list.length : 0;
