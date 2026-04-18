@@ -279,8 +279,8 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
       </div>
 
       <div className="flex gap-5">
-        <div className="w-60 flex-shrink-0">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-4">
+        <div className="w-72 flex-shrink-0">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-4 overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Filters</h3>
               <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Clear</button>
@@ -353,9 +353,9 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                 <label className="text-xs text-gray-500 block mb-1.5 font-medium">Outlier score</label>
                 <div className="flex gap-2">
                   <input type="text" placeholder="1" value={outlierMin} onChange={(e) => setOutlierMin(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    className="flex-1 min-w-0 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
                   <input type="text" placeholder="100x" value={outlierMax} onChange={(e) => setOutlierMax(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    className="flex-1 min-w-0 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
                 </div>
               </div>
 
@@ -363,9 +363,9 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                 <label className="text-xs text-gray-500 block mb-1.5 font-medium">Views</label>
                 <div className="flex gap-2">
                   <input type="text" placeholder="0" value={viewsMin} onChange={(e) => setViewsMin(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    className="flex-1 min-w-0 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
                   <input type="text" placeholder="10,000,000" value={viewsMax} onChange={(e) => setViewsMax(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    className="flex-1 min-w-0 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
                 </div>
               </div>
 
@@ -373,9 +373,9 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                 <label className="text-xs text-gray-500 block mb-1.5 font-medium">Engagement</label>
                 <div className="flex gap-2">
                   <input type="text" placeholder="0%" value={engagementMin} onChange={(e) => setEngagementMin(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    className="flex-1 min-w-0 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
                   <input type="text" placeholder="100%" value={engagementMax} onChange={(e) => setEngagementMax(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    className="flex-1 min-w-0 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
                 </div>
               </div>
 
@@ -383,7 +383,7 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                 <label className="text-xs text-gray-500 block mb-1.5 font-medium">Posted in last</label>
                 <div className="flex gap-2">
                   <input type="text" placeholder="0" value={postedWithin} onChange={(e) => setPostedWithin(e.target.value)}
-                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                    className="flex-1 min-w-0 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
                   <div className="relative flex-1">
                     <button onClick={() => setShowPostedUnitDropdown(!showPostedUnitDropdown)}
                       className="w-full text-left px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white hover:border-gray-300 flex items-center justify-between">
