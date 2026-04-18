@@ -1,47 +1,44 @@
+// Niche/keyword search for Instagram creators.
+//
+// Uses mediacrawlers (instagram-api-fast-reliable-data-scraper) on Ultra tier.
+// Confirmed endpoint: GET /users_search?query=<q>
+//
+// This replaces the legacy `instagram-scraper-stable-api` (Stable API) that
+// was the only thing our $28.99 paid subscription was being used for. Once
+// this is live, that subscription can be cancelled.
+
+const HOST = "instagram-api-fast-reliable-data-scraper.p.rapidapi.com";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   const { query, page } = req.body;
-
   if (!query || !query.trim()) {
     return res.status(400).json({ error: "Please provide a search query" });
   }
 
-  // Pagination: `page` is 0-based. Each page runs a different slice of query
-  // variations so subsequent pages return genuinely new accounts, not the
-  // same core set plus one or two new.
-  const pageNum = Math.max(0, parseInt(page) || 0);
-
   const rapidApiKey = process.env.RAPIDAPI_KEY;
-
   if (!rapidApiKey) {
-    return res.status(500).json({
-      error: "RapidAPI key not configured. Add RAPIDAPI_KEY in Vercel environment variables."
-    });
+    return res.status(500).json({ error: "RAPIDAPI_KEY not configured" });
   }
 
+  const pageNum = Math.max(0, parseInt(page) || 0);
+  const headers = { "x-rapidapi-host": HOST, "x-rapidapi-key": rapidApiKey };
+
   try {
-    // Search with multiple query variations to widen the pool of creators.
-    // RapidAPI's Instagram search returns a limited set per call, so we run
-    // MANY related queries in parallel and dedupe.
-    //
-    // IMPORTANT: for multi-word queries we keep the FULL phrase as primary
-    // and never fan out on a single word alone — that pulls in off-topic
-    // accounts (e.g. searching "online fitness coach" and getting
-    // "toponlineshop" because "online" matched).
+    // Build query variations per page tier. We keep the structure from the
+    // legacy implementation (tiers A / B / C) so subsequent Load-more pages
+    // return genuinely new accounts instead of re-fetching the same list.
     const q = query.trim();
     const words = q.split(/\s+/);
 
-    // Three tiers of query variations. Page 0 runs tier A, page 1 runs tier B,
-    // page 2 runs tier C — so "Load more" clicks actually return genuinely new
-    // accounts each time instead of the same saturated set.
-    const suffixesCore = ["coach", "tips", "daily", "pro", "guru", "reels", "official"];
+    const suffixesCore  = ["coach", "tips", "daily", "pro", "guru", "reels", "official"];
     const suffixesExtra = ["life", "motivation", "hq", "journey", "academy", "fit", "hub", "world"];
-    const prefixesCore = ["the", "real", "best", "top", "daily"];
+    const prefixesCore  = ["the", "real", "best", "top", "daily"];
     const prefixesExtra = ["mr", "ms", "your", "coach", "dr", "official"];
-    const niches = ["online", "1on1", "elite", "performance", "premium", "global"];
+    const niches        = ["online", "1on1", "elite", "performance", "premium", "global"];
 
     const tier = { A: new Set([q]), B: new Set(), C: new Set() };
 
@@ -49,141 +46,111 @@ export default async function handler(req, res) {
       const joined = words.join("");
       const lastTwo = words.slice(-2).join("");
       tier.A.add(joined); tier.A.add(lastTwo);
-      for (const s of suffixesCore) { tier.A.add(joined + s); tier.A.add(lastTwo + s); }
-      for (const p of prefixesCore) { tier.B.add(p + joined); tier.B.add(p + lastTwo); }
+      for (const s of suffixesCore)  { tier.A.add(joined + s); tier.A.add(lastTwo + s); }
+      for (const p of prefixesCore)  { tier.B.add(p + joined); tier.B.add(p + lastTwo); }
       for (const s of suffixesExtra) { tier.B.add(joined + s); tier.B.add(lastTwo + s); }
       for (const p of prefixesExtra) { tier.C.add(p + joined); tier.C.add(p + lastTwo); }
-      for (const n of niches) { tier.C.add(n + lastTwo); tier.C.add(lastTwo + n); }
+      for (const n of niches)        { tier.C.add(n + lastTwo); tier.C.add(lastTwo + n); }
     } else {
       tier.A.add(q);
-      for (const s of suffixesCore) tier.A.add(q + s);
-      for (const p of prefixesCore) tier.A.add(p + q);
+      for (const s of suffixesCore)  tier.A.add(q + s);
+      for (const p of prefixesCore)  tier.A.add(p + q);
       for (const s of suffixesExtra) tier.B.add(q + s);
       for (const p of prefixesExtra) tier.B.add(p + q);
       tier.B.add(q + "s"); tier.B.add(q + "er");
-      for (const n of niches) { tier.C.add(n + q); tier.C.add(q + n); }
+      for (const n of niches)        { tier.C.add(n + q); tier.C.add(q + n); }
       tier.C.add(q + "girl"); tier.C.add(q + "guy");
       tier.C.add(q + "life"); tier.C.add(q + "world");
     }
 
-    // Pick the tier for this page (page 2+ still gets C, just returns less new)
     const tierKey = pageNum === 0 ? "A" : pageNum === 1 ? "B" : "C";
-    const searchTermsArr = Array.from(tier[tierKey]);
+    const searchTerms = Array.from(tier[tierKey]);
+
+    // Ultra tier is 1 request/second. Fire requests SERIALLY with a small
+    // delay between them so we don't trigger the rate limiter. We cap the
+    // number of variations per page so a single search completes in a
+    // reasonable time.
+    const MAX_PER_PAGE = 8;
+    const termsThisPage = searchTerms.slice(0, MAX_PER_PAGE);
 
     const allUsers = [];
-    const seenUsernames = new Set();
+    const seen = new Set();
 
-    // Run searches in parallel for speed
-    const searchPromises = searchTermsArr.map(term =>
-      fetchInstagramSearch(term, rapidApiKey).catch(() => [])
-    );
-    const results = await Promise.all(searchPromises);
-
-    for (const users of results) {
-      for (const item of users) {
-        const user = item.user || item;
-        const username = user.username || "";
-        if (username && !seenUsernames.has(username)) {
-          seenUsernames.add(username);
-          allUsers.push(user);
-        }
+    for (const term of termsThisPage) {
+      const users = await searchUsers(term, headers);
+      for (const u of users) {
+        const username = (u.username || "").toLowerCase();
+        if (!username || seen.has(username)) continue;
+        seen.add(username);
+        allUsers.push(u);
       }
+      // 1.05s pause between requests to stay under 1 req/sec
+      await sleep(1050);
     }
 
     if (allUsers.length === 0) {
-      return res.json({ creators: [] });
+      return res.json({ creators: [], page: pageNum, hasNextPage: pageNum < 2 });
     }
 
-    // Format results — proxy the profile image URL so it actually loads.
-    // Return ALL deduped users (no slice cap) so the frontend can decide
-    // how many to show and can page for more.
-    const creators = allUsers.map((user) => {
-      const followersText = user.search_social_context || "";
-      const followerCount = parseFollowers(followersText);
-      const rawPic = user.profile_pic_url || "";
-      // Proxy the image through our API to avoid CORS / CDN blocks
-      const thumbnail = rawPic
-        ? `/api/proxy-image?url=${encodeURIComponent(rawPic)}`
-        : "";
+    // Normalise to our standard creator shape
+    const creators = allUsers.map(normalize).filter(Boolean);
 
-      return {
-        id: user.pk || user.id || "",
-        name: user.full_name || user.username || "",
-        username: user.username || "",
-        // Only include the actual biography. Do NOT fall back to follower
-        // text — the frontend matches against this field for relevance and
-        // "773K followers" would pollute results.
-        description: user.biography || "",
-        thumbnail,
-        platform: "Instagram Reels",
-        subscribers: followersText || "N/A",
-        subscriberCount: followerCount,
-        totalViews: "N/A",
-        videoCount: 0,
-        isVerified: user.is_verified || false,
-      };
+    // Sort by follower count desc (accounts with known counts first)
+    creators.sort((a, b) => {
+      const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
+      const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
+      if (hasA !== hasB) return hasB - hasA;
+      return (b.subscriberCount || 0) - (a.subscriberCount || 0);
     });
 
-    // Sort by follower count descending
-    creators.sort((a, b) => b.subscriberCount - a.subscriberCount);
-
-    // Tell the client there are more pages available (only tiers A and B have
-    // a well-defined "next" tier; after C we've exhausted our variations).
-    const hasNextPage = pageNum < 2;
-    return res.json({ creators, page: pageNum, hasNextPage });
+    return res.json({ creators, page: pageNum, hasNextPage: pageNum < 2 });
   } catch (err) {
-    console.error("Instagram search error:", err);
-    return res.status(500).json({
-      error: err.message || "Failed to search Instagram creators",
-    });
+    return res.status(500).json({ error: err.message || "Search failed" });
   }
 }
 
-async function fetchInstagramSearch(query, apiKey) {
+async function searchUsers(queryTerm, headers) {
   try {
-    const searchRes = await fetch(
-      "https://instagram-scraper-stable-api.p.rapidapi.com/search_ig.php",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "x-rapidapi-host": "instagram-scraper-stable-api.p.rapidapi.com",
-          "x-rapidapi-key": apiKey,
-        },
-        body: `search_query=${encodeURIComponent(query)}`,
-      }
+    const r = await fetch(
+      `https://${HOST}/users_search?query=${encodeURIComponent(queryTerm)}`,
+      { headers }
     );
-
-    const text = await searchRes.text();
-    console.log("Instagram API response status:", searchRes.status, "body length:", text.length);
-
-    if (!searchRes.ok) {
-      console.error("Instagram API error:", text.substring(0, 300));
-      return [];
-    }
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      console.error("Instagram API returned non-JSON:", text.substring(0, 300));
-      return [];
-    }
-
-    return data.users || [];
-  } catch (e) {
-    console.error("Instagram fetch failed:", e.message);
-    return [];
-  }
+    if (!r.ok) return [];
+    const data = await r.json().catch(() => ({}));
+    // Response shape: { users: [...] } or array — handle both
+    return Array.isArray(data) ? data : (data.users || data.data || data.results || []);
+  } catch { return []; }
 }
 
-// Parse follower count strings like "3M followers", "336K followers", "1,234 followers"
-function parseFollowers(text) {
-  if (!text) return 0;
-  const match = text.match(/([\d,.]+)\s*(M|K)?\s*followers/i);
-  if (!match) return 0;
-  let num = parseFloat(match[1].replace(/,/g, ""));
-  if (match[2] && match[2].toUpperCase() === "M") num *= 1000000;
-  if (match[2] && match[2].toUpperCase() === "K") num *= 1000;
-  return Math.round(num);
+function normalize(u) {
+  if (!u || !u.username) return null;
+  const user = u.user || u;
+  const followerCount = user.follower_count ?? user.followers_count ?? 0;
+  const rawPic = user.profile_pic_url_hd || user.profile_pic_url || "";
+  const thumbnail = rawPic ? `/api/proxy-image?url=${encodeURIComponent(rawPic)}` : "";
+
+  return {
+    id: String(user.pk || user.id || user.user_id || user.username),
+    name: user.full_name || user.username,
+    username: user.username,
+    description: user.biography || user.bio || "",
+    category: user.category || user.category_name || "",
+    thumbnail,
+    platform: "Instagram Reels",
+    subscribers: followerCount ? formatFollowers(followerCount) : "N/A",
+    subscriberCount: followerCount,
+    totalViews: "N/A",
+    videoCount: user.media_count || 0,
+    isVerified: !!(user.is_verified || user.verified),
+  };
+}
+
+function formatFollowers(n) {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M followers";
+  if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K followers";
+  return String(n) + " followers";
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

@@ -14,8 +14,7 @@
 // The native similar_accounts endpoint is not available on the current
 // subscription tier, so this is the best approximation we can build.
 
-const NEW_HOST = "instagram-api-fast-reliable-data-scraper.p.rapidapi.com";
-const LEGACY_HOST = "instagram-scraper-stable-api.p.rapidapi.com";
+const HOST = "instagram-api-fast-reliable-data-scraper.p.rapidapi.com";
 const MAX_CANDIDATES_TO_ENRICH = 40;
 
 // Categories that are too broad to be a useful similarity signal on their own.
@@ -42,16 +41,11 @@ export default async function handler(req, res) {
   if (!rapidApiKey) return res.status(500).json({ error: "RAPIDAPI_KEY not configured" });
 
   const clean = handle.trim().replace(/^@/, "").toLowerCase();
-  const newHeaders = { "x-rapidapi-host": NEW_HOST, "x-rapidapi-key": rapidApiKey };
-  const legacyHeaders = {
-    "Content-Type": "application/x-www-form-urlencoded",
-    "x-rapidapi-host": LEGACY_HOST,
-    "x-rapidapi-key": rapidApiKey,
-  };
+  const headers = { "x-rapidapi-host": HOST, "x-rapidapi-key": rapidApiKey };
 
   try {
     // 1. Seed profile
-    const seed = await fetchProfile(clean, newHeaders);
+    const seed = await fetchProfile(clean, headers);
     if (!seed) return res.json({ creators: [], warning: "Could not load seed profile." });
 
     const seedCategory = (seed.category || "").toLowerCase().trim();
@@ -82,17 +76,15 @@ export default async function handler(req, res) {
       });
     }
 
-    const queryList = Array.from(queries);
+    // Cap at a reasonable number of queries so this doesn't blow the quota
+    // on a single similar-accounts request.
+    const queryList = Array.from(queries).slice(0, 6);
 
-    // 3. Run searches in parallel (legacy endpoint is what's available for
-    // niche searches — mediacrawlers search is paid)
-    const searchResults = await Promise.all(
-      queryList.map(q => legacySearch(q, legacyHeaders).catch(() => []))
-    );
-
+    // 3. Run searches SERIALLY with a small delay (Ultra = 1 req/sec)
     const seen = new Set([clean]);
     const candidates = [];
-    for (const list of searchResults) {
+    for (const q of queryList) {
+      const list = await usersSearch(q, headers).catch(() => []);
       for (const user of list) {
         const uname = (user.username || "").toLowerCase();
         if (!uname || seen.has(uname)) continue;
@@ -101,16 +93,19 @@ export default async function handler(req, res) {
         if (candidates.length >= MAX_CANDIDATES_TO_ENRICH) break;
       }
       if (candidates.length >= MAX_CANDIDATES_TO_ENRICH) break;
+      await sleep(1050);
     }
 
     if (candidates.length === 0) {
       return res.json({ creators: [], warning: "No candidate accounts found.", seedCategory, bioKeywords });
     }
 
-    // 4. Enrich each candidate via /profile so we can compare category + bio
+    // 4. Enrich each candidate via /profile so we can compare category + bio.
+    // Use Promise.all here (client-scoped mass burst is small — cap handled
+    // above). If rate limit issues appear, serialize the same way.
     const seedKeywordSet = new Set(bioKeywords);
     const enriched = await Promise.all(
-      candidates.map(c => enrichAndScore(c, newHeaders, seedCategory, seedKeywordSet, useCategory))
+      candidates.map(c => enrichAndScore(c, headers, seedCategory, seedKeywordSet, useCategory))
     );
 
     const filtered = enriched
@@ -140,23 +135,23 @@ export default async function handler(req, res) {
 
 async function fetchProfile(username, headers) {
   try {
-    const r = await fetch(`https://${NEW_HOST}/profile?username=${encodeURIComponent(username)}`, { headers });
+    const r = await fetch(`https://${HOST}/profile?username=${encodeURIComponent(username)}`, { headers });
     if (!r.ok) return null;
     return await r.json().catch(() => null);
   } catch { return null; }
 }
 
-async function legacySearch(query, headers) {
+async function usersSearch(query, headers) {
   try {
-    const r = await fetch(`https://${LEGACY_HOST}/search_ig.php`, {
-      method: "POST", headers,
-      body: `search_query=${encodeURIComponent(query)}`,
-    });
+    const r = await fetch(`https://${HOST}/users_search?query=${encodeURIComponent(query)}`, { headers });
     if (!r.ok) return [];
     const data = await r.json().catch(() => ({}));
-    return (data.users || []).map(it => it.user || it);
+    const list = Array.isArray(data) ? data : (data.users || data.data || data.results || []);
+    return list.map(it => it.user || it);
   } catch { return []; }
 }
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
 async function enrichAndScore(candidate, headers, seedCategory, seedKeywordSet, useCategory) {
   if (!candidate.username) return null;
