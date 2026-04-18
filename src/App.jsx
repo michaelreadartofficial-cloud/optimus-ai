@@ -7,7 +7,7 @@ import {
   ChevronLeft, Share2, Code, AlertCircle, Heart, Palette,
   FileText, Target, LayoutGrid, Activity, Bell, Moon, Sun, Key, Globe,
   ChevronRight, ExternalLink, Hash, Calendar, Wand2, Link, SlidersHorizontal,
-  HelpCircle, Upload, Loader2
+  HelpCircle, Upload, Loader2, FolderOpen, UserCircle
 } from "lucide-react";
 
 // ============================================================
@@ -293,7 +293,7 @@ const ChannelsPage = ({ watchlist, setWatchlist }) => {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-gray-900 truncate">{creator.name || creator.username}</p>
-        <p className="text-xs text-gray-500">@{creator.username || creator.name} Â· {creator.subscribers || formatNumber(creator.subscriberCount)} followers</p>
+        <p className="text-xs text-gray-500">@{creator.username || creator.name} · {creator.subscribers || formatNumber(creator.subscriberCount)} followers</p>
       </div>
       {action}
     </div>
@@ -484,22 +484,31 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
   const [activeTab, setActiveTab] = useState("feed");
   const [sortBy, setSortBy] = useState("newest");
   const [showSortMenu, setShowSortMenu] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
   const [hoveredVideoId, setHoveredVideoId] = useState(null);
   const [videos, setVideos] = useState(SAMPLE_VIDEOS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // Filters
+  const [savedFilter, setSavedFilter] = useState("");
+  const [savedFilters, setSavedFilters] = useState(() => loadFromStorage("optimus_saved_filters", []));
   const [channelFilter, setChannelFilter] = useState("all");
   const [outlierMin, setOutlierMin] = useState("");
   const [outlierMax, setOutlierMax] = useState("");
   const [viewsMin, setViewsMin] = useState("");
   const [viewsMax, setViewsMax] = useState("");
+  const [engagementMin, setEngagementMin] = useState("");
+  const [engagementMax, setEngagementMax] = useState("");
+  const [postedWithin, setPostedWithin] = useState("");
+  const [postedUnit, setPostedUnit] = useState("months");
   const [platformFilter, setPlatformFilter] = useState("all");
   const [keywords, setKeywords] = useState("");
   const [showChannelDropdown, setShowChannelDropdown] = useState(false);
   const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
+  const [showSavedFilterDropdown, setShowSavedFilterDropdown] = useState(false);
+  const [showPostedUnitDropdown, setShowPostedUnitDropdown] = useState(false);
+
+  useEffect(() => { saveToStorage("optimus_saved_filters", savedFilters); }, [savedFilters]);
 
   // Fetch videos from API for watchlisted YouTube creators
   const fetchVideos = useCallback(async () => {
@@ -568,6 +577,13 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
     if (outlierMax && (v.outlierScore || 0) > parseFloat(outlierMax)) return false;
     if (viewsMin && (v.views || 0) < parseInt(viewsMin)) return false;
     if (viewsMax && (v.views || 0) > parseInt(viewsMax)) return false;
+    if (engagementMin && (v.engagementRate || 0) < parseFloat(engagementMin) / 100) return false;
+    if (engagementMax && (v.engagementRate || 0) > parseFloat(engagementMax) / 100) return false;
+    if (postedWithin && v.publishedAt) {
+      const days = parseInt(postedWithin) * (postedUnit === "months" ? 30 : postedUnit === "weeks" ? 7 : 1);
+      const cutoff = Date.now() - days * 86400000;
+      if (new Date(v.publishedAt).getTime() < cutoff) return false;
+    }
     if (channelFilter !== "all" && (v.channel?.name || "") !== channelFilter) return false;
     if (platformFilter !== "all") {
       const p = (v.platform || "").toLowerCase();
@@ -580,6 +596,7 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
   }).sort((a, b) => {
     if (sortBy === "outlier") return (b.outlierScore || 0) - (a.outlierScore || 0);
     if (sortBy === "views") return (b.views || 0) - (a.views || 0);
+    if (sortBy === "engagement") return (b.engagementRate || 0) - (a.engagementRate || 0);
     return 0;
   });
 
@@ -598,11 +615,53 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
   const clearFilters = () => {
     setOutlierMin(""); setOutlierMax("");
     setViewsMin(""); setViewsMax("");
+    setEngagementMin(""); setEngagementMax("");
+    setPostedWithin(""); setPostedUnit("months");
     setChannelFilter("all"); setPlatformFilter("all");
-    setKeywords("");
+    setKeywords(""); setSavedFilter("");
+  };
+
+  const currentFilterSnapshot = () => ({
+    channelFilter, outlierMin, outlierMax, viewsMin, viewsMax,
+    engagementMin, engagementMax, postedWithin, postedUnit,
+    platformFilter, keywords,
+  });
+
+  const applyFilterSnapshot = (s) => {
+    setChannelFilter(s.channelFilter ?? "all");
+    setOutlierMin(s.outlierMin ?? ""); setOutlierMax(s.outlierMax ?? "");
+    setViewsMin(s.viewsMin ?? ""); setViewsMax(s.viewsMax ?? "");
+    setEngagementMin(s.engagementMin ?? ""); setEngagementMax(s.engagementMax ?? "");
+    setPostedWithin(s.postedWithin ?? ""); setPostedUnit(s.postedUnit ?? "months");
+    setPlatformFilter(s.platformFilter ?? "all");
+    setKeywords(s.keywords ?? "");
+  };
+
+  const saveCurrentFilter = () => {
+    const name = window.prompt("Name this filter:");
+    if (!name) return;
+    setSavedFilters(prev => [...prev.filter(f => f.name !== name), { name, ...currentFilterSnapshot() }]);
+    setSavedFilter(name);
+  };
+
+  const exportVideos = () => {
+    const rows = [["Title", "Channel", "Platform", "Views", "Outlier", "Engagement", "URL"]];
+    filteredVideos.forEach(v => rows.push([
+      v.title, v.channel?.name || "", v.platform || "",
+      v.views || 0, v.outlierScore || "",
+      v.engagementRate ? (v.engagementRate * 100).toFixed(2) + "%" : "",
+      v.url || ""
+    ]));
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `optimus-videos-${Date.now()}.csv`; a.click();
+    URL.revokeObjectURL(url);
   };
 
   const platformLabel = { all: "All platforms", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube" };
+  const postedUnitLabel = { days: "Days", weeks: "Weeks", months: "Months" };
 
   return (
     <div>
@@ -615,41 +674,28 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
 
       {/* Tabs + Toolbar */}
       <div className="flex items-center justify-between mb-5">
-        <div className="flex gap-2">
+        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
           {["feed", "vault"].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === tab ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                activeTab === tab ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
               }`}>
-              {tab === "feed" ? "Feed" : `Vault (${savedVideos.length})`}
+              {tab === "feed" ? "Feed" : `Vault${savedVideos.length ? ` (${savedVideos.length})` : ""}`}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1">
           {activeTab === "feed" && (
-            <>
-              <button onClick={() => setCurrentPage("channels")}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-                <Settings size={14} /> Configure channels
-              </button>
-              <button onClick={fetchVideos} disabled={loading}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50">
-                <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Refresh
-              </button>
-            </>
+            <button onClick={() => setCurrentPage("channels")}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+              <Users size={14} /> Configure channels
+            </button>
           )}
-
-          <button onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors ${
-              showFilters ? "bg-gray-900 text-white" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            }`}>
-            <Filter size={14} /> Filter
-          </button>
 
           <div className="relative">
             <button onClick={() => setShowSortMenu(!showSortMenu)}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
               <BarChart3 size={14} /> Sort by
             </button>
             {showSortMenu && (
@@ -660,6 +706,7 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
                     { key: "newest", label: "Newest" },
                     { key: "outlier", label: "Outlier score" },
                     { key: "views", label: "Views" },
+                    { key: "engagement", label: "Engagement" },
                   ].map(opt => (
                     <button key={opt.key} onClick={() => { setSortBy(opt.key); setShowSortMenu(false); }}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${sortBy === opt.key ? "text-blue-600 font-medium" : "text-gray-700"}`}>
@@ -670,105 +717,194 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
               </>
             )}
           </div>
+
+          <button onClick={exportVideos}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <Download size={14} /> Export
+          </button>
+
+          <button onClick={fetchVideos} disabled={loading}
+            title="Refresh"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50">
+            <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+          </button>
         </div>
       </div>
 
       {/* Filter Sidebar + Video Grid */}
       <div className="flex gap-5">
-        {showFilters && (
-          <div className="w-56 flex-shrink-0">
-            <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Filters</h3>
-                <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Clear</button>
+        <div className="w-60 flex-shrink-0">
+          <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Filters</h3>
+              <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Clear</button>
+            </div>
+            <div className="space-y-3.5">
+              {/* Saved Filters */}
+              <div className="relative">
+                <label className="text-xs text-gray-500 block mb-1.5 font-medium">Saved Filters</label>
+                <button onClick={() => setShowSavedFilterDropdown(!showSavedFilterDropdown)}
+                  className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 transition-colors flex items-center justify-between">
+                  <span className={savedFilter ? "text-gray-900" : "text-gray-400"}>
+                    {savedFilter || "Pick one to apply"}
+                  </span>
+                  <ChevronDown size={14} className="text-gray-400" />
+                </button>
+                {showSavedFilterDropdown && (
+                  <>
+                    <div className="fixed inset-0 z-20" onClick={() => setShowSavedFilterDropdown(false)} />
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 max-h-56 overflow-y-auto">
+                      {savedFilters.length === 0 ? (
+                        <div className="px-3 py-2 text-xs text-gray-400">No saved filters yet</div>
+                      ) : savedFilters.map(f => (
+                        <div key={f.name} className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 group">
+                          <button onClick={() => { applyFilterSnapshot(f); setSavedFilter(f.name); setShowSavedFilterDropdown(false); }}
+                            className={`flex-1 text-left text-sm ${savedFilter === f.name ? "text-blue-600 font-medium" : "text-gray-700"}`}>
+                            {f.name}
+                          </button>
+                          <button onClick={() => setSavedFilters(prev => prev.filter(x => x.name !== f.name))}
+                            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500">
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
-              <div className="space-y-4">
-                {/* Channel filter */}
-                <div className="relative">
-                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Channels</label>
-                  <button onClick={() => setShowChannelDropdown(!showChannelDropdown)}
-                    className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 transition-colors flex items-center justify-between">
-                    <span className={channelFilter === "all" ? "text-gray-400" : "text-gray-900"}>
-                      {channelFilter === "all" ? "All channels" : channelFilter}
-                    </span>
-                    <ChevronDown size={14} className="text-gray-400" />
-                  </button>
-                  {showChannelDropdown && (
-                    <>
-                      <div className="fixed inset-0 z-20" onClick={() => setShowChannelDropdown(false)} />
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 max-h-56 overflow-y-auto">
-                        <button onClick={() => { setChannelFilter("all"); setShowChannelDropdown(false); }}
-                          className={`w-full text-left px-3 py-2 text-sm ${channelFilter === "all" ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
-                          All channels
+
+              {/* Channels */}
+              <div className="relative">
+                <label className="text-xs text-gray-500 block mb-1.5 font-medium">Channels</label>
+                <button onClick={() => setShowChannelDropdown(!showChannelDropdown)}
+                  className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 transition-colors flex items-center justify-between">
+                  <span className={channelFilter === "all" ? "text-gray-400" : "text-gray-900"}>
+                    {channelFilter === "all" ? "All channels" : channelFilter}
+                  </span>
+                  <ChevronDown size={14} className="text-gray-400" />
+                </button>
+                {showChannelDropdown && (
+                  <>
+                    <div className="fixed inset-0 z-20" onClick={() => setShowChannelDropdown(false)} />
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 max-h-56 overflow-y-auto">
+                      <button onClick={() => { setChannelFilter("all"); setShowChannelDropdown(false); }}
+                        className={`w-full text-left px-3 py-2 text-sm ${channelFilter === "all" ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                        All channels
+                      </button>
+                      {watchlist.map(creator => (
+                        <button key={creator.id} onClick={() => { setChannelFilter(creator.name || creator.username); setShowChannelDropdown(false); }}
+                          className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                            channelFilter === (creator.name || creator.username) ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"
+                          }`}>
+                          {creator.thumbnail && <img src={creator.thumbnail} alt="" className="w-5 h-5 rounded-full object-cover" />}
+                          <span className="truncate">{creator.name || creator.username}</span>
                         </button>
-                        {watchlist.map(creator => (
-                          <button key={creator.id} onClick={() => { setChannelFilter(creator.name || creator.username); setShowChannelDropdown(false); }}
-                            className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
-                              channelFilter === (creator.name || creator.username) ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"
-                            }`}>
-                            <span className="truncate">{creator.name || creator.username}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
 
-                {/* Outlier Score */}
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Outlier score</label>
-                  <div className="flex gap-2">
-                    <input type="text" placeholder="Min" value={outlierMin} onChange={(e) => setOutlierMin(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
-                    <input type="text" placeholder="Max" value={outlierMax} onChange={(e) => setOutlierMax(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
-                  </div>
-                </div>
-
-                {/* Views */}
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Views</label>
-                  <div className="flex gap-2">
-                    <input type="text" placeholder="Min" value={viewsMin} onChange={(e) => setViewsMin(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
-                    <input type="text" placeholder="Max" value={viewsMax} onChange={(e) => setViewsMax(e.target.value)}
-                      className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
-                  </div>
-                </div>
-
-                {/* Platform */}
-                <div className="relative">
-                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Platform</label>
-                  <button onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
-                    className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 transition-colors flex items-center justify-between">
-                    <span className={platformFilter === "all" ? "text-gray-400" : "text-gray-900"}>{platformLabel[platformFilter]}</span>
-                    <ChevronDown size={14} className="text-gray-400" />
-                  </button>
-                  {showPlatformDropdown && (
-                    <>
-                      <div className="fixed inset-0 z-20" onClick={() => setShowPlatformDropdown(false)} />
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30">
-                        {Object.entries(platformLabel).map(([val, label]) => (
-                          <button key={val} onClick={() => { setPlatformFilter(val); setShowPlatformDropdown(false); }}
-                            className={`w-full text-left px-3 py-2 text-sm ${platformFilter === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Keywords */}
-                <div>
-                  <label className="text-xs text-gray-500 block mb-1.5 font-medium">Keywords</label>
-                  <input type="text" placeholder="Search titles" value={keywords} onChange={(e) => setKeywords(e.target.value)}
-                    className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white" />
+              {/* Outlier score */}
+              <div>
+                <label className="text-xs text-gray-500 block mb-1.5 font-medium">Outlier score</label>
+                <div className="flex gap-2">
+                  <input type="text" placeholder="1" value={outlierMin} onChange={(e) => setOutlierMin(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  <input type="text" placeholder="100x" value={outlierMax} onChange={(e) => setOutlierMax(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
                 </div>
               </div>
+
+              {/* Views */}
+              <div>
+                <label className="text-xs text-gray-500 block mb-1.5 font-medium">Views</label>
+                <div className="flex gap-2">
+                  <input type="text" placeholder="0" value={viewsMin} onChange={(e) => setViewsMin(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  <input type="text" placeholder="10,000,000" value={viewsMax} onChange={(e) => setViewsMax(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                </div>
+              </div>
+
+              {/* Engagement */}
+              <div>
+                <label className="text-xs text-gray-500 block mb-1.5 font-medium">Engagement</label>
+                <div className="flex gap-2">
+                  <input type="text" placeholder="0%" value={engagementMin} onChange={(e) => setEngagementMin(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  <input type="text" placeholder="100%" value={engagementMax} onChange={(e) => setEngagementMax(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                </div>
+              </div>
+
+              {/* Posted in last */}
+              <div>
+                <label className="text-xs text-gray-500 block mb-1.5 font-medium">Posted in last</label>
+                <div className="flex gap-2">
+                  <input type="text" placeholder="0" value={postedWithin} onChange={(e) => setPostedWithin(e.target.value)}
+                    className="flex-1 px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                  <div className="relative flex-1">
+                    <button onClick={() => setShowPostedUnitDropdown(!showPostedUnitDropdown)}
+                      className="w-full text-left px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white hover:border-gray-300 flex items-center justify-between">
+                      <span>{postedUnitLabel[postedUnit]}</span>
+                      <ChevronDown size={12} className="text-gray-400" />
+                    </button>
+                    {showPostedUnitDropdown && (
+                      <>
+                        <div className="fixed inset-0 z-20" onClick={() => setShowPostedUnitDropdown(false)} />
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30">
+                          {Object.entries(postedUnitLabel).map(([val, label]) => (
+                            <button key={val} onClick={() => { setPostedUnit(val); setShowPostedUnitDropdown(false); }}
+                              className={`w-full text-left px-3 py-1.5 text-xs ${postedUnit === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Platform */}
+              <div className="relative">
+                <label className="text-xs text-gray-500 block mb-1.5 font-medium">Platform</label>
+                <button onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
+                  className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 transition-colors flex items-center justify-between">
+                  <span className={platformFilter === "all" ? "text-gray-400" : "text-gray-900"}>{platformLabel[platformFilter]}</span>
+                  <ChevronDown size={14} className="text-gray-400" />
+                </button>
+                {showPlatformDropdown && (
+                  <>
+                    <div className="fixed inset-0 z-20" onClick={() => setShowPlatformDropdown(false)} />
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30">
+                      {Object.entries(platformLabel).map(([val, label]) => (
+                        <button key={val} onClick={() => { setPlatformFilter(val); setShowPlatformDropdown(false); }}
+                          className={`w-full text-left px-3 py-2 text-sm ${platformFilter === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Keywords */}
+              <div>
+                <label className="text-xs text-gray-500 block mb-1.5 font-medium">Keywords</label>
+                <input type="text" placeholder="Search captions and titles" value={keywords} onChange={(e) => setKeywords(e.target.value)}
+                  className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              </div>
+
+              {/* Save Filter */}
+              <button onClick={saveCurrentFilter}
+                className="w-full mt-2 px-3 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                Save filter
+              </button>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Video Grid */}
         <div className="flex-1">
@@ -776,41 +912,56 @@ const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) 
           {error && <ErrorMessage message={error} onRetry={fetchVideos} />}
           {!loading && (
             <>
-              <div className={`grid gap-4 ${showFilters ? "grid-cols-3 xl:grid-cols-4" : "grid-cols-4 xl:grid-cols-5"}`}>
+              <div className="grid gap-4 grid-cols-3 xl:grid-cols-4">
                 {filteredVideos.map(video => (
                   <div key={video.id} className="group cursor-pointer"
                     onMouseEnter={() => setHoveredVideoId(video.id)}
                     onMouseLeave={() => setHoveredVideoId(null)}>
+                    {/* 9:16 thumbnail with overlays */}
                     <div className="relative bg-gray-100 rounded-xl overflow-hidden mb-2" style={{ paddingBottom: "177.78%" }}>
                       <img src={video.thumbnail} alt={video.title}
                         className="absolute inset-0 w-full h-full object-cover"
                         onError={(e) => { e.target.src = `https://picsum.photos/seed/${video.id}/270/480`; }} />
+                      {/* Gradient overlay for title readability */}
+                      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
                       <PlatformBadge platform={video.platform} />
+                      {/* Title overlaid on bottom of thumbnail */}
+                      <div className="absolute inset-x-0 bottom-0 p-2.5 pointer-events-none">
+                        <p className="text-white text-xs font-semibold line-clamp-2 leading-snug drop-shadow">
+                          {video.title}
+                        </p>
+                      </div>
+                      {/* Save-to-vault button top-right on hover or when saved */}
                       <div className={`absolute top-2 right-2 transition-opacity ${hoveredVideoId === video.id || isInVault(video.id) ? "opacity-100" : "opacity-0"}`}>
                         <button onClick={(e) => { e.stopPropagation(); isInVault(video.id) ? removeFromVault(video.id) : saveToVault(video); }}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                            isInVault(video.id) ? "bg-blue-500 text-white" : "bg-white/90 text-gray-700 hover:bg-white backdrop-blur"
+                          className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                            isInVault(video.id) ? "bg-blue-500 text-white" : "bg-white/95 text-gray-700 hover:bg-white backdrop-blur"
                           }`}>
                           {isInVault(video.id) ? "Saved" : "Save to vault"}
                         </button>
                       </div>
                     </div>
-                    <div>
-                      <a href={video.url || "#"} target="_blank" rel="noopener noreferrer"
-                        className="text-xs font-semibold text-gray-900 line-clamp-2 hover:text-blue-600 transition-colors block leading-snug">
-                        {video.title}
-                      </a>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {video.channel?.name || "Unknown creator"}
-                      </p>
-                      <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-400">
-                        <span>{video.timeAgo || timeAgo(video.publishedAt)}</span>
+                    {/* Meta below */}
+                    <div className="px-0.5">
+                      <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
+                        <span className="truncate">@{(video.channel?.username || video.channel?.name || "creator").toLowerCase().replace(/\s+/g, "")}</span>
+                        <span className="text-gray-300">·</span>
+                        <span className="flex-shrink-0">{video.timeAgo || timeAgo(video.publishedAt)}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-[11px]">
                         {video.outlierScore >= 1.0 && (
                           <span className="text-orange-500 font-semibold flex items-center gap-0.5">
                             <TrendingUp size={10} /> {video.outlierScore.toFixed(1)}x
                           </span>
                         )}
-                        <span>{video.viewsFormatted || formatNumber(video.views)}</span>
+                        <span className="text-gray-600 flex items-center gap-0.5">
+                          <Eye size={10} /> {video.viewsFormatted || formatNumber(video.views)}
+                        </span>
+                        {video.engagementRate != null && (
+                          <span className="text-gray-600 flex items-center gap-0.5">
+                            <Flame size={10} /> {(video.engagementRate * 100).toFixed(1)}%
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1111,7 +1262,7 @@ const ScriptsPage = ({ savedVideos }) => {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">{script.mode}</span>
-                  <span className="text-xs text-gray-400 ml-2">{script.tone} Â· {script.duration}</span>
+                  <span className="text-xs text-gray-400 ml-2">{script.tone} · {script.duration}</span>
                 </div>
                 <div className="flex gap-1">
                   <button onClick={() => copyToClipboard(`${script.hook}\n\n${script.body}\n\n${script.cta}`)}
@@ -1210,6 +1361,79 @@ const SettingsPage = () => (
 );
 
 // ============================================================
+// PROJECTS PAGE (stub — step 6 will flesh out)
+// ============================================================
+
+const ProjectsPage = () => (
+  <div>
+    <div className="mb-6">
+      <h1 className="text-xl font-bold text-gray-900">Projects</h1>
+      <p className="text-sm text-gray-500 mt-1">Organize winning ideas into collections to speed up your workflow</p>
+    </div>
+    <div className="bg-white rounded-xl border border-gray-200 border-dashed p-12 text-center">
+      <FolderOpen size={32} className="text-gray-300 mx-auto mb-3" />
+      <p className="text-sm font-medium text-gray-700">No projects yet</p>
+      <p className="text-xs text-gray-500 mt-1">Projects let you group ideas, scripts and videos for a single content initiative</p>
+      <button className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+        <Plus size={14} /> New project
+      </button>
+    </div>
+  </div>
+);
+
+// ============================================================
+// EXPORTS PAGE (stub — step 6 will flesh out)
+// ============================================================
+
+const ExportsPage = () => (
+  <div>
+    <div className="mb-6">
+      <h1 className="text-xl font-bold text-gray-900">Exports</h1>
+      <p className="text-sm text-gray-500 mt-1">Download your saved videos, scripts and transcripts</p>
+    </div>
+    <div className="bg-white rounded-xl border border-gray-200 border-dashed p-12 text-center">
+      <Archive size={32} className="text-gray-300 mx-auto mb-3" />
+      <p className="text-sm font-medium text-gray-700">No exports yet</p>
+      <p className="text-xs text-gray-500 mt-1">Scripts you export from the Scripts page will show up here</p>
+    </div>
+  </div>
+);
+
+// ============================================================
+// PERSONA PAGE (stub — step 6 will flesh out)
+// ============================================================
+
+const PersonaPage = () => (
+  <div className="space-y-6 max-w-2xl">
+    <div>
+      <h1 className="text-xl font-bold text-gray-900">Persona</h1>
+      <p className="text-sm text-gray-500 mt-1">Tell us about the content you make so we can tailor ideas and scripts</p>
+    </div>
+    <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Niche</label>
+        <input type="text" placeholder="e.g. AI tools for creators" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Audience</label>
+        <input type="text" placeholder="e.g. solo creators and indie founders" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Voice & tone</label>
+        <textarea rows={3} placeholder="e.g. casual, direct, no fluff" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Topics you cover</label>
+        <textarea rows={2} placeholder="e.g. AI workflows, productivity, startup stories" className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+      <button className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium">
+        Save persona
+      </button>
+    </div>
+  </div>
+);
+
+// ============================================================
 // MAIN APP
 // ============================================================
 
@@ -1225,12 +1449,15 @@ const NAV_SECTIONS = [
     title: "Create",
     items: [
       { id: "scripts", label: "Scripts", icon: PenTool },
+      { id: "projects", label: "Projects", icon: FolderOpen },
+      { id: "exports", label: "Exports", icon: Archive },
     ]
   },
   {
     title: "Configure",
     items: [
       { id: "channels", label: "Channels", icon: Users },
+      { id: "persona", label: "Persona", icon: UserCircle },
       { id: "settings", label: "Settings", icon: Settings },
     ]
   },
@@ -1298,10 +1525,20 @@ export default function App() {
           {currentPage === "scripts" && <ScriptsPage savedVideos={savedVideos} />}
           {currentPage === "ideas" && (
             <div>
-              <h1 className="text-xl font-bold text-gray-900 mb-2">Ideas</h1>
-              <p className="text-sm text-gray-500">Ideas page coming soon</p>
+              <div className="mb-6">
+                <h1 className="text-xl font-bold text-gray-900">Ideas</h1>
+                <p className="text-sm text-gray-500 mt-1">Autogenerated ideas worth making, based on your saved videos</p>
+              </div>
+              <div className="bg-white rounded-xl border border-gray-200 border-dashed p-12 text-center">
+                <Lightbulb size={32} className="text-gray-300 mx-auto mb-3" />
+                <p className="text-sm font-medium text-gray-700">No ideas yet</p>
+                <p className="text-xs text-gray-500 mt-1">Save videos to your vault and we'll surface ideas you can run with</p>
+              </div>
             </div>
           )}
+          {currentPage === "projects" && <ProjectsPage />}
+          {currentPage === "exports" && <ExportsPage />}
+          {currentPage === "persona" && <PersonaPage />}
           {currentPage === "settings" && <SettingsPage />}
         </div>
       </div>
