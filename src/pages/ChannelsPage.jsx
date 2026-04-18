@@ -13,7 +13,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   const [platformFilter, setPlatformFilter] = useState("instagram");
   const [accountSizeFilter, setAccountSizeFilter] = useState("all");
   const [suggestions, setSuggestions] = useState([]);
-  const [visibleCount, setVisibleCount] = useState(25);
+  const [visibleCount, setVisibleCount] = useState(50);
   const [showPlatformDrop, setShowPlatformDrop] = useState(false);
   const [showSizeDrop, setShowSizeDrop] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -103,7 +103,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       });
 
       setSuggestions(allCreators);
-      setVisibleCount(25);
+      setVisibleCount(50);
     } catch (err) {
       setError(err.message || "Failed to search creators");
     } finally {
@@ -264,7 +264,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                   <div className="mt-5 flex justify-center">
                     <button onClick={() => setVisibleCount(c => c + 25)}
                       className="px-5 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors">
-                      Load more ({suggestions.length - visibleCount} remaining)
+                      Load 25 more accounts ({suggestions.length - visibleCount} remaining)
                     </button>
                   </div>
                 )}

@@ -67,7 +67,7 @@ export default async function handler(req, res) {
     }
 
     // Format results — proxy the profile image URL so it actually loads
-    const creators = allUsers.slice(0, 60).map((user) => {
+    const creators = allUsers.slice(0, 150).map((user) => {
       const followersText = user.search_social_context || "";
       const followerCount = parseFollowers(followersText);
       const rawPic = user.profile_pic_url || "";
