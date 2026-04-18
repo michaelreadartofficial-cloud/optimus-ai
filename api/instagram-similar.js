@@ -21,41 +21,59 @@ export default async function handler(req, res) {
   const clean = handle.trim().replace(/^@/, "").toLowerCase();
   const headers = { "x-rapidapi-host": NEW_HOST, "x-rapidapi-key": rapidApiKey };
 
+  const debug = { steps: [] };
   try {
     // 1. username → user_id
-    const idRes = await fetch(`https://${NEW_HOST}/username_to_id?username=${encodeURIComponent(clean)}`, { headers });
+    const idUrl = `https://${NEW_HOST}/username_to_id?username=${encodeURIComponent(clean)}`;
+    const idRes = await fetch(idUrl, { headers });
+    const idText = await idRes.text();
+    debug.steps.push({ step: "username_to_id", url: idUrl, status: idRes.status, preview: idText.substring(0, 300) });
     if (!idRes.ok) {
       return res.json({
         creators: [],
-        warning: "Similar accounts unavailable — subscribe to 'instagram-api-fast-reliable-data-scraper' on RapidAPI.",
+        warning: `username_to_id returned ${idRes.status}. Check subscription.`,
+        debug,
       });
     }
-    const idData = await idRes.json().catch(() => null);
-    const userId = idData?.user_id || idData?.data?.user_id || idData?.id || idData?.data?.id;
-    if (!userId) return res.json({ creators: [], warning: "User not found." });
+    let idData = null; try { idData = JSON.parse(idText); } catch {}
+    const userId = idData?.user_id || idData?.data?.user_id || idData?.id || idData?.data?.id || idData?.UserID;
+    if (!userId) {
+      return res.json({ creators: [], warning: "User id not found in response.", debug });
+    }
+    debug.userId = String(userId);
 
-    // 2. Similar accounts. The endpoint path can be one of a few shapes
-    // depending on plan; try the common ones.
+    // 2. Similar accounts. Try every plausible path name.
     const similarPaths = [
       `/similar_accounts?user_id=${encodeURIComponent(userId)}`,
       `/similar_account_recommendations?user_id=${encodeURIComponent(userId)}`,
       `/user/similar_accounts?user_id=${encodeURIComponent(userId)}`,
+      `/similar_accounts_recommendations?user_id=${encodeURIComponent(userId)}`,
+      `/similar?user_id=${encodeURIComponent(userId)}`,
+      `/user/similar?user_id=${encodeURIComponent(userId)}`,
+      `/recommendations?user_id=${encodeURIComponent(userId)}`,
+      `/related_profiles?user_id=${encodeURIComponent(userId)}`,
     ];
 
     let similarRaw = [];
+    let successfulPath = null;
     for (const p of similarPaths) {
       try {
         const r = await fetch(`https://${NEW_HOST}${p}`, { headers });
+        const t = await r.text();
+        debug.steps.push({ step: "similar_try", path: p, status: r.status, len: t.length, preview: t.substring(0, 200) });
         if (!r.ok) continue;
-        const data = await r.json().catch(() => null);
+        let data = null; try { data = JSON.parse(t); } catch {}
         similarRaw = extractList(data);
-        if (similarRaw.length > 0) break;
-      } catch {}
+        if (similarRaw.length > 0) { successfulPath = p; break; }
+      } catch (e) {
+        debug.steps.push({ step: "similar_try", path: p, error: e.message });
+      }
     }
 
     if (!similarRaw.length) {
-      return res.json({ creators: [], warning: "No similar accounts returned for this user." });
+      return res.json({ creators: [], warning: "No similar accounts returned for this user.", debug });
     }
+    debug.successfulPath = successfulPath;
 
     // Normalise each similar account into our creator shape
     const creators = similarRaw.map(normalize).filter(Boolean);
@@ -84,9 +102,10 @@ export default async function handler(req, res) {
     const enriched = await Promise.all(enrichPromises);
     const final = [...enriched, ...creators.slice(ENRICH_BIOS_FOR_TOP)];
 
-    return res.json({ creators: final, source: "mediacrawlers-similar" });
+    return res.json({ creators: final, source: "mediacrawlers-similar", debug });
   } catch (e) {
-    return res.status(500).json({ error: e.message });
+    debug.fatal = e.message;
+    return res.status(500).json({ error: e.message, debug });
   }
 }
 

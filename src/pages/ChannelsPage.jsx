@@ -367,7 +367,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
         setVisibleCount(50);
         setBackendHasMore(true);
         if (similar.length === 0) {
-          setError(`Found ${seed.username}, but couldn't find similar accounts automatically. Subscribe to 'instagram-scraper-20251' on RapidAPI for better results.`);
+          setError(`Found ${seed.username} but couldn't find similar accounts. The API may not have this creator in its similar-accounts index, or the endpoint may need adjusting. Try a different handle with more followers.`);
         }
         setLoading(false);
         return;
