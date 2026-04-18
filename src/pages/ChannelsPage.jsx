@@ -146,7 +146,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     setWatchlist(prev => prev.filter(w => w.id !== creatorId));
   };
 
-  const platformLabel = { all: "All platforms", instagram: "Instagram only", tiktok: "TikTok only", youtube: "YouTube only" };
+  const platformLabel = { all: "All platforms", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube" };
   const sizeLabel = { all: "Account size", large: "Large (1M+)", medium: "Medium (100K-1M)", small: "Small (<100K)" };
 
   const CreatorCard = ({ creator, action }) => (
