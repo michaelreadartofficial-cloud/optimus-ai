@@ -28,6 +28,34 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     return 3;
   };
 
+  // Score a creator by how well name/username/description match the query.
+  // Higher score = more relevant. Follower count is only a tiebreaker later.
+  const relevanceScore = (creator, rawQuery) => {
+    const q = (rawQuery || "").trim().toLowerCase();
+    if (!q) return 0;
+    const name = (creator.name || "").toLowerCase();
+    const handle = (creator.username || "").toLowerCase();
+    const desc = (creator.description || "").toLowerCase();
+    const words = q.split(/\s+/).filter(Boolean);
+    let score = 0;
+    // Exact phrase matches
+    if (handle.includes(q)) score += 100;
+    if (name.includes(q)) score += 90;
+    if (desc.includes(q)) score += 20;
+    // Per-word matches
+    for (const w of words) {
+      if (handle.includes(w)) score += 15;
+      if (name.includes(w)) score += 12;
+      if (desc.includes(w)) score += 4;
+    }
+    // All query words present in handle/name gets a bonus
+    if (words.length > 1) {
+      if (words.every(w => handle.includes(w))) score += 40;
+      if (words.every(w => name.includes(w))) score += 30;
+    }
+    return score;
+  };
+
   const doSearch = async () => {
     const query = (searchQuery || handleSearch || "").trim();
     if (!query) return;
@@ -62,8 +90,13 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
 
       const watchIds = new Set(watchlist.map(w => w.id));
       allCreators = allCreators.filter(c => !watchIds.has(c.id));
-      // Instagram first, then YouTube, then TikTok; within each platform sort by size
+
+      // Sort by relevance first (how well the creator matches the query),
+      // then prefer Instagram → YouTube → TikTok when relevance ties,
+      // then finally fall back to follower count.
       allCreators.sort((a, b) => {
+        const scoreDiff = relevanceScore(b, query) - relevanceScore(a, query);
+        if (scoreDiff !== 0) return scoreDiff;
         const rankDiff = platformRank(a.platform) - platformRank(b.platform);
         if (rankDiff !== 0) return rankDiff;
         return (b.subscriberCount || 0) - (a.subscriberCount || 0);
