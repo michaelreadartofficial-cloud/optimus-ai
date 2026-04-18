@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, ChevronDown, Plus, X, Loader2 } from "lucide-react";
+import { Search, ChevronDown, Plus, X, Loader2, RefreshCw } from "lucide-react";
 import { PlatformIcon } from "../components/PlatformIcon";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -37,25 +37,32 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     if (!q) return true;
     const handle = (creator.username || "").toLowerCase();
     const name = (creator.name || "").toLowerCase();
-    const desc = (creator.description || "").toLowerCase();
     const handleNoSep = handle.replace(/[._\-]/g, "");
     const nameNoSpace = name.replace(/\s+/g, "");
-    const all = `${handle} ${name} ${desc}`;
+    const handleAndName = `${handle} ${name}`;
     const words = q.split(/\s+/).filter(Boolean);
 
     if (words.length === 1) {
-      // Single word must appear in handle or name (bio alone isn't enough —
-      // too noisy).
       return handle.includes(words[0]) || name.includes(words[0]);
     }
 
-    // Multi-word: require the full phrase somewhere, OR at least two of the
-    // query words to actually appear. One-word overlap isn't enough.
+    // Multi-word query: require evidence of the full topic in the handle OR
+    // the display name. Bios are unreliable — they're full of noise like
+    // "I coach clients online for fitness" that would let off-topic accounts
+    // sneak through.
     const joined = words.join("");
-    if (handleNoSep.includes(joined) || nameNoSpace.includes(joined)) return true;
-    if (all.includes(words.join(" "))) return true;
-    const matches = words.filter(w => all.includes(w)).length;
-    return matches >= 2;
+    // Strong match: full phrase (joined or spaced) in handle/name
+    if (handleNoSep.includes(joined)) return true;
+    if (nameNoSpace.includes(joined)) return true;
+    if (handleAndName.includes(words.join(" "))) return true;
+
+    // Fallback: require at least two of the query words to hit handle/name —
+    // AND one of those hits must be the "role" word (last word, typically
+    // "coach" / "trainer" / "therapist" etc.). This kills matches that only
+    // contain the adjective ("online", "fitness") without the profession.
+    const roleWord = words[words.length - 1];
+    const hitsInHandleOrName = words.filter(w => handleAndName.includes(w));
+    return hitsInHandleOrName.length >= 2 && hitsInHandleOrName.includes(roleWord);
   };
 
   // Score a creator by how well name/username/description match the query.
@@ -197,7 +204,18 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     return null;
   };
 
-  const CreatorCard = ({ creator, action }) => {
+  const findSimilar = (creator) => {
+    // Use display name if present (e.g. "Fitness Coach Jane"), otherwise fall
+    // back to the handle with separators stripped.
+    const seed = (creator.name || creator.username || "").replace(/[._\-]/g, " ").trim();
+    if (!seed) return;
+    setSearchQuery(seed);
+    setHandleSearch("");
+    // Run search on next tick so state is updated before doSearch reads it
+    setTimeout(() => doSearch(), 0);
+  };
+
+  const CreatorCard = ({ creator, action, showSimilar = false }) => {
     const url = creatorProfileUrl(creator);
     const openProfile = () => { if (url) window.open(url, "_blank", "noopener,noreferrer"); };
     return (
@@ -216,7 +234,14 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
           <p className="text-sm font-semibold text-gray-900 truncate">{creator.name || creator.username}</p>
           <p className="text-xs text-gray-500">@{creator.username || creator.name} · {creator.subscribers || formatNumber(creator.subscriberCount)} followers</p>
         </div>
-        <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
+        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          {showSimilar && (
+            <button onClick={() => findSimilar(creator)}
+              className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+              title="Show me more profiles like this">
+              <RefreshCw size={14} />
+            </button>
+          )}
           {action}
         </div>
       </div>
@@ -307,9 +332,9 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {suggestions.slice(0, visibleCount).map(creator => (
-                    <CreatorCard key={creator.id} creator={creator} action={
+                    <CreatorCard key={creator.id} creator={creator} showSimilar action={
                       <button onClick={() => addToWatchlist(creator)}
-                        className="p-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                        className="p-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                         title="Add to Watchlist">
                         <Plus size={14} />
                       </button>
@@ -388,12 +413,10 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredWatchlist.map(creator => (
               <CreatorCard key={creator.id} creator={creator} action={
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => removeFromWatchlist(creator.id)}
-                    className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors">
-                    <X size={14} />
-                  </button>
-                </div>
+                <button onClick={() => removeFromWatchlist(creator.id)}
+                  className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors">
+                  <X size={14} />
+                </button>
               } />
             ))}
           </div>
