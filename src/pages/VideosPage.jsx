@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   Users, BarChart3, Download, RefreshCw, ChevronDown, X, Video,
-  TrendingUp, Eye, Flame,
+  TrendingUp, Eye, Flame, Heart, MessageCircle,
 } from "lucide-react";
 import { PlatformBadge } from "../components/PlatformIcon";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -47,24 +47,48 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
     setLoading(true);
     setError(null);
     try {
-      const ytCreators = watchlist.filter(w => w.platform?.toLowerCase().includes("youtube") && w.id);
-      const videoPromises = [];
-      for (const creator of ytCreators.slice(0, 5)) {
-        videoPromises.push(
-          apiPost("/api/creator-videos", {
-            creatorId: creator.id,
-            uploadsPlaylistId: creator.uploadsPlaylistId,
-            platform: "YouTube Shorts"
-          }).then(r => (r.videos || []).map(v => ({ ...v, channel: { name: creator.name || creator.username, thumbnail: creator.thumbnail } })))
-            .catch(() => [])
+      // Split watchlist by platform; each creator is a separate fetch so we
+      // can attach the creator's identity (name + thumbnail) to every video.
+      const igCreators = watchlist.filter(w => (w.platform || "").toLowerCase().includes("instagram"));
+      const ytCreators = watchlist.filter(w => (w.platform || "").toLowerCase().includes("youtube") && w.id);
+
+      const perCreator = [];
+
+      // Instagram — uses mediacrawlers /reels which takes a user_id.
+      // If we stored the user_id on the watchlist entry (new searches),
+      // pass it. Otherwise pass username and the backend resolves it.
+      for (const c of igCreators) {
+        perCreator.push(
+          apiPost("/api/instagram-user-videos", {
+            username: c.username,
+            userId: c.id && /^\d+$/.test(String(c.id)) ? c.id : undefined,
+            limit: 24,
+          }).then(r => (r.videos || []).map(v => ({
+            ...v,
+            channel: { name: c.name || c.username, username: c.username, thumbnail: c.thumbnail },
+          }))).catch(() => [])
         );
       }
-      videoPromises.push(apiPost("/api/discover-videos", { query: "fitness shorts" }).then(r => r.videos || []).catch(() => []));
-      const results = await Promise.all(videoPromises);
-      let allVideos = results.flat();
+
+      // YouTube — existing endpoint, already attaches channel
+      for (const c of ytCreators.slice(0, 5)) {
+        perCreator.push(
+          apiPost("/api/creator-videos", {
+            creatorId: c.id,
+            uploadsPlaylistId: c.uploadsPlaylistId,
+            platform: "YouTube Shorts",
+          }).then(r => (r.videos || []).map(v => ({
+            ...v,
+            channel: { name: c.name || c.username, username: c.username, thumbnail: c.thumbnail },
+          }))).catch(() => [])
+        );
+      }
+
+      const results = await Promise.all(perCreator);
+      const allVideos = results.flat();
       const seen = new Set();
-      allVideos = allVideos.filter(v => { if (seen.has(v.id)) return false; seen.add(v.id); return true; });
-      if (allVideos.length > 0) setVideos(allVideos);
+      const deduped = allVideos.filter(v => { if (!v.id || seen.has(v.id)) return false; seen.add(v.id); return true; });
+      setVideos(deduped);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -72,7 +96,9 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
     }
   }, [watchlist]);
 
-  useEffect(() => { fetchVideos(); }, []);
+  // Re-fetch whenever the watchlist changes so added creators appear
+  // immediately when the user switches back to the Videos tab.
+  useEffect(() => { fetchVideos(); }, [fetchVideos]);
 
   const filteredVideos = (activeTab === "feed" ? videos : savedVideos).filter(v => {
     if (outlierMin && (v.outlierScore || 0) < parseFloat(outlierMin)) return false;
@@ -423,18 +449,23 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                         <span className="text-gray-300">·</span>
                         <span className="flex-shrink-0">{video.timeAgo || timeAgo(video.publishedAt)}</span>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-[11px]">
+                      <div className="flex items-center gap-2.5 mt-1 text-[11px] flex-wrap">
                         {video.outlierScore >= 1.0 && (
-                          <span className="text-orange-500 font-semibold flex items-center gap-0.5">
+                          <span className="text-orange-500 font-semibold flex items-center gap-0.5" title={`${video.outlierScore.toFixed(1)}x creator's avg views`}>
                             <TrendingUp size={10} /> {video.outlierScore.toFixed(1)}x
                           </span>
                         )}
-                        <span className="text-gray-600 flex items-center gap-0.5">
+                        <span className="text-gray-600 flex items-center gap-0.5" title="Views">
                           <Eye size={10} /> {video.viewsFormatted || formatNumber(video.views)}
                         </span>
-                        {video.engagementRate != null && (
-                          <span className="text-gray-600 flex items-center gap-0.5">
-                            <Flame size={10} /> {(video.engagementRate * 100).toFixed(1)}%
+                        {video.likes != null && video.likes > 0 && (
+                          <span className="text-gray-600 flex items-center gap-0.5" title="Likes">
+                            <Heart size={10} /> {formatNumber(video.likes)}
+                          </span>
+                        )}
+                        {video.comments != null && video.comments > 0 && (
+                          <span className="text-gray-600 flex items-center gap-0.5" title="Comments">
+                            <MessageCircle size={10} /> {formatNumber(video.comments)}
                           </span>
                         )}
                       </div>
@@ -448,10 +479,22 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                   <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
                     <Video size={20} className="text-gray-400" />
                   </div>
-                  <p className="text-gray-500 text-sm font-medium">No videos found</p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    {activeTab === "feed" ? "Try adjusting your filters or add more channels to your watchlist." : "Save videos from your feed to see them here."}
+                  <p className="text-gray-500 text-sm font-medium">
+                    {watchlist.length === 0 ? "No creators in your watchlist yet" : "No videos found"}
                   </p>
+                  <p className="text-gray-400 text-xs mt-1 mb-3">
+                    {watchlist.length === 0
+                      ? "Head to Channels, search a niche, and add creators to your watchlist — their top reels will show up here."
+                      : activeTab === "feed"
+                        ? "Try adjusting your filters, or add more creators to your watchlist."
+                        : "Save videos from your feed to see them here."}
+                  </p>
+                  {watchlist.length === 0 && (
+                    <button onClick={() => setCurrentPage("channels")}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                      <Users size={14} /> Go to Channels
+                    </button>
+                  )}
                 </div>
               )}
             </>
