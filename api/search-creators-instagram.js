@@ -20,7 +20,12 @@ export default async function handler(req, res) {
   try {
     // Search with multiple query variations to widen the pool of creators.
     // RapidAPI's Instagram search returns a limited set per call, so we run
-    // MANY related queries in parallel and dedupe to build a bigger pool.
+    // MANY related queries in parallel and dedupe.
+    //
+    // IMPORTANT: for multi-word queries we keep the FULL phrase as primary
+    // and never fan out on a single word alone — that pulls in off-topic
+    // accounts (e.g. searching "online fitness coach" and getting
+    // "toponlineshop" because "online" matched).
     const q = query.trim();
     const searchTerms = new Set([q]);
     const words = q.split(/\s+/);
@@ -29,17 +34,20 @@ export default async function handler(req, res) {
     const creatorPrefixes = ["the", "real", "best", "top", "daily", "mr", "ms"];
 
     if (words.length > 1) {
-      // Multi-word: query each word alone, the joined form, plus suffix combos on the first word
-      searchTerms.add(words[0]);
-      searchTerms.add(words[words.length - 1]);
-      searchTerms.add(words.join(""));
-      for (const s of creatorSuffixes.slice(0, 6)) searchTerms.add(words[0] + s);
-      for (const p of creatorPrefixes.slice(0, 4)) searchTerms.add(p + words[0]);
+      const joined = words.join("");             // e.g. "onlinefitnesscoach"
+      const lastTwo = words.slice(-2).join("");  // e.g. "fitnesscoach"
+      searchTerms.add(joined);
+      searchTerms.add(lastTwo);
+      // Full-phrase + suffix / prefix variants (keep the topic intact)
+      for (const s of creatorSuffixes) searchTerms.add(joined + s);
+      for (const p of creatorPrefixes) searchTerms.add(p + joined);
+      // Last-two-word variants (the role usually lives at the end: "fitness coach")
+      for (const s of creatorSuffixes.slice(0, 6)) searchTerms.add(lastTwo + s);
+      for (const p of creatorPrefixes.slice(0, 4)) searchTerms.add(p + lastTwo);
     } else {
       // Single-word niche: fan out with many creator-suffix and prefix patterns
       for (const s of creatorSuffixes) searchTerms.add(q + s);
       for (const p of creatorPrefixes) searchTerms.add(p + q);
-      // Common variants of the niche word itself
       searchTerms.add(q + "s");
       searchTerms.add(q + "er");
       searchTerms.add(q + "girl");

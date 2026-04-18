@@ -28,6 +28,36 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     return 3;
   };
 
+  // Decide whether a creator is topically relevant to the query. This is a
+  // HARD filter — accounts that fail it are dropped entirely, so a search for
+  // "online fitness coach" never surfaces something like "@toponlineshop1"
+  // just because one partial word matched.
+  const queryRelevant = (creator, rawQuery) => {
+    const q = (rawQuery || "").trim().toLowerCase();
+    if (!q) return true;
+    const handle = (creator.username || "").toLowerCase();
+    const name = (creator.name || "").toLowerCase();
+    const desc = (creator.description || "").toLowerCase();
+    const handleNoSep = handle.replace(/[._\-]/g, "");
+    const nameNoSpace = name.replace(/\s+/g, "");
+    const all = `${handle} ${name} ${desc}`;
+    const words = q.split(/\s+/).filter(Boolean);
+
+    if (words.length === 1) {
+      // Single word must appear in handle or name (bio alone isn't enough —
+      // too noisy).
+      return handle.includes(words[0]) || name.includes(words[0]);
+    }
+
+    // Multi-word: require the full phrase somewhere, OR at least two of the
+    // query words to actually appear. One-word overlap isn't enough.
+    const joined = words.join("");
+    if (handleNoSep.includes(joined) || nameNoSpace.includes(joined)) return true;
+    if (all.includes(words.join(" "))) return true;
+    const matches = words.filter(w => all.includes(w)).length;
+    return matches >= 2;
+  };
+
   // Score a creator by how well name/username/description match the query.
   // Higher score = more relevant. Follower count is only a tiebreaker later.
   const relevanceScore = (creator, rawQuery) => {
@@ -90,6 +120,10 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
 
       const watchIds = new Set(watchlist.map(w => w.id));
       allCreators = allCreators.filter(c => !watchIds.has(c.id));
+
+      // Drop results that aren't topically relevant to the query (full phrase
+      // or at least two of the query words must actually appear).
+      allCreators = allCreators.filter(c => queryRelevant(c, query));
 
       // Sort by relevance first (how well the creator matches the query),
       // then prefer Instagram → YouTube → TikTok when relevance ties,
@@ -264,7 +298,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                   <div className="mt-5 flex justify-center">
                     <button onClick={() => setVisibleCount(c => c + 25)}
                       className="px-5 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors">
-                      Load 25 more accounts ({suggestions.length - visibleCount} remaining)
+                      Load more
                     </button>
                   </div>
                 )}
