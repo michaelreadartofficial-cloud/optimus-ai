@@ -287,35 +287,106 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     setLastQuery(rawQuery);
 
     // Seed-by-handle mode: typing @handle in the niche bar OR using the
-    // handle bar. Pin that exact account as result #1, then search for
-    // similar accounts using keywords from the seed's bio.
+    // handle bar. Pin that exact account as result #1, then ALWAYS try to
+    // build a pool of similar accounts from whatever signals we have —
+    // bio keywords, display name, or as a last resort, the handle itself.
     const isHandleInput = !!handleSearch.trim() || /^@[\w._-]+$/.test(rawQuery);
     if (isHandleInput && platformFilter !== "youtube" && platformFilter !== "tiktok") {
       const handleClean = rawQuery.replace(/^@/, "").trim();
       const seed = await fetchSingleInstagramByHandle(handleClean);
       if (seed) {
-        const keywords = extractBioKeywords(seed.description);
-        let similar = [];
-        let hasMore = false;
-        if (keywords.length >= 2) {
-          const similarQuery = keywords.slice(0, 3).join(" ");
-          setLastQuery(similarQuery);
-          const r = await fetchPage(similarQuery, 0);
-          hasMore = r.hasNextPage;
-          const watchIds = new Set(watchlist.map(w => w.id));
-          similar = r.creators.filter(c => c.id !== seed.id && !watchIds.has(c.id));
-          // Score similar accounts against the bio keywords + original query
-          const kwQuery = keywords.slice(0, 4).join(" ");
-          similar.sort((a, b) => {
-            const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
-            const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
-            if (hasA !== hasB) return hasB - hasA;
-            return relevanceScore(b, kwQuery) - relevanceScore(a, kwQuery);
-          });
+        // Build a list of candidate search queries from every signal we've got.
+        // Run all of them in parallel and merge results — a much bigger pool
+        // than a single 3-keyword search.
+        const queries = new Set();
+        const bioKeywords = extractBioKeywords(seed.description);
+
+        // 1. Individual bio keywords (each keyword = one focused search)
+        for (const k of bioKeywords.slice(0, 6)) queries.add(k);
+
+        // 2. Pairs of bio keywords for more specific matches
+        for (let i = 0; i < Math.min(bioKeywords.length, 3); i++) {
+          for (let j = i + 1; j < Math.min(bioKeywords.length, 4); j++) {
+            queries.add(`${bioKeywords[i]} ${bioKeywords[j]}`);
+          }
         }
+
+        // 3. Display-name words (minus the handle) — often includes niche
+        //    e.g. "Cesare | Fitness Coach" → "fitness", "coach"
+        const nameWords = (seed.name || "").toLowerCase()
+          .replace(/[^a-z0-9\s]/g, " ")
+          .split(/\s+/)
+          .filter(w => w.length > 2 && !BIO_STOPWORDS.has(w));
+        for (const w of nameWords.slice(0, 4)) queries.add(w);
+
+        // 4. Handle with separators stripped — last-resort signal
+        const handleAsQuery = handleClean.replace(/[._\-]/g, "").toLowerCase();
+        if (handleAsQuery.length > 3) queries.add(handleAsQuery);
+
+        // Guard: must have at least one meaningful query
+        const queryList = Array.from(queries).filter(q => q && q.length > 2);
+
+        if (queryList.length === 0) {
+          setSuggestions([seed]);
+          setVisibleCount(50);
+          setBackendHasMore(false);
+          setLoading(false);
+          return;
+        }
+
+        // Run all candidate queries in parallel, merge + dedupe
+        const results = await Promise.all(
+          queryList.map(q =>
+            apiPost("/api/search-creators-instagram", { query: q, page: 0 })
+              .then(r => r.creators || [])
+              .catch(() => [])
+          )
+        );
+
+        const seen = new Set([seed.id]);
+        const watchIds = new Set(watchlist.map(w => w.id));
+        let similar = [];
+        for (const list of results) {
+          for (const c of list) {
+            if (!c.id || seen.has(c.id) || watchIds.has(c.id)) continue;
+            seen.add(c.id);
+            similar.push(c);
+          }
+        }
+
+        // Score similar accounts against the SEED'S bio + display name —
+        // i.e. what makes them similar to THIS specific creator.
+        const kwQuery = [...bioKeywords.slice(0, 4), ...nameWords.slice(0, 2)].join(" ");
+        const seedDescLower = (seed.description || "").toLowerCase();
+        const seedKeywordSet = new Set(bioKeywords);
+
+        // Bonus: count how many of the seed's bio keywords appear in each
+        // candidate's bio — that's the most direct "similar to this creator"
+        // signal we have.
+        const similarityBonus = (c) => {
+          const d = (c.description || "").toLowerCase();
+          let hits = 0;
+          for (const k of seedKeywordSet) if (d.includes(k)) hits++;
+          return hits * 25;
+        };
+
+        similar.sort((a, b) => {
+          const hasA = (a.subscriberCount || 0) > 0 ? 1 : 0;
+          const hasB = (b.subscriberCount || 0) > 0 ? 1 : 0;
+          if (hasA !== hasB) return hasB - hasA;
+          const scoreA = relevanceScore(a, kwQuery) + similarityBonus(a);
+          const scoreB = relevanceScore(b, kwQuery) + similarityBonus(b);
+          if (scoreB !== scoreA) return scoreB - scoreA;
+          return (b.subscriberCount || 0) - (a.subscriberCount || 0);
+        });
+
+        // Save the effective query for Load more to use
+        setLastQuery(kwQuery || handleClean);
         setSuggestions([seed, ...similar]);
         setVisibleCount(50);
-        setBackendHasMore(hasMore);
+        // Even if THIS seed-mode batch has no hasNextPage signal, allow Load
+        // more to re-query via the backend (tiers B/C) using the keyword mix
+        setBackendHasMore(true);
         setLoading(false);
         return;
       }
