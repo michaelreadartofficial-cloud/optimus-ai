@@ -63,15 +63,15 @@ export const ScriptsPage = ({ savedVideos }) => {
     setRemixError(null);
     setRemixedScript(null);
     try {
-      // TODO: wire real generation once user specifies what each framework
-      // means. For now this just echoes the inputs so we can confirm the
-      // data is flowing correctly.
-      setRemixedScript({
-        placeholder: true,
+      const r = await apiPost("/api/remix-script", {
+        seed: remixSeed,
         framework: remixFramework,
-        customPrompt: remixFramework === "custom" ? remixCustomPrompt : "",
-        title: remixSeed.title,
-        transcriptPreview: (remixSeed.transcript || remixSeed.caption || "").slice(0, 400),
+        customPrompt: remixFramework === "custom" ? remixCustomPrompt : undefined,
+      });
+      setRemixedScript({
+        framework: remixFramework,
+        text: r.text || "",
+        wordCount: r.wordCount || null,
       });
     } catch (e) {
       setRemixError(e.message);
@@ -274,22 +274,49 @@ export const ScriptsPage = ({ savedVideos }) => {
             {remixError && <ErrorMessage message={remixError} onRetry={runRemix} />}
           </div>
 
-          {/* Step 3 — remixed output (placeholder) */}
+          {/* Step 3 — remixed output */}
           {remixedScript && (
-            <div className="bg-white rounded-xl border border-amber-200 bg-amber-50/50 p-5">
-              <p className="text-xs font-semibold text-amber-900 uppercase tracking-wider mb-2">Placeholder — pending framework specs</p>
-              <p className="text-xs text-amber-900 mb-3">
-                Framework: <strong>{REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label}</strong>
-              </p>
-              {remixedScript.customPrompt && (
-                <div className="mb-3">
-                  <p className="text-[10px] font-bold text-amber-900 uppercase tracking-wider mb-1">Your custom instructions</p>
-                  <p className="text-xs text-amber-900 whitespace-pre-wrap">{remixedScript.customPrompt}</p>
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-5 py-3 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900">Your remixed script</h3>
+                  <p className="text-[11px] text-gray-500 mt-0.5">
+                    {REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label}
+                    {remixedScript.wordCount && (
+                      <> · {remixedScript.wordCount.remix} words (original: {remixedScript.wordCount.original})</>
+                    )}
+                  </p>
                 </div>
-              )}
-              <p className="text-xs text-amber-900">
-                Input captured correctly. Tell me what the <strong>HEIT</strong> and <strong>Bens</strong> frameworks should actually do, and I'll wire up real script generation next.
-              </p>
+                <div className="flex gap-2">
+                  <button onClick={() => copyToClipboard(remixedScript.text || "")}
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <Copy size={12} /> Copy
+                  </button>
+                  <button onClick={() => {
+                    const s = {
+                      id: Date.now(),
+                      topic: remixSeed.title,
+                      hook: "",
+                      body: remixedScript.text,
+                      cta: "",
+                      tone: "Remix",
+                      duration: REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label,
+                      createdAt: new Date().toISOString(),
+                    };
+                    setSavedScripts(prev => [s, ...prev]);
+                  }}
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    <Bookmark size={12} /> Save
+                  </button>
+                  <button onClick={() => setRemixedScript(null)}
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                    <RefreshCw size={12} /> Start over
+                  </button>
+                </div>
+              </div>
+              <div className="p-5">
+                <pre className="text-sm text-gray-900 leading-relaxed whitespace-pre-wrap font-sans">{remixedScript.text}</pre>
+              </div>
             </div>
           )}
         </div>
