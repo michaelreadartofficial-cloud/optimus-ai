@@ -77,10 +77,25 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
     }
 
     // Second pass: fetch missing ones from the network
-    const targets = creators
+    const needsEnrichment = creators
       .filter(c => c.username && !c.subscriberCount && (c.platform || "").toLowerCase().includes("instagram"))
-      .filter(c => !cache[c.username] || (now - (cache[c.username].cachedAt || 0)) >= PROFILE_CACHE_TTL_MS)
-      .slice(0, MAX_TO_ENRICH);
+      .filter(c => !cache[c.username] || (now - (cache[c.username].cachedAt || 0)) >= PROFILE_CACHE_TTL_MS);
+
+    const targets = needsEnrichment.slice(0, MAX_TO_ENRICH);
+    // Mark creators past the cap as "skipped" so the UI shows "—" for them
+    // instead of an indefinite "loading…" state they'll never transition out
+    // of.
+    const skipped = needsEnrichment.slice(MAX_TO_ENRICH);
+    if (skipped.length > 0) {
+      const skippedIds = new Set(skipped.map(s => s.id));
+      setSuggestions(prev => prev.map(s => skippedIds.has(s.id) ? { ...s, _enrichSkipped: true } : s));
+    }
+    // Mark the ones we ARE going to enrich so we can distinguish "loading now"
+    // from "nothing will happen"
+    if (targets.length > 0) {
+      const targetIds = new Set(targets.map(t => t.id));
+      setSuggestions(prev => prev.map(s => targetIds.has(s.id) ? { ...s, _enriching: true } : s));
+    }
 
     for (const c of targets) {
       if (enrichRunId.current !== runId) return; // new search started — abort
@@ -95,7 +110,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
           description: p.description || "",
           category: p.category || "",
         };
-        setSuggestions(prev => prev.map(s => s.id === c.id ? { ...s, ...data } : s));
+        setSuggestions(prev => prev.map(s => s.id === c.id ? { ...s, ...data, _enriching: false } : s));
         saveProfileToCache(c.username, data);
       } catch {
         // Silently skip failures (rate limits, 404s) — keeps N/A
@@ -601,7 +616,9 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
             @{creator.username || creator.name} ·{" "}
             {creator.subscriberCount > 0
               ? `${formatNumber(creator.subscriberCount)} followers`
-              : <span className="text-gray-400 italic">loading…</span>}
+              : creator._enriching
+                ? <span className="text-gray-400 italic">loading…</span>
+                : <span className="text-gray-400">—</span>}
           </p>
         </div>
         <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
