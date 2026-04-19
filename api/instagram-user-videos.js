@@ -13,7 +13,7 @@ const RATE_LIMIT_DELAY_MS = 1100;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-  const { username, userId: providedUserId, limit, debug } = req.body || {};
+  const { username, userId: providedUserId, limit, debug, maxPages: maxPagesParam } = req.body || {};
 
   const rapidApiKey = process.env.RAPIDAPI_KEY;
   if (!rapidApiKey) return res.status(500).json({ error: "RAPIDAPI_KEY not configured" });
@@ -43,11 +43,11 @@ export default async function handler(req, res) {
     }
 
     // 2. Fetch reels with cursor-based pagination. The /reels endpoint
-    // returns at most 12 items per call. To get more, pass a max_id from
-    // the previous response. We page up to 3 times (36 items max) for
-    // the first /api call, which is enough to power Load more client-side
-    // without hammering the Ultra tier.
-    const MAX_PAGES = 3;
+    // returns at most 12 items per call. Callers can pass `maxPages` to
+    // control how many pages to fetch before returning (default 1 = 12
+    // reels, max 5 = 60 reels). Initial feed load uses 1 page per creator
+    // to keep latency low; subsequent Load More calls fetch more pages.
+    const MAX_PAGES = Math.min(Math.max(parseInt(maxPagesParam) || 1, 1), 5);
     let nextMaxId = req.body?.maxId || "";
     const allItems = [];
     let finalCursor = "";

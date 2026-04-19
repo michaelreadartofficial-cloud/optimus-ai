@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Users, BarChart3, Download, RefreshCw, ChevronDown, X, Video,
   TrendingUp, Eye, Flame, Heart, MessageCircle, Check, Loader2,
@@ -16,6 +16,11 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
   const [activeTab, setActiveTab] = useState("feed");
   const [sortBy, setSortBy] = useState("views");
   const [visibleCount, setVisibleCount] = useState(12);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Per-creator pagination cursors: { [username]: { nextMaxId, hasMore, userId } }
+  // Mutated across loads, so a ref is cleaner than state for this.
+  const creatorCursors = useRef({});
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [hoveredVideoId, setHoveredVideoId] = useState(null);
   const [openVideo, setOpenVideo] = useState(null);
@@ -76,17 +81,29 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
     const errors = [];
     const allVideos = [];
 
+    // Reset per-creator cursors — this is a fresh fetch
+    creatorCursors.current = {};
+
     try {
       // Instagram — SERIALIZE to respect Ultra's 1 req/sec rate limit.
-      // The backend makes 2 calls per creator (user_id lookup + reels), so
-      // we pause between creators to stay under the limit.
+      // Initial load fetches ONE page per creator (12 reels) to keep latency
+      // low. Load more then fetches additional pages on demand.
       for (const c of igCreators) {
         try {
           const r = await apiPost("/api/instagram-user-videos", {
             username: c.username,
             userId: c.id && /^\d+$/.test(String(c.id)) ? c.id : undefined,
-            limit: 36,
+            limit: 12,
+            maxPages: 1,
           });
+          // Remember the cursor for this creator so Load more can resume
+          creatorCursors.current[c.username] = {
+            nextMaxId: r.nextMaxId || null,
+            hasMore: !!r.hasMore,
+            userId: c.id && /^\d+$/.test(String(c.id)) ? c.id : undefined,
+            displayName: c.name || c.username,
+            thumbnail: c.thumbnail,
+          };
           const mapped = (r.videos || []).map(v => ({
             ...v,
             channel: { name: c.name || c.username, username: c.username, thumbnail: c.thumbnail },
@@ -168,6 +185,66 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
   useEffect(() => { setVisibleCount(12); }, [activeTab, sortBy, channelFilter, platformFilter, outlierMin, outlierMax, viewsMin, viewsMax, engagementMin, engagementMax, postedWithin, postedUnit, keywords]);
 
   const visibleVideos = filteredVideos.slice(0, visibleCount);
+
+  // Any creator still has a cursor? Then the backend can give us more.
+  const anyCreatorHasMore = Object.values(creatorCursors.current).some(c => c?.hasMore && c?.nextMaxId);
+
+  // Load more — fetch the next page for each creator that still has more,
+  // then append the new videos to the local pool. No full refetch.
+  const loadMoreFromBackend = async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const cursorsArr = Object.entries(creatorCursors.current)
+        .filter(([, c]) => c?.hasMore && c?.nextMaxId);
+
+      const newVideos = [];
+      for (const [username, c] of cursorsArr) {
+        try {
+          const r = await apiPost("/api/instagram-user-videos", {
+            username,
+            userId: c.userId,
+            maxId: c.nextMaxId,
+            limit: 12,
+            maxPages: 1,
+          });
+          // Update cursor for the next Load more
+          creatorCursors.current[username] = {
+            ...c,
+            nextMaxId: r.nextMaxId || null,
+            hasMore: !!r.hasMore,
+          };
+          const mapped = (r.videos || []).map(v => ({
+            ...v,
+            channel: { name: c.displayName, username, thumbnail: c.thumbnail },
+          }));
+          newVideos.push(...mapped);
+        } catch {
+          // If one creator errors, skip and try the rest
+          creatorCursors.current[username] = { ...c, hasMore: false };
+        }
+      }
+
+      if (newVideos.length > 0) {
+        // Append to videos, deduped
+        setVideos(prev => {
+          const seen = new Set(prev.map(v => v.id));
+          const fresh = newVideos.filter(v => v.id && !seen.has(v.id));
+          return [...prev, ...fresh];
+        });
+        // Reveal the next 12 (which will include a mix of newly-loaded +
+        // any local leftovers, re-sorted by current sortBy)
+        setVisibleCount(c => c + 12);
+      } else {
+        // Nothing came back — mark all cursors done so the button disappears
+        for (const k of Object.keys(creatorCursors.current)) {
+          creatorCursors.current[k] = { ...creatorCursors.current[k], hasMore: false };
+        }
+      }
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   const saveToVault = (video) => {
     if (!savedVideos.find(v => v.id === video.id)) setSavedVideos(prev => [...prev, video]);
@@ -540,17 +617,28 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                 ))}
               </div>
 
-              {/* Load more — reveals the next 12 from the already-fetched set.
-                  No extra API calls; sorting has been applied already. */}
-              {filteredVideos.length > visibleCount && (
+              {/* Load more — two modes:
+                  1. If the filtered pool has more than we're showing, reveal
+                     the next 12 from the existing set (instant, no API).
+                  2. Otherwise, if any creator still has more reels available
+                     on Instagram, fetch their next page from the backend. */}
+              {(filteredVideos.length > visibleCount || anyCreatorHasMore) && (
                 <div className="mt-6 flex justify-center">
-                  <button onClick={() => setVisibleCount(c => c + 12)}
-                    className="px-5 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors">
-                    Load more videos ({filteredVideos.length - visibleCount} remaining)
+                  <button
+                    disabled={loadingMore}
+                    onClick={() => {
+                      if (filteredVideos.length > visibleCount) {
+                        setVisibleCount(c => c + 12);
+                      } else {
+                        loadMoreFromBackend();
+                      }
+                    }}
+                    className="px-5 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-50 flex items-center gap-2">
+                    {loadingMore ? <><RefreshCw size={14} className="animate-spin" /> Loading more…</> : "Load more videos"}
                   </button>
                 </div>
               )}
-              {filteredVideos.length > 0 && filteredVideos.length <= visibleCount && filteredVideos.length >= 12 && (
+              {filteredVideos.length > 0 && filteredVideos.length <= visibleCount && !anyCreatorHasMore && filteredVideos.length >= 12 && (
                 <div className="mt-6 text-center text-xs text-gray-400">
                   Showing all {filteredVideos.length} videos from your watchlist.
                 </div>
