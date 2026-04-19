@@ -195,30 +195,8 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
     setSavedFilter(name);
   };
 
-  const exportAsCsv = () => {
-    const rows = [["Title", "Channel", "Platform", "Views", "Outlier", "Engagement", "URL"]];
-    filteredVideos.forEach(v => rows.push([
-      v.title, v.channel?.name || "", v.platform || "",
-      v.views || 0, v.outlierScore || "",
-      v.engagementRate ? (v.engagementRate * 100).toFixed(2) + "%" : "",
-      v.url || ""
-    ]));
-    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = `optimus-videos-${Date.now()}.csv`; a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  // Export button is context-aware: CSV on the Feed tab, video picker on
-  // the Vault tab (where downloading individual saved videos makes sense).
   const handleExportClick = () => {
-    if (activeTab === "vault") {
-      setShowDownloadPicker(true);
-    } else {
-      exportAsCsv();
-    }
+    setShowDownloadPicker(true);
   };
 
   // Download a single vault video. Streams through our /api/proxy-video
@@ -312,11 +290,13 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
             )}
           </div>
 
-          <button onClick={handleExportClick}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            title={activeTab === "vault" ? "Download a saved video" : "Export filtered list as CSV"}>
-            <Download size={14} /> {activeTab === "vault" ? "Download" : "Export"}
-          </button>
+          {activeTab === "vault" && (
+            <button onClick={handleExportClick}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Download a saved video">
+              <Download size={14} /> Download
+            </button>
+          )}
 
           <button onClick={fetchVideos} disabled={loading} title="Refresh"
             className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50">
