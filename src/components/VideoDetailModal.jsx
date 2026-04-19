@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   TrendingUp, Eye, Heart, MessageCircle, Flame, X, Play, Bookmark,
   PenTool, ExternalLink, Sparkles, Loader2,
@@ -13,26 +13,39 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
   const [analyzing, setAnalyzing] = useState({ hook: false, transcript: false, whyViral: false });
   const [error, setError] = useState(null);
 
+  // Reset analysis state whenever the modal opens with a different video.
+  // Without this the stale transcript/hook/whyViral from the previous video
+  // would render briefly (and sometimes persist, if the new video has
+  // nothing cached) — making it look like video B got video A's transcript.
+  useEffect(() => {
+    setAnalysis({ hook: null, transcript: null, whyViral: null });
+    setAnalyzing({ hook: false, transcript: false, whyViral: false });
+    setError(null);
+    setActiveTab("hook");
+  }, [video?.id, video?.videoUrl]);
+
   if (!video) return null;
 
   const ytId = getYouTubeEmbedId(video.url);
   const platformUrl = video.url || "#";
 
-  // Cache transcripts + analyses in localStorage so re-clicking a video
-  // doesn't re-spend API calls on the same content.
+  // Cache key is namespaced by BOTH id and shortcode (when available) so two
+  // different reels that somehow share a numeric id can't share cache entries.
+  // Falls back to id if shortcode is missing.
   const CACHE_KEY = "optimus_video_analysis_cache";
-  const cacheKey = `${video.id}:${kind => kind}`;
+  const cacheKeyFor = () => String(video.shortcode || video.id || "");
   const readCache = (kind) => {
     try {
       const all = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
-      return all?.[video.id]?.[kind] || null;
+      return all?.[cacheKeyFor()]?.[kind] || null;
     } catch { return null; }
   };
   const writeCache = (kind, text) => {
     try {
       const all = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
-      if (!all[video.id]) all[video.id] = {};
-      all[video.id][kind] = text;
+      const k = cacheKeyFor();
+      if (!all[k]) all[k] = {};
+      all[k][kind] = text;
       localStorage.setItem(CACHE_KEY, JSON.stringify(all));
     } catch {}
   };
