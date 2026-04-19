@@ -22,13 +22,8 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
     setError(null);
     setAnalyzing(p => ({ ...p, [kind]: true }));
     try {
-      const prompts = {
-        hook: `Analyze the opening hook of this short-form video. Title: "${video.title}". Platform: ${video.platform}. Explain in 3-4 bullets why the hook works — what pattern interrupt, curiosity loop, or tension it uses.`,
-        transcript: `This is a short-form video titled "${video.title}" on ${video.platform}. Without making up content, describe what a typical script/transcript for a video with this title would cover in 4-6 beats.`,
-        whyViral: `This video got ${(video.views || 0).toLocaleString()} views${video.outlierScore ? ` with an outlier score of ${video.outlierScore.toFixed(1)}x` : ""}. Title: "${video.title}". In 3-5 bullets explain: what format/framework, what emotional driver, what replicable tactic makes this work.`
-      };
-      const r = await apiPost("/api/generate-script", { prompt: prompts[kind], length: "short" });
-      setAnalysis(p => ({ ...p, [kind]: r.script || r.content || r.text || "No response" }));
+      const r = await apiPost("/api/video-analysis", { video, kind });
+      setAnalysis(p => ({ ...p, [kind]: r.text || "No analysis returned." }));
     } catch (e) {
       setError(e.message);
     } finally {
@@ -146,14 +141,14 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
             ) : (
               <div className="text-center py-8">
                 <Sparkles size={20} className="text-gray-300 mx-auto mb-2" />
-                <p className="text-xs text-gray-500 mb-3">
+                <p className="text-xs text-gray-500 mb-3 max-w-md mx-auto">
                   {activeTab === "hook" && "Break down the opening hook — what pattern, what tension."}
-                  {activeTab === "transcript" && "Summarise what the video likely covers beat-by-beat."}
+                  {activeTab === "transcript" && "Show the creator's caption verbatim. (Note: Instagram doesn't expose spoken-word transcripts; the caption is the closest public data.)"}
                   {activeTab === "whyViral" && "Get the format, emotional driver, and replicable tactic."}
                 </p>
                 <button onClick={() => runAnalysis(activeTab)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-medium hover:bg-gray-800 transition">
-                  <Sparkles size={12} /> Analyze with AI
+                  <Sparkles size={12} /> {activeTab === "transcript" ? "Show caption" : "Analyze with AI"}
                 </button>
               </div>
             )}

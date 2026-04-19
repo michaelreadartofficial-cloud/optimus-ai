@@ -127,9 +127,10 @@ function normalizeReel(item) {
   const likes = m.like_count ?? m.likes ?? m.edge_liked_by?.count ?? m.edge_media_preview_like?.count ?? 0;
   const comments = m.comment_count ?? m.comments ?? m.edge_media_to_comment?.count ?? 0;
 
-  const caption = m.caption?.text || m.caption_text || m.caption
+  const captionRaw = m.caption?.text || m.caption_text || m.caption
     || m.edge_media_to_caption?.edges?.[0]?.node?.text || "";
-  const title = (typeof caption === "string" ? caption : "").slice(0, 120) || "Instagram Reel";
+  const caption = typeof captionRaw === "string" ? captionRaw : "";
+  const title = caption.slice(0, 120) || "Instagram Reel";
 
   const takenAt = m.taken_at || m.taken_at_timestamp || 0;
   const publishedAt = takenAt ? new Date(takenAt * 1000).toISOString() : null;
@@ -160,6 +161,7 @@ function normalizeReel(item) {
   return {
     id,
     title,
+    caption, // full caption text (title is truncated to 120 chars)
     views,
     viewsFormatted: formatNum(views),
     likes,
