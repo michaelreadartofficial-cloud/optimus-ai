@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Wand2, Check, Sparkles, Copy, Bookmark, RefreshCw, PenTool, Trash2, ChevronDown, Video, X } from "lucide-react";
+import { Loader2, Wand2, Check, Sparkles, Copy, Bookmark, RefreshCw, PenTool, Trash2, ChevronDown, Video, X, Pencil } from "lucide-react";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { apiPost } from "../utils/api";
 import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "../utils/storage";
@@ -18,6 +18,10 @@ export const ScriptsPage = ({ savedVideos }) => {
   const [remixing, setRemixing] = useState(false);
   const [remixError, setRemixError] = useState(null);
   const [remixedScript, setRemixedScript] = useState(null);
+  // Edit mode for the remix output card — swaps <pre> for a <textarea>
+  // so the user can tweak the rewritten script in place.
+  const [remixEditing, setRemixEditing] = useState(false);
+  const [remixEditDraft, setRemixEditDraft] = useState("");
 
   const REMIX_FRAMEWORKS = [
     { key: "heit", label: "HEIT Framework" },
@@ -50,6 +54,8 @@ export const ScriptsPage = ({ savedVideos }) => {
     setRemixCustomPrompt("");
     setRemixedScript(null);
     setRemixError(null);
+    setRemixEditing(false);
+    setRemixEditDraft("");
     try { localStorage.removeItem("optimus_remix_seed"); } catch {}
   };
 
@@ -62,6 +68,8 @@ export const ScriptsPage = ({ savedVideos }) => {
     setRemixing(true);
     setRemixError(null);
     setRemixedScript(null);
+    setRemixEditing(false);
+    setRemixEditDraft("");
     try {
       const r = await apiPost("/api/remix-script", {
         seed: remixSeed,
@@ -288,34 +296,73 @@ export const ScriptsPage = ({ savedVideos }) => {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => copyToClipboard(remixedScript.text || "")}
-                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-                    <Copy size={12} /> Copy
-                  </button>
-                  <button onClick={() => {
-                    const s = {
-                      id: Date.now(),
-                      topic: remixSeed.title,
-                      hook: "",
-                      body: remixedScript.text,
-                      cta: "",
-                      tone: "Remix",
-                      duration: REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label,
-                      createdAt: new Date().toISOString(),
-                    };
-                    setSavedScripts(prev => [s, ...prev]);
-                  }}
-                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                    <Bookmark size={12} /> Save
-                  </button>
-                  <button onClick={() => setRemixedScript(null)}
-                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-                    <RefreshCw size={12} /> Start over
-                  </button>
+                  {remixEditing ? (
+                    <>
+                      <button onClick={() => {
+                        // Commit the draft back to the remixed script
+                        setRemixedScript(prev => prev ? { ...prev, text: remixEditDraft } : prev);
+                        setRemixEditing(false);
+                      }}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-gray-900 text-white rounded-lg hover:bg-gray-800">
+                        <Check size={12} /> Done
+                      </button>
+                      <button onClick={() => {
+                        setRemixEditing(false);
+                        setRemixEditDraft("");
+                      }}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <X size={12} /> Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => copyToClipboard(remixedScript.text || "")}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <Copy size={12} /> Copy
+                      </button>
+                      <button onClick={() => {
+                        setRemixEditDraft(remixedScript.text || "");
+                        setRemixEditing(true);
+                      }}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <Pencil size={12} /> Edit this script
+                      </button>
+                      <button onClick={() => {
+                        const s = {
+                          id: Date.now(),
+                          topic: remixSeed.title,
+                          hook: "",
+                          body: remixedScript.text,
+                          cta: "",
+                          tone: "Remix",
+                          duration: REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label,
+                          createdAt: new Date().toISOString(),
+                        };
+                        setSavedScripts(prev => [s, ...prev]);
+                      }}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        <Bookmark size={12} /> Save
+                      </button>
+                      <button onClick={() => { setRemixedScript(null); setRemixEditing(false); setRemixEditDraft(""); }}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <RefreshCw size={12} /> Start over
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="p-5">
-                <pre className="text-sm text-gray-900 leading-relaxed whitespace-pre-wrap font-sans">{remixedScript.text}</pre>
+                {remixEditing ? (
+                  <textarea
+                    value={remixEditDraft}
+                    onChange={(e) => setRemixEditDraft(e.target.value)}
+                    className="w-full min-h-[400px] text-sm text-gray-900 leading-relaxed font-sans p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 resize-y"
+                    placeholder="Edit your rewritten script…"
+                    autoFocus
+                  />
+                ) : (
+                  <pre className="text-sm text-gray-900 leading-relaxed whitespace-pre-wrap font-sans">{remixedScript.text}</pre>
+                )}
               </div>
             </div>
           )}

@@ -436,10 +436,6 @@ Before rewriting, silently assess:
 
 Internally, think through the script in terms of its three functional jobs — setting up the premise (explain), making it concrete (illustrate), and delivering the takeaway (teach). These jobs inform how the Body is written, but they do not appear as labeled sections in the output.
 
-Visible analysis (show this briefly before the rewrite)
-- Original hook extracted — display the exact original hook as used in the source. Do not rewrite, improve, or substitute it.
-- Why it likely performed well — 3–6 concise bullets covering tonality, language, controversy, visuals (if inferable), setting, and format.
-
 The 4-Part Rewrite Structure
 
 Rewrite the script into the following sections:
@@ -525,23 +521,9 @@ If a later-layer edit changes the word count and pushes it outside ±10, re-run 
 
 Deliverable Format
 
-Output in exactly this order:
+Output ONLY the rewritten script. Do not include word counts, variance, detected register, CTA-in-original flags, an "original hook extracted" header, "why it likely performed well" bullets, or any analysis preamble. Run all Part C checks silently — but show none of them in the response.
 
-ORIGINAL WORD COUNT: [number]
-REWRITTEN WORD COUNT: [number]
-VARIANCE: [+X or −X — must be within ±10]
-DETECTED REGISTER: [British / American / Australian / Neutral / etc.]
-CTA IN ORIGINAL: [Yes / No]
-
-ORIGINAL HOOK (extracted):
-[exact wording from source]
-
-WHY IT LIKELY PERFORMED WELL:
-- [bullet]
-- [bullet]
-- [bullet]
-
-REWRITTEN SCRIPT:
+Output in exactly this structure and nothing else:
 
 Hook:
 [exact original hook]
