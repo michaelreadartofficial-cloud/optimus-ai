@@ -6,7 +6,7 @@ import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "../utils/storage";
 
 export const ScriptsPage = ({ savedVideos }) => {
   const [savedScripts, setSavedScripts] = useState(() => loadFromStorage(STORAGE_KEYS.savedScripts, []));
-  const [activeTab, setActiveTab] = useState("write");
+  const [activeTab, setActiveTab] = useState("remix");
 
   const [hookTopic, setHookTopic] = useState("");
   const [sourceVideoId, setSourceVideoId] = useState("");
@@ -103,8 +103,9 @@ export const ScriptsPage = ({ savedVideos }) => {
 
       <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
         {[
-          { key: "write", label: "Write a script" },
-          { key: "saved", label: `Saved${savedScripts.length ? ` (${savedScripts.length})` : ""}` },
+          { key: "remix", label: "Remix" },
+          { key: "create", label: "Create New Script" },
+          { key: "saved", label: `Saved Scripts${savedScripts.length ? ` (${savedScripts.length})` : ""}` },
         ].map(tab => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
@@ -115,7 +116,15 @@ export const ScriptsPage = ({ savedVideos }) => {
         ))}
       </div>
 
-      {activeTab === "write" && (
+      {activeTab === "remix" && (
+        <div className="bg-white rounded-xl border border-gray-200 border-dashed p-12 text-center">
+          <PenTool size={32} className="text-gray-300 mx-auto mb-3" />
+          <p className="text-sm font-medium text-gray-700">Remix (coming next)</p>
+          <p className="text-xs text-gray-500 mt-1">This is where you'll remix a saved video's script into your own version. Tell me exactly what you want this flow to do and I'll build it.</p>
+        </div>
+      )}
+
+      {activeTab === "create" && (
         <div className="space-y-5">
           <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
             <div className="flex items-center gap-2">
