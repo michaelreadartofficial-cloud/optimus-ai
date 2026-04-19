@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   if (!username && !providedUserId) return res.status(400).json({ error: "Provide username or userId" });
 
   const headers = { "x-rapidapi-host": HOST, "x-rapidapi-key": rapidApiKey };
-  const max = Math.min(parseInt(limit) || 24, 50);
+  const max = Math.min(parseInt(limit) || 36, 50);
   const debugInfo = { steps: [] };
 
   try {
@@ -42,48 +42,79 @@ export default async function handler(req, res) {
       await sleep(RATE_LIMIT_DELAY_MS);
     }
 
-    // 2. Fetch the reels. include_feed_video=true is REQUIRED by this API.
-    const reelsUrl = `https://${HOST}/reels?user_id=${encodeURIComponent(userId)}&include_feed_video=true`;
-    const reelsRes = await fetch(reelsUrl, { headers });
-    const reelsText = await reelsRes.text();
-    debugInfo.steps.push({ step: "reels", status: reelsRes.status, len: reelsText.length, preview: reelsText.substring(0, 400) });
+    // 2. Fetch reels with cursor-based pagination. The /reels endpoint
+    // returns at most 12 items per call. To get more, pass a max_id from
+    // the previous response. We page up to 3 times (36 items max) for
+    // the first /api call, which is enough to power Load more client-side
+    // without hammering the Ultra tier.
+    const MAX_PAGES = 3;
+    let nextMaxId = req.body?.maxId || "";
+    const allItems = [];
+    let finalCursor = "";
+    let moreAvailable = false;
 
-    if (!reelsRes.ok) {
-      let upstream = reelsText;
-      try { upstream = JSON.parse(reelsText)?.error || reelsText; } catch {}
-      return res.status(reelsRes.status).json({ error: upstream, upstreamStatus: reelsRes.status, debug: debugInfo });
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const params = new URLSearchParams({ user_id: String(userId), include_feed_video: "true" });
+      if (nextMaxId) params.set("max_id", nextMaxId);
+      const url = `https://${HOST}/reels?${params.toString()}`;
+
+      if (page > 0) await sleep(RATE_LIMIT_DELAY_MS);
+
+      const r = await fetch(url, { headers });
+      const t = await r.text();
+      debugInfo.steps.push({
+        step: `reels_page_${page}`, status: r.status, len: t.length,
+        preview: t.substring(0, 300),
+      });
+
+      if (!r.ok) {
+        // If it's the first page, bubble the error. Otherwise stop paging
+        // and use what we've collected.
+        if (page === 0) {
+          let upstream = t; try { upstream = JSON.parse(t)?.error || t; } catch {}
+          return res.status(r.status).json({ error: upstream, upstreamStatus: r.status, debug: debugInfo });
+        }
+        break;
+      }
+
+      let raw; try { raw = JSON.parse(t); } catch { break; }
+
+      if (page === 0 && raw && typeof raw === "object" && !Array.isArray(raw)) {
+        debugInfo.topKeys = Object.keys(raw).slice(0, 12);
+      }
+
+      // mediacrawlers shape: { status, data: { items: [...], paging_token | next_max_id } }
+      const d = raw?.data || raw;
+      const items = Array.isArray(d?.items) ? d.items
+        : Array.isArray(raw?.items) ? raw.items
+        : Array.isArray(raw) ? raw
+        : [];
+
+      // Find the cursor — IG / mediacrawlers uses a few different field names
+      const cursor = d?.paging_token || d?.next_max_id || d?.max_id
+        || raw?.paging_token || raw?.next_max_id || raw?.max_id || "";
+      const hasMore = !!cursor && (d?.more_available !== false);
+
+      allItems.push(...items);
+      if (page === 0 && items.length > 0) {
+        const first = items[0]?.node || items[0]?.media || items[0];
+        debugInfo.firstItemKeys = first ? Object.keys(first).slice(0, 20) : null;
+      }
+
+      finalCursor = cursor;
+      moreAvailable = hasMore;
+      if (!hasMore || items.length === 0) break;
+      nextMaxId = cursor;
+      // Stop early if we already have as many as the caller wanted
+      if (allItems.length >= max) break;
     }
 
-    let raw; try { raw = JSON.parse(reelsText); } catch {
-      return res.status(502).json({ error: "Upstream returned non-JSON", debug: debugInfo });
-    }
+    debugInfo.listLen = allItems.length;
+    debugInfo.pages = debugInfo.steps.filter(s => s.step.startsWith("reels_page_")).length;
+    debugInfo.finalCursor = finalCursor;
+    debugInfo.moreAvailable = moreAvailable;
 
-    // Record the top-level keys so we can see the response shape
-    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-      debugInfo.topKeys = Object.keys(raw).slice(0, 12);
-    }
-
-    // The mediacrawlers /reels endpoint returns:
-    //   { status: "ok", data: { items: [ { media: {...} }, ... ] } }
-    // Check the nested path first, then fall back to other shapes we might
-    // encounter with different upstream versions.
-    const list = Array.isArray(raw) ? raw
-      : raw?.data?.items
-      || raw?.items
-      || raw?.reels
-      || raw?.media
-      || raw?.results
-      || raw?.user?.edge_owner_to_timeline_media?.edges
-      || (Array.isArray(raw?.data) ? raw.data : null)
-      || [];
-
-    debugInfo.listLen = Array.isArray(list) ? list.length : 0;
-    if (Array.isArray(list) && list.length > 0) {
-      const first = list[0]?.node || list[0]?.media || list[0];
-      debugInfo.firstItemKeys = first ? Object.keys(first).slice(0, 20) : null;
-    }
-
-    if (!Array.isArray(list) || list.length === 0) {
+    if (allItems.length === 0) {
       return res.json({
         videos: [],
         stats: { total: 0, note: "No reels returned for this user." },
@@ -92,7 +123,7 @@ export default async function handler(req, res) {
     }
 
     // 3. Normalize each item into our standard video shape
-    const normalized = list.slice(0, max).map(item => normalizeReel(item)).filter(Boolean);
+    const normalized = allItems.slice(0, max).map(item => normalizeReel(item)).filter(Boolean);
 
     // 4. Compute outlier score per video (views relative to creator's avg views)
     const viewsSum = normalized.reduce((s, v) => s + (v.views || 0), 0);
@@ -104,6 +135,8 @@ export default async function handler(req, res) {
 
     return res.json({
       videos: withOutlier,
+      nextMaxId: finalCursor || null,
+      hasMore: !!moreAvailable,
       stats: { total: withOutlier.length, avgViews: Math.round(avgViews) },
       ...(debug ? { debug: debugInfo } : {}),
     });

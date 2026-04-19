@@ -85,7 +85,7 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
           const r = await apiPost("/api/instagram-user-videos", {
             username: c.username,
             userId: c.id && /^\d+$/.test(String(c.id)) ? c.id : undefined,
-            limit: 50,
+            limit: 36,
           });
           const mapped = (r.videos || []).map(v => ({
             ...v,
