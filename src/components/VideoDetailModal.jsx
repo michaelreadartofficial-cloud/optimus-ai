@@ -134,7 +134,7 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
             </button>
             <button onClick={() => { onSaveToggle(video); setCurrentPage("scripts"); onClose(); }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
-              <PenTool size={13} /> Write script from this
+              <PenTool size={13} /> Remix this script
             </button>
             <a href={platformUrl} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
