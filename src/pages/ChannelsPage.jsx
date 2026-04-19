@@ -29,17 +29,59 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   // previous search stops writing stale data into state.
   const enrichRunId = useRef(0);
 
+  // Profile-enrichment cache: username → { subscriberCount, subscribers,
+  // description, category }. Persists across searches so we don't re-burn
+  // API quota fetching the same creator twice.
+  const PROFILE_CACHE_KEY = "optimus_profile_cache";
+  const PROFILE_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+  const loadProfileCache = () => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(PROFILE_CACHE_KEY) || "{}");
+      return raw && typeof raw === "object" ? raw : {};
+    } catch { return {}; }
+  };
+  const saveProfileToCache = (username, profile) => {
+    try {
+      const cache = loadProfileCache();
+      cache[username] = { ...profile, cachedAt: Date.now() };
+      localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(cache));
+    } catch {}
+  };
+
   // Top up each creator with follower count + bio + category by hitting
   // /api/instagram-profile one at a time (Ultra = 1 req/sec, so we space
   // calls 1.1s apart). Updates state per-creator so cards populate
-  // progressively instead of waiting for the whole batch.
+  // progressively instead of waiting for the whole batch. Caches results
+  // for 24h so repeat searches are instant.
   const enrichFollowers = async (creators) => {
     const runId = ++enrichRunId.current;
     const ENRICH_DELAY_MS = 1100;
-    const MAX_TO_ENRICH = 50;
+    const MAX_TO_ENRICH = 25;
+    const cache = loadProfileCache();
+    const now = Date.now();
+
+    // First pass: apply any cached data synchronously so cached creators
+    // show follower counts immediately without an API call.
+    const cacheUpdates = [];
+    for (const c of creators) {
+      const hit = c.username && cache[c.username];
+      if (hit && (now - (hit.cachedAt || 0)) < PROFILE_CACHE_TTL_MS) {
+        cacheUpdates.push({ id: c.id, data: hit });
+      }
+    }
+    if (cacheUpdates.length > 0) {
+      setSuggestions(prev => prev.map(s => {
+        const hit = cacheUpdates.find(u => u.id === s.id);
+        return hit ? { ...s, ...hit.data } : s;
+      }));
+    }
+
+    // Second pass: fetch missing ones from the network
     const targets = creators
       .filter(c => c.username && !c.subscriberCount && (c.platform || "").toLowerCase().includes("instagram"))
+      .filter(c => !cache[c.username] || (now - (cache[c.username].cachedAt || 0)) >= PROFILE_CACHE_TTL_MS)
       .slice(0, MAX_TO_ENRICH);
+
     for (const c of targets) {
       if (enrichRunId.current !== runId) return; // new search started — abort
       try {
@@ -47,16 +89,16 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
         if (enrichRunId.current !== runId) return;
         const p = r.profile;
         if (!p) continue;
-        setSuggestions(prev => prev.map(s => s.id === c.id ? {
-          ...s,
+        const data = {
           subscriberCount: p.subscriberCount || 0,
-          subscribers: p.subscribers || s.subscribers,
-          description: p.description || s.description,
-          category: p.category || s.category,
-        } : s));
+          subscribers: p.subscribers || "",
+          description: p.description || "",
+          category: p.category || "",
+        };
+        setSuggestions(prev => prev.map(s => s.id === c.id ? { ...s, ...data } : s));
+        saveProfileToCache(c.username, data);
       } catch {
-        // Silently skip failures (rate limits, 404s) — that creator just
-        // keeps its N/A follower count.
+        // Silently skip failures (rate limits, 404s) — keeps N/A
       }
       await new Promise(r => setTimeout(r, ENRICH_DELAY_MS));
     }
@@ -555,7 +597,12 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 truncate">{creator.name || creator.username}</p>
-          <p className="text-xs text-gray-500">@{creator.username || creator.name} · {creator.subscribers || formatNumber(creator.subscriberCount)} followers</p>
+          <p className="text-xs text-gray-500">
+            @{creator.username || creator.name} ·{" "}
+            {creator.subscriberCount > 0
+              ? `${formatNumber(creator.subscriberCount)} followers`
+              : <span className="text-gray-400 italic">loading…</span>}
+          </p>
         </div>
         <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
           {showSimilar && (
@@ -725,7 +772,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-gray-900 truncate">{creator.username || creator.name}</p>
-                      <p className="text-xs text-gray-400">{creator.subscribers || formatNumber(creator.subscriberCount)}</p>
+                      <p className="text-xs text-gray-400">{creator.subscriberCount > 0 ? formatNumber(creator.subscriberCount) : "—"}</p>
                     </div>
                     <button onClick={() => removeFromWatchlist(creator.id)}
                       className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100">
