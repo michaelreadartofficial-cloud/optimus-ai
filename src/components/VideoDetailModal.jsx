@@ -18,12 +18,39 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
   const ytId = getYouTubeEmbedId(video.url);
   const platformUrl = video.url || "#";
 
+  // Cache transcripts + analyses in localStorage so re-clicking a video
+  // doesn't re-spend API calls on the same content.
+  const CACHE_KEY = "optimus_video_analysis_cache";
+  const cacheKey = `${video.id}:${kind => kind}`;
+  const readCache = (kind) => {
+    try {
+      const all = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+      return all?.[video.id]?.[kind] || null;
+    } catch { return null; }
+  };
+  const writeCache = (kind, text) => {
+    try {
+      const all = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+      if (!all[video.id]) all[video.id] = {};
+      all[video.id][kind] = text;
+      localStorage.setItem(CACHE_KEY, JSON.stringify(all));
+    } catch {}
+  };
+
   const runAnalysis = async (kind) => {
     setError(null);
+    // Check cache first
+    const cached = readCache(kind);
+    if (cached) {
+      setAnalysis(p => ({ ...p, [kind]: cached }));
+      return;
+    }
     setAnalyzing(p => ({ ...p, [kind]: true }));
     try {
       const r = await apiPost("/api/video-analysis", { video, kind });
-      setAnalysis(p => ({ ...p, [kind]: r.text || "No analysis returned." }));
+      const text = r.text || "No analysis returned.";
+      setAnalysis(p => ({ ...p, [kind]: text }));
+      writeCache(kind, text);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -143,12 +170,12 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
                 <Sparkles size={20} className="text-gray-300 mx-auto mb-2" />
                 <p className="text-xs text-gray-500 mb-3 max-w-md mx-auto">
                   {activeTab === "hook" && "Break down the opening hook — what pattern, what tension."}
-                  {activeTab === "transcript" && "Show the creator's caption verbatim. (Note: Instagram doesn't expose spoken-word transcripts; the caption is the closest public data.)"}
+                  {activeTab === "transcript" && "Transcribe the spoken words using OpenAI Whisper. Falls back to the creator's caption if transcription isn't available."}
                   {activeTab === "whyViral" && "Get the format, emotional driver, and replicable tactic."}
                 </p>
                 <button onClick={() => runAnalysis(activeTab)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-medium hover:bg-gray-800 transition">
-                  <Sparkles size={12} /> {activeTab === "transcript" ? "Show caption" : "Analyze with AI"}
+                  <Sparkles size={12} /> {activeTab === "transcript" ? "Get transcript" : "Analyze with AI"}
                 </button>
               </div>
             )}

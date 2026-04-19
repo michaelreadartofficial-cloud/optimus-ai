@@ -16,17 +16,44 @@ export default async function handler(req, res) {
   const { video, kind } = req.body || {};
   if (!video || !kind) return res.status(400).json({ error: "Provide { video, kind }" });
 
-  // Transcript handling: return caption directly, no LLM call needed
+  // Transcript handling: try real Whisper transcription first, fall back to
+  // the creator's caption if Whisper isn't available.
   if (kind === "transcript") {
+    const videoUrl = video.videoUrl;
     const caption = (video.caption || video.title || "").trim();
+
+    // Step 1: attempt real transcription via Whisper
+    if (videoUrl && process.env.OPENAI_API_KEY) {
+      try {
+        // Call our own transcribe endpoint internally. We can't do relative
+        // fetch on the server, so we either inline the logic or construct
+        // an absolute URL. Easiest: inline the transcription here.
+        const transcript = await transcribeWithWhisper(videoUrl, video.shortcode || video.id);
+        if (transcript) {
+          return res.json({
+            text: transcript,
+            source: "whisper",
+          });
+        }
+      } catch (e) {
+        // Fall through to caption fallback below — don't hard fail on
+        // transcription issues
+        console.error("Whisper transcription failed:", e.message);
+      }
+    }
+
+    // Step 2: fall back to the caption
     if (!caption) {
       return res.json({
-        text: "This reel has no caption saved. Instagram's public API doesn't expose spoken-word transcripts, so without a caption we can't show the text content.",
+        text: "This reel has no caption and automatic transcription isn't available. To enable spoken-word transcripts, add OPENAI_API_KEY to your Vercel environment.",
         source: "empty",
       });
     }
+    const fallbackNote = process.env.OPENAI_API_KEY
+      ? "\n\n─────\n\nNote: automatic transcription failed (the video URL may have expired, or the file was too large). Showing the creator's caption instead."
+      : "\n\n─────\n\nNote: This is the creator's CAPTION, not a spoken-word transcript. To enable real audio transcription, add OPENAI_API_KEY to your Vercel environment (uses OpenAI Whisper, ~$0.006 per minute).";
     return res.json({
-      text: `${caption}\n\n─────\n\nNote: This is the creator's CAPTION, not a spoken-word transcript. Instagram's public data doesn't include audio transcripts — to see exactly what the creator says on screen, you'd need to add a transcription service (e.g. OpenAI Whisper, ~$0.006/minute).`,
+      text: caption + fallbackNote,
       source: "caption",
     });
   }
@@ -62,6 +89,41 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ error: e.message || "Analysis failed" });
   }
+}
+
+async function transcribeWithWhisper(videoUrl, shortcode) {
+  // 1. Fetch the video bytes
+  const videoRes = await fetch(videoUrl, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      Accept: "video/mp4,video/*;q=0.9,*/*;q=0.8",
+      Referer: "https://www.instagram.com/",
+    },
+  });
+  if (!videoRes.ok) throw new Error(`video fetch ${videoRes.status}`);
+  const videoBuffer = Buffer.from(await videoRes.arrayBuffer());
+  const sizeMB = videoBuffer.length / (1024 * 1024);
+  if (sizeMB > 24) throw new Error(`file too large: ${sizeMB.toFixed(1)}MB`);
+
+  // 2. POST to Whisper
+  const form = new FormData();
+  const blob = new Blob([videoBuffer], { type: "video/mp4" });
+  form.append("file", blob, `${shortcode || "reel"}.mp4`);
+  form.append("model", "whisper-1");
+  form.append("response_format", "json");
+
+  const whisperRes = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+    body: form,
+  });
+  if (!whisperRes.ok) {
+    const err = await whisperRes.text();
+    throw new Error(`whisper ${whisperRes.status}: ${err.slice(0, 200)}`);
+  }
+  const result = await whisperRes.json();
+  return result.text || "";
 }
 
 function buildPrompt(video, kind) {
