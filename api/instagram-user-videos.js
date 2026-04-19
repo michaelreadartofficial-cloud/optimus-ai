@@ -81,6 +81,18 @@ export default async function handler(req, res) {
 
       if (page === 0 && raw && typeof raw === "object" && !Array.isArray(raw)) {
         debugInfo.topKeys = Object.keys(raw).slice(0, 12);
+        // Also record data.* keys so we can find the cursor
+        if (raw.data && typeof raw.data === "object") {
+          debugInfo.dataKeys = Object.keys(raw.data).slice(0, 20);
+          // Log the values of any non-array data keys (these are usually
+          // pagination fields like next_max_id, more_available, paging_token)
+          const scalars = {};
+          for (const k of Object.keys(raw.data)) {
+            const v = raw.data[k];
+            if (!Array.isArray(v) && typeof v !== "object") scalars[k] = v;
+          }
+          debugInfo.dataScalars = scalars;
+        }
       }
 
       // mediacrawlers shape: { status, data: { items: [...], paging_token | next_max_id } }
