@@ -22,6 +22,9 @@ export const ScriptsPage = ({ savedVideos }) => {
   // so the user can tweak the rewritten script in place.
   const [remixEditing, setRemixEditing] = useState(false);
   const [remixEditDraft, setRemixEditDraft] = useState("");
+  // Flips true for ~2s after the user clicks Save script, so the button
+  // can flash a "Saved!" confirmation.
+  const [remixJustSaved, setRemixJustSaved] = useState(false);
 
   const REMIX_FRAMEWORKS = [
     { key: "heit", label: "HEIT Framework" },
@@ -339,11 +342,17 @@ export const ScriptsPage = ({ savedVideos }) => {
                           createdAt: new Date().toISOString(),
                         };
                         setSavedScripts(prev => [s, ...prev]);
+                        setRemixJustSaved(true);
+                        setTimeout(() => setRemixJustSaved(false), 2000);
                       }}
-                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                        <Bookmark size={12} /> Save
+                        className={`flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition ${
+                          remixJustSaved
+                            ? "bg-green-500 text-white"
+                            : "bg-blue-500 text-white hover:bg-blue-600"
+                        }`}>
+                        {remixJustSaved ? <><Check size={12} /> Saved!</> : <><Bookmark size={12} /> Save script</>}
                       </button>
-                      <button onClick={() => { setRemixedScript(null); setRemixEditing(false); setRemixEditDraft(""); }}
+                      <button onClick={() => { setRemixedScript(null); setRemixEditing(false); setRemixEditDraft(""); setRemixJustSaved(false); }}
                         className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
                         <RefreshCw size={12} /> Start over
                       </button>
