@@ -81,17 +81,10 @@ export default async function handler(req, res) {
 
       if (page === 0 && raw && typeof raw === "object" && !Array.isArray(raw)) {
         debugInfo.topKeys = Object.keys(raw).slice(0, 12);
-        // Also record data.* keys so we can find the cursor
         if (raw.data && typeof raw.data === "object") {
           debugInfo.dataKeys = Object.keys(raw.data).slice(0, 20);
-          // Log the values of any non-array data keys (these are usually
-          // pagination fields like next_max_id, more_available, paging_token)
-          const scalars = {};
-          for (const k of Object.keys(raw.data)) {
-            const v = raw.data[k];
-            if (!Array.isArray(v) && typeof v !== "object") scalars[k] = v;
-          }
-          debugInfo.dataScalars = scalars;
+          // Dump paging_info in full if present — that's where the cursor lives
+          if (raw.data.paging_info) debugInfo.paging_info = raw.data.paging_info;
         }
       }
 
@@ -102,10 +95,15 @@ export default async function handler(req, res) {
         : Array.isArray(raw) ? raw
         : [];
 
-      // Find the cursor — IG / mediacrawlers uses a few different field names
-      const cursor = d?.paging_token || d?.next_max_id || d?.max_id
-        || raw?.paging_token || raw?.next_max_id || raw?.max_id || "";
-      const hasMore = !!cursor && (d?.more_available !== false);
+      // Find the cursor. mediacrawlers returns it under data.paging_info —
+      // fields are typically max_id / next_max_id / paging_token plus a
+      // more_available boolean.
+      const pi = d?.paging_info || {};
+      const cursor = pi.next_max_id || pi.max_id || pi.paging_token
+        || d?.next_max_id || d?.max_id || d?.paging_token
+        || raw?.next_max_id || raw?.max_id || "";
+      const hasMore = pi.more_available === true
+        || (!!cursor && pi.more_available !== false && d?.more_available !== false);
 
       allItems.push(...items);
       if (page === 0 && items.length > 0) {
