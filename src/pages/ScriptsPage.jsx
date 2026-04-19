@@ -25,6 +25,12 @@ export const ScriptsPage = ({ savedVideos }) => {
   // Flips true for ~2s after the user clicks Save script, so the button
   // can flash a "Saved!" confirmation.
   const [remixJustSaved, setRemixJustSaved] = useState(false);
+  // Name-script modal for when the user clicks Save script in the Remix
+  // output card. Pre-filled with the source reel title but fully editable.
+  const [nameModalOpen, setNameModalOpen] = useState(false);
+  const [nameModalDraft, setNameModalDraft] = useState("");
+  // Full-content view modal for the Saved Scripts tab.
+  const [viewingScript, setViewingScript] = useState(null);
 
   const REMIX_FRAMEWORKS = [
     { key: "heit", label: "HEIT Framework" },
@@ -331,19 +337,8 @@ export const ScriptsPage = ({ savedVideos }) => {
                         <Pencil size={12} /> Edit this script
                       </button>
                       <button onClick={() => {
-                        const s = {
-                          id: Date.now(),
-                          topic: remixSeed.title,
-                          hook: "",
-                          body: remixedScript.text,
-                          cta: "",
-                          tone: "Remix",
-                          duration: REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label,
-                          createdAt: new Date().toISOString(),
-                        };
-                        setSavedScripts(prev => [s, ...prev]);
-                        setRemixJustSaved(true);
-                        setTimeout(() => setRemixJustSaved(false), 2000);
+                        setNameModalDraft(remixSeed?.title || "");
+                        setNameModalOpen(true);
                       }}
                         className={`flex items-center gap-1 px-2.5 py-1.5 text-xs rounded-lg transition ${
                           remixJustSaved
@@ -523,40 +518,181 @@ export const ScriptsPage = ({ savedVideos }) => {
               <p className="text-xs text-gray-500 mt-1">Generate a script and save it to see it here</p>
             </div>
           )}
-          {savedScripts.map(script => (
-            <div key={script.id} className="bg-white rounded-xl border border-gray-200 p-4 hover:border-gray-300 transition-all">
-              <div className="flex items-start justify-between mb-3">
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{script.topic || script.hook}</p>
-                  <p className="text-[11px] text-gray-500 mt-0.5">{script.tone} · {script.duration}</p>
+          {savedScripts.map(script => {
+            const isRemix = script.tone === "Remix";
+            return (
+              <div key={script.id}
+                onClick={() => setViewingScript(script)}
+                className="bg-white rounded-xl border border-gray-200 p-4 hover:border-gray-300 transition-all cursor-pointer">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">{script.topic || script.hook}</p>
+                    <p className="text-[11px] text-gray-500 mt-0.5">{script.tone} · {script.duration}</p>
+                  </div>
+                  <div className="flex gap-1 flex-shrink-0">
+                    <button onClick={(e) => {
+                      e.stopPropagation();
+                      const full = isRemix ? script.body : `${script.hook}\n\n${script.body}\n\n${script.cta}`;
+                      copyToClipboard(full);
+                    }}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                      <Copy size={14} />
+                    </button>
+                    <button onClick={(e) => {
+                      e.stopPropagation();
+                      setSavedScripts(prev => prev.filter(s => s.id !== script.id));
+                    }}
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-1 flex-shrink-0">
-                  <button onClick={() => copyToClipboard(`${script.hook}\n\n${script.body}\n\n${script.cta}`)}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
-                    <Copy size={14} />
-                  </button>
-                  <button onClick={() => setSavedScripts(prev => prev.filter(s => s.id !== script.id))}
-                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
+                {isRemix ? (
+                  <div>
+                    <p className="text-[10px] font-bold text-purple-600 uppercase tracking-wider mb-1">Remixed script</p>
+                    <p className="text-sm text-gray-700 line-clamp-3 whitespace-pre-wrap">{script.body}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider">Hook</p>
+                      <p className="text-sm text-gray-900">{script.hook}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Body</p>
+                      <p className="text-sm text-gray-700 line-clamp-3 whitespace-pre-wrap">{script.body}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-green-600 uppercase tracking-wider">CTA</p>
+                      <p className="text-sm text-gray-900">{script.cta}</p>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="space-y-2">
-                <div>
-                  <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider">Hook</p>
-                  <p className="text-sm text-gray-900">{script.hook}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Body</p>
-                  <p className="text-sm text-gray-700 line-clamp-3 whitespace-pre-wrap">{script.body}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-bold text-green-600 uppercase tracking-wider">CTA</p>
-                  <p className="text-sm text-gray-900">{script.cta}</p>
-                </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Name Script modal — prompts the user to title the remix before saving */}
+      {nameModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+          onClick={() => setNameModalOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-5" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-gray-900">Name your script</h3>
+              <button onClick={() => setNameModalOpen(false)}
+                className="p-1 rounded-lg hover:bg-gray-100">
+                <X size={16} className="text-gray-500" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mb-3">Give this saved script a title so you can find it later.</p>
+            <input
+              type="text"
+              value={nameModalDraft}
+              onChange={(e) => setNameModalDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && nameModalDraft.trim() && remixedScript) {
+                  const s = {
+                    id: Date.now(),
+                    topic: nameModalDraft.trim(),
+                    hook: "",
+                    body: remixedScript.text,
+                    cta: "",
+                    tone: "Remix",
+                    duration: REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label,
+                    createdAt: new Date().toISOString(),
+                  };
+                  setSavedScripts(prev => [s, ...prev]);
+                  setNameModalOpen(false);
+                  setRemixJustSaved(true);
+                  setTimeout(() => setRemixJustSaved(false), 2000);
+                }
+                if (e.key === "Escape") setNameModalOpen(false);
+              }}
+              placeholder="e.g. Hormozi hiring hook — v1"
+              autoFocus
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <button onClick={() => setNameModalOpen(false)}
+                className="px-3 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                Cancel
+              </button>
+              <button
+                disabled={!nameModalDraft.trim() || !remixedScript}
+                onClick={() => {
+                  const s = {
+                    id: Date.now(),
+                    topic: nameModalDraft.trim(),
+                    hook: "",
+                    body: remixedScript.text,
+                    cta: "",
+                    tone: "Remix",
+                    duration: REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label,
+                    createdAt: new Date().toISOString(),
+                  };
+                  setSavedScripts(prev => [s, ...prev]);
+                  setNameModalOpen(false);
+                  setRemixJustSaved(true);
+                  setTimeout(() => setRemixJustSaved(false), 2000);
+                }}
+                className="flex items-center gap-1 px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                <Bookmark size={12} /> Save script
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Script modal — full-content view when a saved script card is clicked */}
+      {viewingScript && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+          onClick={() => setViewingScript(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-3 p-5 border-b border-gray-100">
+              <div className="min-w-0">
+                <h3 className="text-base font-semibold text-gray-900 leading-snug">{viewingScript.topic || viewingScript.hook}</h3>
+                <p className="text-[11px] text-gray-500 mt-0.5">{viewingScript.tone} · {viewingScript.duration}</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button onClick={() => {
+                  const full = viewingScript.tone === "Remix"
+                    ? viewingScript.body
+                    : `${viewingScript.hook}\n\n${viewingScript.body}\n\n${viewingScript.cta}`;
+                  copyToClipboard(full);
+                }}
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <Copy size={12} /> Copy
+                </button>
+                <button onClick={() => setViewingScript(null)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100">
+                  <X size={16} className="text-gray-500" />
+                </button>
               </div>
             </div>
-          ))}
+            <div className="flex-1 overflow-y-auto p-5">
+              {viewingScript.tone === "Remix" ? (
+                <pre className="text-sm text-gray-900 leading-relaxed whitespace-pre-wrap font-sans">{viewingScript.body}</pre>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wider mb-1">Hook</p>
+                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{viewingScript.hook}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider mb-1">Body</p>
+                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{viewingScript.body}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-green-600 uppercase tracking-wider mb-1">CTA</p>
+                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{viewingScript.cta}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
