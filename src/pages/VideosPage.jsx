@@ -14,7 +14,8 @@ import { SAMPLE_VIDEOS } from "../utils/sampleData";
 
 export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentPage }) => {
   const [activeTab, setActiveTab] = useState("feed");
-  const [sortBy, setSortBy] = useState("newest");
+  const [sortBy, setSortBy] = useState("views");
+  const [visibleCount, setVisibleCount] = useState(12);
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [hoveredVideoId, setHoveredVideoId] = useState(null);
   const [openVideo, setOpenVideo] = useState(null);
@@ -84,7 +85,7 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
           const r = await apiPost("/api/instagram-user-videos", {
             username: c.username,
             userId: c.id && /^\d+$/.test(String(c.id)) ? c.id : undefined,
-            limit: 24,
+            limit: 50,
           });
           const mapped = (r.videos || []).map(v => ({
             ...v,
@@ -155,11 +156,18 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
     if (keywords && !v.title.toLowerCase().includes(keywords.toLowerCase())) return false;
     return true;
   }).sort((a, b) => {
+    if (sortBy === "newest") return new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0);
     if (sortBy === "outlier") return (b.outlierScore || 0) - (a.outlierScore || 0);
-    if (sortBy === "views") return (b.views || 0) - (a.views || 0);
     if (sortBy === "engagement") return (b.engagementRate || 0) - (a.engagementRate || 0);
-    return 0;
+    // Default (and "views"): highest views first
+    return (b.views || 0) - (a.views || 0);
   });
+
+  // Reset the visible window whenever the result set or sort order changes,
+  // so Load more is relative to the CURRENT list.
+  useEffect(() => { setVisibleCount(12); }, [activeTab, sortBy, channelFilter, platformFilter, outlierMin, outlierMax, viewsMin, viewsMax, engagementMin, engagementMax, postedWithin, postedUnit, keywords]);
+
+  const visibleVideos = filteredVideos.slice(0, visibleCount);
 
   const saveToVault = (video) => {
     if (!savedVideos.find(v => v.id === video.id)) setSavedVideos(prev => [...prev, video]);
@@ -476,7 +484,7 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
           {!loading && (
             <>
               <div className="grid gap-4 grid-cols-3 xl:grid-cols-4">
-                {filteredVideos.map(video => (
+                {visibleVideos.map(video => (
                   <div key={video.id} className="group cursor-pointer"
                     onClick={() => setOpenVideo(video)}
                     onMouseEnter={() => setHoveredVideoId(video.id)}
@@ -531,6 +539,22 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                   </div>
                 ))}
               </div>
+
+              {/* Load more — reveals the next 12 from the already-fetched set.
+                  No extra API calls; sorting has been applied already. */}
+              {filteredVideos.length > visibleCount && (
+                <div className="mt-6 flex justify-center">
+                  <button onClick={() => setVisibleCount(c => c + 12)}
+                    className="px-5 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    Load more videos ({filteredVideos.length - visibleCount} remaining)
+                  </button>
+                </div>
+              )}
+              {filteredVideos.length > 0 && filteredVideos.length <= visibleCount && filteredVideos.length >= 12 && (
+                <div className="mt-6 text-center text-xs text-gray-400">
+                  Showing all {filteredVideos.length} videos from your watchlist.
+                </div>
+              )}
 
               {filteredVideos.length === 0 && (
                 <div className="text-center py-16">
