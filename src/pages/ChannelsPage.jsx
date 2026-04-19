@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Search, ChevronDown, Plus, X, Loader2, RefreshCw } from "lucide-react";
 import { PlatformIcon } from "../components/PlatformIcon";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -23,6 +23,44 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // Cancellation token for background follower-count enrichment. Incremented
+  // every time a new search fires so any in-flight enrichment from the
+  // previous search stops writing stale data into state.
+  const enrichRunId = useRef(0);
+
+  // Top up each creator with follower count + bio + category by hitting
+  // /api/instagram-profile one at a time (Ultra = 1 req/sec, so we space
+  // calls 1.1s apart). Updates state per-creator so cards populate
+  // progressively instead of waiting for the whole batch.
+  const enrichFollowers = async (creators) => {
+    const runId = ++enrichRunId.current;
+    const ENRICH_DELAY_MS = 1100;
+    const MAX_TO_ENRICH = 50;
+    const targets = creators
+      .filter(c => c.username && !c.subscriberCount && (c.platform || "").toLowerCase().includes("instagram"))
+      .slice(0, MAX_TO_ENRICH);
+    for (const c of targets) {
+      if (enrichRunId.current !== runId) return; // new search started — abort
+      try {
+        const r = await apiPost("/api/instagram-profile", { handle: c.username });
+        if (enrichRunId.current !== runId) return;
+        const p = r.profile;
+        if (!p) continue;
+        setSuggestions(prev => prev.map(s => s.id === c.id ? {
+          ...s,
+          subscriberCount: p.subscriberCount || 0,
+          subscribers: p.subscribers || s.subscribers,
+          description: p.description || s.description,
+          category: p.category || s.category,
+        } : s));
+      } catch {
+        // Silently skip failures (rate limits, 404s) — that creator just
+        // keeps its N/A follower count.
+      }
+      await new Promise(r => setTimeout(r, ENRICH_DELAY_MS));
+    }
+  };
 
   const platformRank = (p) => {
     const s = (p || "").toLowerCase();
@@ -363,6 +401,9 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       // from the next one (page was incremented after each fetch, so the
       // last successfully fetched page is page - 1).
       setCurrentPage(Math.max(0, page - 1));
+      // Kick off background enrichment — follower counts flow in over time
+      // instead of blocking the initial render
+      enrichFollowers(allCreators);
     } catch (err) {
       setError(err.message || "Failed to search creators");
     } finally {
@@ -418,6 +459,8 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       setVisibleCount(prev => prev + LOAD_MORE_INCREMENT + accumulated.length);
       setCurrentPage(page);
       setBackendHasMore(stillHasMore);
+      // Background enrich the newly-loaded accounts
+      enrichFollowers(accumulated);
     } catch {} finally {
       setLoadingMore(false);
     }
