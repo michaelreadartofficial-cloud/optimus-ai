@@ -146,6 +146,17 @@ function normalizeReel(item) {
   const code = m.code || m.shortcode || "";
   const url = code ? `https://www.instagram.com/reel/${code}/` : "";
 
+  // Raw video file URL (for download proxying). Instagram returns multiple
+  // quality versions; pick the highest-resolution one available.
+  const versions = m.video_versions || m.video_resources || [];
+  let videoUrl = "";
+  if (Array.isArray(versions) && versions.length > 0) {
+    // Sort by width descending so we get the highest-res version
+    const sorted = [...versions].sort((a, b) => (b.width || 0) - (a.width || 0));
+    videoUrl = sorted[0]?.url || sorted[0]?.src || "";
+  }
+  if (!videoUrl) videoUrl = m.video_url || "";
+
   return {
     id,
     title,
@@ -155,7 +166,9 @@ function normalizeReel(item) {
     comments,
     engagementRate: views > 0 ? (likes + comments) / views : 0,
     thumbnail,
+    videoUrl,
     url,
+    shortcode: code,
     platform: "Instagram Reels",
     publishedAt,
   };

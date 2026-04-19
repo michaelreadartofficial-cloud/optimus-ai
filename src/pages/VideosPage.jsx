@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   Users, BarChart3, Download, RefreshCw, ChevronDown, X, Video,
-  TrendingUp, Eye, Flame, Heart, MessageCircle,
+  TrendingUp, Eye, Flame, Heart, MessageCircle, Check, Loader2,
 } from "lucide-react";
 import { PlatformBadge } from "../components/PlatformIcon";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -18,6 +18,8 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [hoveredVideoId, setHoveredVideoId] = useState(null);
   const [openVideo, setOpenVideo] = useState(null);
+  const [showDownloadPicker, setShowDownloadPicker] = useState(false);
+  const [downloadingId, setDownloadingId] = useState(null);
   const [videos, setVideos] = useState(SAMPLE_VIDEOS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -193,7 +195,7 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
     setSavedFilter(name);
   };
 
-  const exportVideos = () => {
+  const exportAsCsv = () => {
     const rows = [["Title", "Channel", "Platform", "Views", "Outlier", "Engagement", "URL"]];
     filteredVideos.forEach(v => rows.push([
       v.title, v.channel?.name || "", v.platform || "",
@@ -207,6 +209,50 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
     const a = document.createElement("a");
     a.href = url; a.download = `optimus-videos-${Date.now()}.csv`; a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // Export button is context-aware: CSV on the Feed tab, video picker on
+  // the Vault tab (where downloading individual saved videos makes sense).
+  const handleExportClick = () => {
+    if (activeTab === "vault") {
+      setShowDownloadPicker(true);
+    } else {
+      exportAsCsv();
+    }
+  };
+
+  // Download a single vault video. Streams through our /api/proxy-video
+  // endpoint to bypass Instagram's CORS + short-lived-URL restrictions.
+  const downloadVideo = async (video) => {
+    if (!video.videoUrl) {
+      alert("This video doesn't have a downloadable URL saved. Re-save it from the feed to refresh.");
+      return;
+    }
+    setDownloadingId(video.id);
+    try {
+      const cleanTitle = (video.title || "reel")
+        .slice(0, 40)
+        .replace(/[^\w\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "-") || "reel";
+      const filename = `${cleanTitle}-${video.id}.mp4`;
+      const proxyUrl = `/api/proxy-video?url=${encodeURIComponent(video.videoUrl)}&filename=${encodeURIComponent(filename)}`;
+      // Use a hidden iframe-style anchor so the browser triggers a download
+      // rather than navigating the current tab
+      const a = document.createElement("a");
+      a.href = proxyUrl;
+      a.download = filename;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (e) {
+      alert(`Download failed: ${e.message}`);
+    } finally {
+      // Brief visual feedback
+      setTimeout(() => setDownloadingId(null), 1500);
+    }
   };
 
   const platformLabel = { all: "All platforms", instagram: "Instagram", tiktok: "TikTok", youtube: "YouTube" };
@@ -266,9 +312,10 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
             )}
           </div>
 
-          <button onClick={exportVideos}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-            <Download size={14} /> Export
+          <button onClick={handleExportClick}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title={activeTab === "vault" ? "Download a saved video" : "Export filtered list as CSV"}>
+            <Download size={14} /> {activeTab === "vault" ? "Download" : "Export"}
           </button>
 
           <button onClick={fetchVideos} disabled={loading} title="Refresh"
@@ -540,6 +587,81 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
         isSaved={openVideo ? isInVault(openVideo.id) : false}
         setCurrentPage={setCurrentPage}
       />
+
+      {/* Vault download picker */}
+      {showDownloadPicker && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+          onClick={() => setShowDownloadPicker(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <div>
+                <h2 className="text-base font-bold text-gray-900">Download a video</h2>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Pick a saved video to download as an MP4 file.
+                </p>
+              </div>
+              <button onClick={() => setShowDownloadPicker(false)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 transition flex-shrink-0">
+                <X size={16} className="text-gray-500" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-5">
+              {savedVideos.length === 0 ? (
+                <div className="text-center py-10">
+                  <Video size={28} className="text-gray-300 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">Your vault is empty.</p>
+                  <p className="text-xs text-gray-400 mt-1">Save videos from the Feed tab first.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {savedVideos.map(v => {
+                    const downloadable = !!v.videoUrl;
+                    const isDownloading = downloadingId === v.id;
+                    return (
+                      <button key={v.id}
+                        disabled={!downloadable || isDownloading}
+                        onClick={() => downloadVideo(v)}
+                        className={`group text-left relative rounded-xl overflow-hidden bg-gray-100 transition ${
+                          downloadable ? "hover:ring-2 hover:ring-gray-900 cursor-pointer" : "opacity-50 cursor-not-allowed"
+                        }`}
+                        title={downloadable ? "Click to download" : "Video URL not available — re-save from feed"}>
+                        <div className="relative" style={{ paddingBottom: "177.78%" }}>
+                          <img src={v.thumbnail} alt={v.title}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            onError={(e) => { e.target.src = `https://picsum.photos/seed/${v.id}/270/480`; }} />
+                          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 to-transparent" />
+                          <div className="absolute inset-x-0 bottom-0 p-2">
+                            <p className="text-white text-[11px] font-semibold line-clamp-2 leading-snug drop-shadow">
+                              {v.title}
+                            </p>
+                          </div>
+                          {/* Download overlay */}
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition">
+                            {isDownloading ? (
+                              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full text-xs font-medium">
+                                <Loader2 size={12} className="animate-spin" /> Downloading…
+                              </div>
+                            ) : downloadable ? (
+                              <div className="opacity-0 group-hover:opacity-100 transition flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full text-xs font-medium">
+                                <Download size={12} /> Download
+                              </div>
+                            ) : (
+                              <div className="opacity-0 group-hover:opacity-100 transition px-2 py-1 bg-amber-50 text-amber-800 rounded-md text-[10px] text-center max-w-[90%]">
+                                Re-save to refresh
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
