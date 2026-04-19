@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Wand2, Check, Sparkles, Copy, Bookmark, RefreshCw, PenTool, Trash2 } from "lucide-react";
+import { Loader2, Wand2, Check, Sparkles, Copy, Bookmark, RefreshCw, PenTool, Trash2, ChevronDown, Video, X } from "lucide-react";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { apiPost } from "../utils/api";
 import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "../utils/storage";
@@ -7,6 +7,78 @@ import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "../utils/storage";
 export const ScriptsPage = ({ savedVideos }) => {
   const [savedScripts, setSavedScripts] = useState(() => loadFromStorage(STORAGE_KEYS.savedScripts, []));
   const [activeTab, setActiveTab] = useState("remix");
+
+  // Remix tab state — the seed is populated when the user clicks "Remix
+  // this script" on a video modal. That handler stores a payload in
+  // localStorage under optimus_remix_seed, which we pick up on mount.
+  const [remixSeed, setRemixSeed] = useState(() => loadFromStorage("optimus_remix_seed", null));
+  const [remixFramework, setRemixFramework] = useState("");
+  const [remixShowFrameworkDrop, setRemixShowFrameworkDrop] = useState(false);
+  const [remixCustomPrompt, setRemixCustomPrompt] = useState("");
+  const [remixing, setRemixing] = useState(false);
+  const [remixError, setRemixError] = useState(null);
+  const [remixedScript, setRemixedScript] = useState(null);
+
+  const REMIX_FRAMEWORKS = [
+    { key: "heit", label: "HEIT Framework" },
+    { key: "bens", label: "Bens Framework" },
+    { key: "custom", label: "Custom Framework" },
+  ];
+
+  // Poll localStorage on tab focus so if the user opens Remix after the
+  // seed was stored by the modal, we pick it up.
+  useEffect(() => {
+    const onFocus = () => {
+      const fresh = loadFromStorage("optimus_remix_seed", null);
+      if (fresh && (!remixSeed || fresh.seededAt !== remixSeed.seededAt)) setRemixSeed(fresh);
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [remixSeed]);
+
+  // Also pick up the seed when switching to the Remix tab
+  useEffect(() => {
+    if (activeTab === "remix") {
+      const fresh = loadFromStorage("optimus_remix_seed", null);
+      if (fresh && (!remixSeed || fresh.seededAt !== remixSeed.seededAt)) setRemixSeed(fresh);
+    }
+  }, [activeTab]);
+
+  const clearRemixSeed = () => {
+    setRemixSeed(null);
+    setRemixFramework("");
+    setRemixCustomPrompt("");
+    setRemixedScript(null);
+    setRemixError(null);
+    try { localStorage.removeItem("optimus_remix_seed"); } catch {}
+  };
+
+  const runRemix = async () => {
+    if (!remixSeed || !remixFramework) return;
+    if (remixFramework === "custom" && !remixCustomPrompt.trim()) {
+      setRemixError("Add custom framework instructions before running.");
+      return;
+    }
+    setRemixing(true);
+    setRemixError(null);
+    setRemixedScript(null);
+    try {
+      // TODO: wire real generation once user specifies what each framework
+      // means. For now this just echoes the inputs so we can confirm the
+      // data is flowing correctly.
+      setRemixedScript({
+        placeholder: true,
+        framework: remixFramework,
+        customPrompt: remixFramework === "custom" ? remixCustomPrompt : "",
+        title: remixSeed.title,
+        transcriptPreview: (remixSeed.transcript || remixSeed.caption || "").slice(0, 400),
+      });
+    } catch (e) {
+      setRemixError(e.message);
+    } finally {
+      setRemixing(false);
+    }
+  };
 
   const [hookTopic, setHookTopic] = useState("");
   const [sourceVideoId, setSourceVideoId] = useState("");
@@ -116,11 +188,110 @@ export const ScriptsPage = ({ savedVideos }) => {
         ))}
       </div>
 
-      {activeTab === "remix" && (
+      {activeTab === "remix" && !remixSeed && (
         <div className="bg-white rounded-xl border border-gray-200 border-dashed p-12 text-center">
           <PenTool size={32} className="text-gray-300 mx-auto mb-3" />
-          <p className="text-sm font-medium text-gray-700">Remix (coming next)</p>
-          <p className="text-xs text-gray-500 mt-1">This is where you'll remix a saved video's script into your own version. Tell me exactly what you want this flow to do and I'll build it.</p>
+          <p className="text-sm font-medium text-gray-700">No video selected</p>
+          <p className="text-xs text-gray-500 mt-1 mb-1">Go to the Videos tab, click a video, and hit "Remix this script" in its detail window. The transcript will load here automatically.</p>
+        </div>
+      )}
+
+      {activeTab === "remix" && remixSeed && (
+        <div className="space-y-5">
+          {/* Step 1 — source video summary */}
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <div className="flex items-start gap-4">
+              {remixSeed.thumbnail && (
+                <div className="w-20 h-28 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                  <img src={remixSeed.thumbnail} alt="" className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                  <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">{remixSeed.title || "Instagram Reel"}</h3>
+                  <button onClick={clearRemixSeed}
+                    title="Clear seed — pick a different video"
+                    className="p-1 -mr-1 text-gray-300 hover:text-red-500 transition-colors flex-shrink-0">
+                    <X size={14} />
+                  </button>
+                </div>
+                {remixSeed.channel?.username && (
+                  <p className="text-xs text-gray-500 mb-2">@{remixSeed.channel.username}</p>
+                )}
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Transcript</p>
+                  <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto">
+                    {remixSeed.transcript || remixSeed.caption || <span className="italic text-gray-400">No transcript captured — the original video had no audio transcription or caption available.</span>}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 2 — choose remix style */}
+          <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+            <div>
+              <label className="text-xs font-medium text-gray-500 block mb-1.5">Choose remix style</label>
+              <div className="relative">
+                <button onClick={() => setRemixShowFrameworkDrop(!remixShowFrameworkDrop)}
+                  className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 flex items-center justify-between">
+                  <span className={remixFramework ? "text-gray-900" : "text-gray-400"}>
+                    {remixFramework ? REMIX_FRAMEWORKS.find(f => f.key === remixFramework)?.label : "Pick a framework"}
+                  </span>
+                  <ChevronDown size={14} className="text-gray-400" />
+                </button>
+                {remixShowFrameworkDrop && (
+                  <>
+                    <div className="fixed inset-0 z-20" onClick={() => setRemixShowFrameworkDrop(false)} />
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30">
+                      {REMIX_FRAMEWORKS.map(f => (
+                        <button key={f.key}
+                          onClick={() => { setRemixFramework(f.key); setRemixShowFrameworkDrop(false); }}
+                          className={`w-full text-left px-3 py-2 text-sm ${remixFramework === f.key ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {remixFramework === "custom" && (
+              <div>
+                <label className="text-xs font-medium text-gray-500 block mb-1.5">Custom framework instructions</label>
+                <textarea rows={4} value={remixCustomPrompt} onChange={(e) => setRemixCustomPrompt(e.target.value)}
+                  placeholder="Describe the structure / tone / rules you want this script rewritten with..."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              </div>
+            )}
+
+            <button onClick={runRemix}
+              disabled={remixing || !remixFramework || (remixFramework === "custom" && !remixCustomPrompt.trim())}
+              className="w-full py-2.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm">
+              {remixing ? <><Loader2 size={14} className="animate-spin" /> Remixing…</> : <><Sparkles size={14} /> Remix script</>}
+            </button>
+            {remixError && <ErrorMessage message={remixError} onRetry={runRemix} />}
+          </div>
+
+          {/* Step 3 — remixed output (placeholder) */}
+          {remixedScript && (
+            <div className="bg-white rounded-xl border border-amber-200 bg-amber-50/50 p-5">
+              <p className="text-xs font-semibold text-amber-900 uppercase tracking-wider mb-2">Placeholder — pending framework specs</p>
+              <p className="text-xs text-amber-900 mb-3">
+                Framework: <strong>{REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label}</strong>
+              </p>
+              {remixedScript.customPrompt && (
+                <div className="mb-3">
+                  <p className="text-[10px] font-bold text-amber-900 uppercase tracking-wider mb-1">Your custom instructions</p>
+                  <p className="text-xs text-amber-900 whitespace-pre-wrap">{remixedScript.customPrompt}</p>
+                </div>
+              )}
+              <p className="text-xs text-amber-900">
+                Input captured correctly. Tell me what the <strong>HEIT</strong> and <strong>Bens</strong> frameworks should actually do, and I'll wire up real script generation next.
+              </p>
+            </div>
+          )}
         </div>
       )}
 

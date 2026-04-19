@@ -132,7 +132,36 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
               }`}>
               <Bookmark size={13} /> {isSaved ? "Saved to vault" : "Save to vault"}
             </button>
-            <button onClick={() => { onSaveToggle(video); setCurrentPage("scripts"); onClose(); }}
+            <button onClick={async () => {
+              // Persist the seed for the Scripts > Remix tab. If we already
+              // have a cached transcript for this video, use it; otherwise
+              // fetch one now so Remix opens with the real transcript.
+              let transcript = (analysis.transcript || "").trim();
+              if (!transcript) {
+                try {
+                  const r = await apiPost("/api/video-analysis", { video, kind: "transcript" });
+                  transcript = (r.text || "").trim();
+                } catch {}
+              }
+              try {
+                localStorage.setItem("optimus_remix_seed", JSON.stringify({
+                  videoId: video.id,
+                  title: video.title || "",
+                  caption: video.caption || "",
+                  transcript,
+                  thumbnail: video.thumbnail || "",
+                  channel: video.channel || {},
+                  url: video.url || "",
+                  views: video.views || 0,
+                  outlierScore: video.outlierScore || 0,
+                  seededAt: Date.now(),
+                }));
+              } catch {}
+              // Also save to vault for user convenience
+              if (!isSaved) onSaveToggle(video);
+              setCurrentPage("scripts");
+              onClose();
+            }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
               <PenTool size={13} /> Remix this script
             </button>
