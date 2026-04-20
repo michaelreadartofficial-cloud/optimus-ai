@@ -57,6 +57,19 @@ export const ScriptsPage = ({ savedVideos }) => {
     { key: "90-120", label: "90-120 secs" },
   ];
 
+  // Composite cache key for the Create tab — every combination of
+  // framework + hook style + video length + topic + custom prompt gets
+  // its own preserved entry, so switching any of them never loses an
+  // already-generated script.
+  const makeCreateCacheKey = (framework, hookStyle, videoLength, topic, customPrompt) =>
+    [
+      framework || "",
+      hookStyle || "",
+      videoLength || "",
+      (topic || "").trim().toLowerCase(),
+      framework === "custom" ? (customPrompt || "").trim() : "",
+    ].join("\u241F"); // non-printable separator so no legitimate field can collide
+
   // Poll localStorage on tab focus so if the user opens Remix after the
   // seed was stored by the modal, we pick it up.
   useEffect(() => {
@@ -223,8 +236,10 @@ export const ScriptsPage = ({ savedVideos }) => {
         topic: createTopic.trim(),
         hookStyle: createHookStyle,
         videoLength: createVideoLength,
+        customPrompt: createFramework === "custom" ? createCustomPrompt : "",
       };
-      setCreateOutputs(prev => ({ ...prev, [createFramework]: out }));
+      const key = makeCreateCacheKey(createFramework, createHookStyle, createVideoLength, createTopic, createCustomPrompt);
+      setCreateOutputs(prev => ({ ...prev, [key]: out }));
       setCreatedScript(out);
     } catch (err) {
       setCreateError(err.message || "Failed to generate script");
@@ -233,51 +248,24 @@ export const ScriptsPage = ({ savedVideos }) => {
     }
   };
 
-  // When the user switches frameworks OR edits any of the inputs that
-  // feed generation (topic, hook style, video length), show the cached
-  // output for the current framework ONLY if it was generated with the
-  // same exact inputs. Otherwise clear the display — but leave the
-  // cache intact so flipping back restores the script.
+  // When the user changes ANY input that affects generation (framework,
+  // hook style, video length, topic, custom prompt), look up the cache
+  // entry for that exact combination. If it exists, restore the script.
+  // Otherwise clear the display — but leave every other cache entry
+  // untouched so flipping back to a previous combination restores it.
   useEffect(() => {
     setCreateEditing(false);
     setCreateEditDraft("");
     setCreateJustSaved(false);
-    if (!createFramework) {
+    if (!createFramework || !createHookStyle || !createVideoLength) {
       setCreatedScript(null);
       return;
     }
-    const entry = createOutputs[createFramework];
-    if (
-      entry &&
-      entry.topic === createTopic.trim() &&
-      entry.hookStyle === createHookStyle &&
-      entry.videoLength === createVideoLength
-    ) {
-      setCreatedScript(entry);
-    } else {
-      setCreatedScript(null);
-    }
-    // Intentionally omit createOutputs — runCreate manages display on
-    // write so we don't need to react to cache-only updates here.
+    const key = makeCreateCacheKey(createFramework, createHookStyle, createVideoLength, createTopic, createCustomPrompt);
+    const entry = createOutputs[key];
+    setCreatedScript(entry || null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createFramework, createTopic, createHookStyle, createVideoLength]);
-
-  // If the user edits their custom-framework prompt, any cached custom
-  // output is invalid — the next Generate click should regenerate.
-  const createCustomMountedRef = useRef(false);
-  useEffect(() => {
-    if (!createCustomMountedRef.current) {
-      createCustomMountedRef.current = true;
-      return;
-    }
-    setCreateOutputs(prev => {
-      if (!prev.custom) return prev;
-      const next = { ...prev };
-      delete next.custom;
-      return next;
-    });
-    if (createFramework === "custom") setCreatedScript(null);
-  }, [createCustomPrompt]);
+  }, [createFramework, createHookStyle, createVideoLength, createTopic, createCustomPrompt]);
 
   // Shared save handler for the Name Script modal — branches on the
   // source tab (remix vs create) to pick the right script + frame the
@@ -679,12 +667,13 @@ export const ScriptsPage = ({ savedVideos }) => {
                     <>
                       <button onClick={() => {
                         // Commit the edited text to BOTH the displayed
-                        // script and the per-framework cache so the edit
-                        // survives framework switches.
+                        // script and the cache entry for this exact
+                        // combination, so the edit survives switches.
                         setCreatedScript(prev => {
                           const next = prev ? { ...prev, text: createEditDraft } : prev;
                           if (next && createFramework) {
-                            setCreateOutputs(p => ({ ...p, [createFramework]: next }));
+                            const key = makeCreateCacheKey(createFramework, createHookStyle, createVideoLength, createTopic, createCustomPrompt);
+                            setCreateOutputs(p => ({ ...p, [key]: next }));
                           }
                           return next;
                         });
@@ -722,12 +711,13 @@ export const ScriptsPage = ({ savedVideos }) => {
                         {createJustSaved ? <><Check size={12} /> Saved!</> : <><Bookmark size={12} /> Save script</>}
                       </button>
                       <button onClick={() => {
-                        // Start over clears ONLY the current framework's
-                        // cached output — other frameworks keep their
-                        // scripts for this topic.
+                        // Start over clears ONLY the cache entry for the
+                        // current exact input combination — all other
+                        // combinations keep their cached scripts.
+                        const key = makeCreateCacheKey(createFramework, createHookStyle, createVideoLength, createTopic, createCustomPrompt);
                         setCreateOutputs(prev => {
                           const next = { ...prev };
-                          if (createFramework) delete next[createFramework];
+                          delete next[key];
                           return next;
                         });
                         setCreatedScript(null);
