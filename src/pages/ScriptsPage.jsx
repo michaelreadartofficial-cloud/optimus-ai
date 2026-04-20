@@ -167,7 +167,11 @@ export const ScriptsPage = ({ savedVideos }) => {
   const [createCustomPrompt, setCreateCustomPrompt] = useState("");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState(null);
-  const [createdScript, setCreatedScript] = useState(null); // { framework, text, wordCount }
+  const [createdScript, setCreatedScript] = useState(null); // { framework, text, wordCount, topic }
+  // Per-framework cache, mirroring the Remix tab. Each entry carries the
+  // topic it was generated for, so flipping frameworks after editing the
+  // topic won't resurrect a stale script.
+  const [createOutputs, setCreateOutputs] = useState({});
   const [createEditing, setCreateEditing] = useState(false);
   const [createEditDraft, setCreateEditDraft] = useState("");
   const [createJustSaved, setCreateJustSaved] = useState(false);
@@ -194,17 +198,60 @@ export const ScriptsPage = ({ savedVideos }) => {
         framework: createFramework,
         customPrompt: createFramework === "custom" ? createCustomPrompt : undefined,
       });
-      setCreatedScript({
+      const out = {
         framework: createFramework,
         text: r.text || "",
         wordCount: r.wordCount || null,
-      });
+        topic: createTopic.trim(),
+      };
+      setCreateOutputs(prev => ({ ...prev, [createFramework]: out }));
+      setCreatedScript(out);
     } catch (err) {
       setCreateError(err.message || "Failed to generate script");
     } finally {
       setCreating(false);
     }
   };
+
+  // When the user switches frameworks OR edits the topic, show the
+  // cached output for the current framework ONLY if it was generated for
+  // the current topic. Otherwise clear the display — but leave the cache
+  // intact so switching back restores the script.
+  useEffect(() => {
+    setCreateEditing(false);
+    setCreateEditDraft("");
+    setCreateJustSaved(false);
+    if (!createFramework) {
+      setCreatedScript(null);
+      return;
+    }
+    const entry = createOutputs[createFramework];
+    if (entry && entry.topic === createTopic.trim()) {
+      setCreatedScript(entry);
+    } else {
+      setCreatedScript(null);
+    }
+    // Intentionally omit createOutputs — runCreate manages display on
+    // write so we don't need to react to cache-only updates here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createFramework, createTopic]);
+
+  // If the user edits their custom-framework prompt, any cached custom
+  // output is invalid — the next Generate click should regenerate.
+  const createCustomMountedRef = useRef(false);
+  useEffect(() => {
+    if (!createCustomMountedRef.current) {
+      createCustomMountedRef.current = true;
+      return;
+    }
+    setCreateOutputs(prev => {
+      if (!prev.custom) return prev;
+      const next = { ...prev };
+      delete next.custom;
+      return next;
+    });
+    if (createFramework === "custom") setCreatedScript(null);
+  }, [createCustomPrompt]);
 
   // Shared save handler for the Name Script modal — branches on the
   // source tab (remix vs create) to pick the right script + frame the
@@ -543,7 +590,16 @@ export const ScriptsPage = ({ savedVideos }) => {
                   {createEditing ? (
                     <>
                       <button onClick={() => {
-                        setCreatedScript(prev => prev ? { ...prev, text: createEditDraft } : prev);
+                        // Commit the edited text to BOTH the displayed
+                        // script and the per-framework cache so the edit
+                        // survives framework switches.
+                        setCreatedScript(prev => {
+                          const next = prev ? { ...prev, text: createEditDraft } : prev;
+                          if (next && createFramework) {
+                            setCreateOutputs(p => ({ ...p, [createFramework]: next }));
+                          }
+                          return next;
+                        });
                         setCreateEditing(false);
                       }}
                         className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-gray-900 text-white rounded-lg hover:bg-gray-800">
@@ -578,6 +634,14 @@ export const ScriptsPage = ({ savedVideos }) => {
                         {createJustSaved ? <><Check size={12} /> Saved!</> : <><Bookmark size={12} /> Save script</>}
                       </button>
                       <button onClick={() => {
+                        // Start over clears ONLY the current framework's
+                        // cached output — other frameworks keep their
+                        // scripts for this topic.
+                        setCreateOutputs(prev => {
+                          const next = { ...prev };
+                          if (createFramework) delete next[createFramework];
+                          return next;
+                        });
                         setCreatedScript(null);
                         setCreateEditing(false);
                         setCreateEditDraft("");
