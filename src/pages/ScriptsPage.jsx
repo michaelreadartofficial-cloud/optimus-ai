@@ -421,17 +421,16 @@ export const ScriptsPage = ({ savedVideos, onFilmScript }) => {
           {/* Step 3 — remixed output */}
           {remixedScript && (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="bg-gray-50 px-5 py-3 border-b border-gray-200 flex items-center justify-between">
-                <div>
+              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <div className="text-center mb-3">
                   <h3 className="text-sm font-semibold text-gray-900">Your remixed script</h3>
-                  <p className="text-[11px] text-gray-500 mt-0.5">
-                    {REMIX_FRAMEWORKS.find(f => f.key === remixedScript.framework)?.label}
-                    {remixedScript.wordCount && (
-                      <> · {remixedScript.wordCount.remix} words (original: {remixedScript.wordCount.original})</>
-                    )}
-                  </p>
+                  {remixedScript.wordCount && (
+                    <p className="text-[11px] text-gray-500 mt-0.5">
+                      {remixedScript.wordCount.remix} words (original: {remixedScript.wordCount.original})
+                    </p>
+                  )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                   {remixEditing ? (
                     <>
                       <button onClick={() => {
@@ -646,23 +645,14 @@ export const ScriptsPage = ({ savedVideos, onFilmScript }) => {
           {/* Step 2 — generated script output */}
           {createdScript && (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="bg-gray-50 px-5 py-3 border-b border-gray-200 flex items-center justify-between">
-                <div>
+              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <div className="text-center mb-3">
                   <h3 className="text-sm font-semibold text-gray-900">Your script</h3>
-                  <p className="text-[11px] text-gray-500 mt-0.5">
-                    {REMIX_FRAMEWORKS.find(f => f.key === createdScript.framework)?.label}
-                    {createdScript.hookStyle && (
-                      <> · {HOOK_STYLES.find(h => h.key === createdScript.hookStyle)?.label} hook</>
-                    )}
-                    {createdScript.videoLength && (
-                      <> · {VIDEO_LENGTHS.find(l => l.key === createdScript.videoLength)?.label}</>
-                    )}
-                    {createdScript.wordCount?.remix && (
-                      <> · {createdScript.wordCount.remix} words</>
-                    )}
-                  </p>
+                  {createdScript.wordCount?.remix && (
+                    <p className="text-[11px] text-gray-500 mt-0.5">{createdScript.wordCount.remix} words</p>
+                  )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                   {createEditing ? (
                     <>
                       <button onClick={() => {
