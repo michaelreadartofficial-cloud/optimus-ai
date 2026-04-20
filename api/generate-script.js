@@ -16,6 +16,8 @@ Since there is no source transcript:
 
 All other voice standards, banned patterns, structural rules, and the OUTPUT FORMAT below still apply exactly as written. Run all quality checks silently — output only the final script in the framework's required format.
 
+HARD OUTPUT RULE — ABSOLUTE: Do NOT append a "NOTES" section, a "Notes" block, a "Quality check" section, a word count, a delta, a variance figure, a detected register line, a "study used" note, any bullet list of meta-commentary, any "---" separator followed by commentary, or anything else after the final script section. The moment the last required script section ends, STOP. Output must contain the script sections and nothing else — no preamble before, no postamble after. This override supersedes any conflicting instruction in the framework below.
+
 Below is the framework:
 ---
 `;
