@@ -81,13 +81,17 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] overflow-y-auto md:overflow-hidden flex flex-col md:flex-row" onClick={(e) => e.stopPropagation()}>
         <div className="md:w-[340px] flex-shrink-0 bg-gray-950 relative">
           <button onClick={onClose}
             className="absolute top-3 right-3 z-10 md:hidden p-1.5 rounded-full bg-white/90 hover:bg-white transition">
             <X size={16} className="text-gray-700" />
           </button>
-          <div className="relative w-full" style={{ paddingBottom: "177.78%" }}>
+          {/* Aspect-ratio 9:16 for the video. On mobile we cap the
+              height so the tall reel doesn't push stats/tabs below out
+              of reach — aspect-ratio + max-height makes the browser
+              shrink width to preserve the 9:16 ratio. */}
+          <div className="relative w-full mx-auto aspect-[9/16] max-h-[55vh] md:max-h-none">
             {ytId ? (
               <iframe
                 className="absolute inset-0 w-full h-full"
@@ -111,7 +115,7 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
           </div>
         </div>
 
-        <div className="flex-1 min-w-0 flex flex-col max-h-[90vh]">
+        <div className="flex-1 min-w-0 flex flex-col md:max-h-[90vh]">
           <div className="flex items-start justify-between gap-3 p-5 border-b border-gray-100">
             <div className="min-w-0">
               <h2 className="text-base font-bold text-gray-900 leading-snug line-clamp-3">{video.title}</h2>
@@ -199,7 +203,7 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
             ))}
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-4 text-sm text-gray-700 leading-relaxed">
+          <div className="flex-1 md:overflow-y-auto px-5 py-4 text-sm text-gray-700 leading-relaxed">
             {error && <div className="mb-3 p-2 text-xs text-red-600 bg-red-50 rounded-lg">{error}</div>}
             {analyzing[activeTab] ? (
               <div className="flex items-center gap-2 text-gray-500 text-xs">
