@@ -167,12 +167,13 @@ export function FilmPage({ script, onExit }) {
 
   // Draw the live video frame into the hidden portrait canvas.
   //
-  // Handles two orientation cases:
-  //   1. Source already portrait (vh >= vw): center-crop to 9:16 canvas.
-  //   2. Source landscape (vw > vh): rotate 90° clockwise to portrait,
-  //      then letterbox to fit — this is the iOS case where the sensor
-  //      hands back a landscape frame even when the phone is portrait.
-  // In both cases, front cam is selfie-mirrored.
+  // Strategy: trust Safari to deliver the video's DISPLAY-oriented
+  // dimensions via video.videoWidth/Height (modern Safari + Chrome both
+  // do this — they return the post-rotation-metadata dimensions). We
+  // then center-crop that displayed frame to fit the 9:16 portrait
+  // canvas. No manual rotation — the browser handles it, which avoids
+  // double-rotating on platforms where drawImage already applies the
+  // rotation internally.
   const drawFrameToCanvas = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
@@ -187,51 +188,23 @@ export function FilmPage({ script, onExit }) {
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-    if (vw > vh) {
-      // --- Landscape source: rotate 90° clockwise into a portrait canvas ---
-      // After rotation, our drawing space is CANVAS_H wide by CANVAS_W tall.
-      // Map the full landscape frame into that rotated space with aspect-
-      // preserving center-crop (it will fill exactly since the source aspect
-      // vw/vh usually equals CANVAS_H/CANVAS_W ≈ 16/9).
-      ctx.translate(CANVAS_W / 2, CANVAS_H / 2);
-      ctx.rotate(Math.PI / 2);
-      if (mirrorPreview) ctx.scale(-1, 1);
-      // Aspect-preserving fit within the rotated target (CANVAS_H × CANVAS_W):
-      const rotatedTargetW = CANVAS_H; // 1280
-      const rotatedTargetH = CANVAS_W; // 720
-      const sourceAspect = vw / vh;
-      const targetAspect = rotatedTargetW / rotatedTargetH; // 1.78
-      let sx, sy, sw, sh;
-      if (sourceAspect > targetAspect) {
-        sh = vh; sw = Math.round(vh * targetAspect);
-        sx = Math.round((vw - sw) / 2); sy = 0;
-      } else {
-        sw = vw; sh = Math.round(vw / targetAspect);
-        sx = 0; sy = Math.round((vh - sh) / 2);
-      }
-      ctx.drawImage(
-        video,
-        sx, sy, sw, sh,
-        -rotatedTargetW / 2, -rotatedTargetH / 2, rotatedTargetW, rotatedTargetH
-      );
+    // Center-crop to 9:16 portrait. When sourceAspect > targetAspect
+    // (source is wider than target), crop sides; otherwise crop top/bottom.
+    const targetAspect = CANVAS_W / CANVAS_H;
+    const sourceAspect = vw / vh;
+    let sx, sy, sw, sh;
+    if (sourceAspect > targetAspect) {
+      sh = vh; sw = Math.round(vh * targetAspect);
+      sx = Math.round((vw - sw) / 2); sy = 0;
     } else {
-      // --- Portrait source: center-crop to the 9:16 canvas ---
-      const targetAspect = CANVAS_W / CANVAS_H; // 0.5625
-      const sourceAspect = vw / vh;
-      let sx, sy, sw, sh;
-      if (sourceAspect > targetAspect) {
-        sh = vh; sw = Math.round(vh * targetAspect);
-        sx = Math.round((vw - sw) / 2); sy = 0;
-      } else {
-        sw = vw; sh = Math.round(vw / targetAspect);
-        sx = 0; sy = Math.round((vh - sh) / 2);
-      }
-      if (mirrorPreview) {
-        ctx.translate(CANVAS_W, 0);
-        ctx.scale(-1, 1);
-      }
-      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, CANVAS_W, CANVAS_H);
+      sw = vw; sh = Math.round(vw / targetAspect);
+      sx = 0; sy = Math.round((vh - sh) / 2);
     }
+    if (mirrorPreview) {
+      ctx.translate(CANVAS_W, 0);
+      ctx.scale(-1, 1);
+    }
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, CANVAS_W, CANVAS_H);
     ctx.restore();
   };
 
@@ -388,32 +361,40 @@ export function FilmPage({ script, onExit }) {
   // --- Post-recording preview ---
   if (recordedUrl) {
     return (
-      // h-[100dvh] uses the DYNAMIC viewport height so Safari's URL bar
-      // (when the PWA isn't installed to home screen) is properly
-      // excluded — without this the bottom buttons sit behind Safari's
-      // chrome and become unreachable.
-      <div className="fixed top-0 left-0 right-0 h-[100dvh] bg-black flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 pt-safe text-white">
-          <button onClick={discardRecording} className="flex items-center gap-1.5 text-sm">
-            <X size={20} /> Discard
-          </button>
-          <div className="text-sm font-medium">Preview · {mmss(recordSeconds)}</div>
-          <button onClick={onExit} className="text-sm">Done</button>
-        </div>
-        <div className="flex-1 min-h-0 flex items-center justify-center bg-black">
-          <video src={recordedUrl} controls playsInline className="max-h-full max-w-full" />
-        </div>
-        <div className="px-4 pt-4 bg-black flex gap-3" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1.25rem)" }}>
-          <button
-            onClick={discardRecording}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/10 text-white text-sm font-medium">
-            <RotateCcw size={16} /> Re-record
-          </button>
-          <button
-            onClick={shareRecording}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white text-black text-sm font-semibold">
-            <Share2 size={16} /> Save Video
-          </button>
+      // fixed inset-0 + bg-black ensures the area BEHIND Safari's URL
+      // bar is also solid black (no white flash). The inner flex layout
+      // uses 100dvh as a max-height so content actually lays out within
+      // the visible viewport even as Safari chrome shows/hides.
+      <div className="fixed inset-0 bg-black">
+        <div className="flex flex-col h-[100dvh] max-h-[100dvh]">
+          <div className="flex items-center justify-between px-4 py-3 pt-safe text-white">
+            <button onClick={discardRecording} className="flex items-center gap-1.5 text-sm">
+              <X size={20} /> Discard
+            </button>
+            <div className="text-sm font-medium">Preview · {mmss(recordSeconds)}</div>
+            <button onClick={onExit} className="text-sm">Done</button>
+          </div>
+          <div className="flex-1 min-h-0 flex items-center justify-center bg-black">
+            <video src={recordedUrl} controls playsInline className="max-h-full max-w-full" />
+          </div>
+          {/* Buttons padded heavily so they clear Safari's bottom URL bar
+              (when PWA isn't installed to home screen) AND the iOS home
+              indicator. calc(safe-area + 4rem) = ~34px + 64px = ~100px
+              on iPhones, which is enough to sit above Safari chrome. */}
+          <div
+            className="px-4 pt-4 bg-black flex gap-3"
+            style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 4rem)" }}>
+            <button
+              onClick={discardRecording}
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/10 text-white text-sm font-medium">
+              <RotateCcw size={16} /> Re-record
+            </button>
+            <button
+              onClick={shareRecording}
+              className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white text-black text-sm font-semibold">
+              <Share2 size={16} /> Save Video
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -421,9 +402,10 @@ export function FilmPage({ script, onExit }) {
 
   // --- Live camera + teleprompter ---
   return (
-    // 100dvh dynamically respects Safari's visible viewport so the record
-    // button never hides behind the browser's URL bar.
-    <div className="fixed top-0 left-0 right-0 h-[100dvh] bg-black overflow-hidden">
+    // fixed inset-0 + bg-black means the area behind Safari's URL bar is
+    // also solid black (no white flash). The record button's padding
+    // accounts for both the iOS home indicator AND Safari chrome.
+    <div className="fixed inset-0 bg-black overflow-hidden">
       {/* Camera preview — fills the screen, centre-cropped. */}
       <video
         ref={videoRef}
@@ -482,8 +464,9 @@ export function FilmPage({ script, onExit }) {
         </div>
       </div>
 
-      {/* Teleprompter controls tray. */}
-      <div className="absolute left-0 right-0 bottom-40 z-20 px-3">
+      {/* Teleprompter controls tray. Positioned above the record button
+          with enough clearance for the button's larger bottom padding. */}
+      <div className="absolute left-0 right-0 bottom-56 z-20 px-3">
         <div className="bg-black/55 backdrop-blur-sm rounded-2xl text-white">
           <button
             onClick={() => setControlsOpen((o) => !o)}
@@ -563,13 +546,13 @@ export function FilmPage({ script, onExit }) {
         </div>
       </div>
 
-      {/* Record button — big red circle, bottom centre. The explicit
-          padding-bottom combines the home indicator safe-area inset with
-          extra breathing room so the button is always well clear of
-          both the iOS home indicator AND Safari's URL bar. */}
+      {/* Record button — big red circle, bottom centre. Padding combines
+          home indicator safe-area + 4rem extra so Safari's URL bar
+          (when the PWA isn't installed to home screen) doesn't obscure
+          the button. */}
       <div
         className="absolute left-0 right-0 bottom-0 z-20 flex justify-center"
-        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1.5rem)" }}>
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 4rem)" }}>
         <button
           onClick={isRecording ? stopRecording : startRecording}
           disabled={permission !== "granted"}
