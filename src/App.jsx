@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Settings, Users, Video, Lightbulb, PenTool, FolderOpen, Archive,
-  UserCircle, HelpCircle, MoreHorizontal, X,
+  UserCircle, HelpCircle, MoreHorizontal, X, Plus,
 } from "lucide-react";
 import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "./utils/storage";
 import { useIsMobile } from "./utils/useIsMobile";
@@ -67,6 +67,26 @@ export default function App() {
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const isMobile = useIsMobile();
 
+  // Detect whether the PWA is running in standalone mode (installed to
+  // home screen). Non-standalone on iOS means Safari's URL bar is
+  // visible at the bottom — which is where our "install for full screen"
+  // prompt becomes relevant.
+  const [isStandalone, setIsStandalone] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const displayModeStandalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+    // iOS reports standalone via navigator.standalone (non-standard).
+    const iosStandalone = typeof navigator !== "undefined" && navigator.standalone === true;
+    return displayModeStandalone || iosStandalone;
+  });
+  const [installPromptDismissed, setInstallPromptDismissed] = useState(() => {
+    try { return localStorage.getItem("optimus_install_prompt_dismissed") === "1"; } catch { return false; }
+  });
+  const showInstallPrompt = isMobile && !isStandalone && !installPromptDismissed;
+  const dismissInstallPrompt = () => {
+    setInstallPromptDismissed(true);
+    try { localStorage.setItem("optimus_install_prompt_dismissed", "1"); } catch {}
+  };
+
   const [watchlist, setWatchlist] = useState(() => {
     // Load watchlist from storage. If storage contains legacy SAMPLE_WATCHLIST
     // entries (fake demo creators with IDs like "yt_1"), filter them out —
@@ -119,6 +139,26 @@ export default function App() {
             <div className="w-7 h-7 bg-gradient-to-br from-orange-400 to-pink-500 rounded-md flex items-center justify-center text-white font-bold text-xs">O</div>
             <span className="font-bold text-gray-900 text-sm">Optimus.AI</span>
           </div>
+          {/* One-time dismissable install prompt shown when running in a
+              mobile browser tab (not installed to home screen). On iOS,
+              installing removes Safari's URL bar and gives a proper
+              fullscreen app feel. */}
+          {showInstallPrompt && (
+            <div className="mx-4 mt-3 p-3 bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-100 rounded-xl flex items-start gap-3">
+              <div className="w-8 h-8 rounded-md bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white flex-shrink-0">
+                <Plus size={16} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-gray-900">Install for the best experience</p>
+                <p className="text-[11px] text-gray-600 mt-0.5 leading-snug">
+                  In Safari, tap the <span className="font-medium">Share</span> button then <span className="font-medium">Add to Home Screen</span>. Removes the browser bar and makes Film Now fullscreen.
+                </p>
+              </div>
+              <button onClick={dismissInstallPrompt} className="p-1 -m-1 text-gray-400 hover:text-gray-600">
+                <X size={14} />
+              </button>
+            </div>
+          )}
           <div className="px-4 py-4 pb-24">
             {pageContent}
           </div>

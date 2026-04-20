@@ -26,8 +26,11 @@ import {
 //   capturing, which was preventing the teleprompter from starting until
 //   the user nudged a slider. setInterval is immune to that pause.
 
-const CANVAS_W = 720;
-const CANVAS_H = 1280;
+// Final recorded resolution. 1080×1920 = full HD portrait, matching
+// Instagram Reels' native upload spec and giving enough pixels that
+// the crop-to-canvas step doesn't visibly degrade detail.
+const CANVAS_W = 1080;
+const CANVAS_H = 1920;
 
 export function FilmPage({ script, onExit }) {
   const videoRef = useRef(null);
@@ -75,12 +78,14 @@ export function FilmPage({ script, onExit }) {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode,
-            // Requesting portrait-oriented dimensions helps on Android. iOS
-            // may still hand back a landscape sensor stream — the canvas
-            // pipeline below normalises it regardless.
-            width: { ideal: 720 },
-            height: { ideal: 1280 },
-            aspectRatio: { ideal: 9 / 16 },
+            // Request the native landscape sensor capture (iPhone front
+            // cam is 4:3 landscape-native). Asking for 9:16 directly
+            // invokes a tighter sensor crop on iOS that feels like a
+            // digital zoom; asking for the raw 4:3 / 16:9 landscape and
+            // letting our canvas crop to 9:16 gives a wider field of
+            // view that matches the iPhone's native camera framing.
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
           },
           audio: true,
         });
