@@ -45,6 +45,18 @@ export const ScriptsPage = ({ savedVideos }) => {
     { key: "custom", label: "Custom Framework" },
   ];
 
+  const HOOK_STYLES = [
+    { key: "controversial", label: "Controversial" },
+    { key: "contrarian", label: "Contrarian take" },
+    { key: "reactive", label: "Reactive Call out" },
+  ];
+
+  const VIDEO_LENGTHS = [
+    { key: "30-60", label: "30-60 secs" },
+    { key: "60-90", label: "60-90 secs" },
+    { key: "90-120", label: "90-120 secs" },
+  ];
+
   // Poll localStorage on tab focus so if the user opens Remix after the
   // seed was stored by the modal, we pick it up.
   useEffect(() => {
@@ -165,6 +177,10 @@ export const ScriptsPage = ({ savedVideos }) => {
   const [createFramework, setCreateFramework] = useState("");
   const [createShowFrameworkDrop, setCreateShowFrameworkDrop] = useState(false);
   const [createCustomPrompt, setCreateCustomPrompt] = useState("");
+  const [createHookStyle, setCreateHookStyle] = useState("");
+  const [createShowHookDrop, setCreateShowHookDrop] = useState(false);
+  const [createVideoLength, setCreateVideoLength] = useState("");
+  const [createShowLengthDrop, setCreateShowLengthDrop] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState(null);
   const [createdScript, setCreatedScript] = useState(null); // { framework, text, wordCount, topic }
@@ -182,7 +198,7 @@ export const ScriptsPage = ({ savedVideos }) => {
   // topic. Mirrors the Remix flow but hits /api/generate-script with
   // framework-mode params.
   const runCreate = async () => {
-    if (!createTopic.trim() || !createFramework) return;
+    if (!createTopic.trim() || !createFramework || !createHookStyle || !createVideoLength) return;
     if (createFramework === "custom" && !createCustomPrompt.trim()) {
       setCreateError("Add custom framework instructions before generating.");
       return;
@@ -197,12 +213,16 @@ export const ScriptsPage = ({ savedVideos }) => {
         topic: createTopic.trim(),
         framework: createFramework,
         customPrompt: createFramework === "custom" ? createCustomPrompt : undefined,
+        hookStyle: createHookStyle,
+        videoLength: createVideoLength,
       });
       const out = {
         framework: createFramework,
         text: r.text || "",
         wordCount: r.wordCount || null,
         topic: createTopic.trim(),
+        hookStyle: createHookStyle,
+        videoLength: createVideoLength,
       };
       setCreateOutputs(prev => ({ ...prev, [createFramework]: out }));
       setCreatedScript(out);
@@ -213,10 +233,11 @@ export const ScriptsPage = ({ savedVideos }) => {
     }
   };
 
-  // When the user switches frameworks OR edits the topic, show the
-  // cached output for the current framework ONLY if it was generated for
-  // the current topic. Otherwise clear the display — but leave the cache
-  // intact so switching back restores the script.
+  // When the user switches frameworks OR edits any of the inputs that
+  // feed generation (topic, hook style, video length), show the cached
+  // output for the current framework ONLY if it was generated with the
+  // same exact inputs. Otherwise clear the display — but leave the
+  // cache intact so flipping back restores the script.
   useEffect(() => {
     setCreateEditing(false);
     setCreateEditDraft("");
@@ -226,7 +247,12 @@ export const ScriptsPage = ({ savedVideos }) => {
       return;
     }
     const entry = createOutputs[createFramework];
-    if (entry && entry.topic === createTopic.trim()) {
+    if (
+      entry &&
+      entry.topic === createTopic.trim() &&
+      entry.hookStyle === createHookStyle &&
+      entry.videoLength === createVideoLength
+    ) {
       setCreatedScript(entry);
     } else {
       setCreatedScript(null);
@@ -234,7 +260,7 @@ export const ScriptsPage = ({ savedVideos }) => {
     // Intentionally omit createOutputs — runCreate manages display on
     // write so we don't need to react to cache-only updates here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [createFramework, createTopic]);
+  }, [createFramework, createTopic, createHookStyle, createVideoLength]);
 
   // If the user edits their custom-framework prompt, any cached custom
   // output is invalid — the next Generate click should regenerate.
@@ -522,7 +548,7 @@ export const ScriptsPage = ({ savedVideos }) => {
                 <input type="text" value={createTopic}
                   onChange={(e) => setCreateTopic(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && createTopic.trim() && createFramework &&
+                    if (e.key === "Enter" && createTopic.trim() && createFramework && createHookStyle && createVideoLength &&
                         !(createFramework === "custom" && !createCustomPrompt.trim())) runCreate();
                   }}
                   placeholder="e.g. why most workouts don't work"
@@ -556,6 +582,62 @@ export const ScriptsPage = ({ savedVideos }) => {
               </div>
             </div>
 
+            {/* Second row — hook style + video length */}
+            <div className="grid md:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-gray-500 block mb-1.5">Hook style</label>
+                <div className="relative">
+                  <button onClick={() => setCreateShowHookDrop(!createShowHookDrop)}
+                    className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 flex items-center justify-between">
+                    <span className={createHookStyle ? "text-gray-900" : "text-gray-400"}>
+                      {createHookStyle ? HOOK_STYLES.find(h => h.key === createHookStyle)?.label : "Pick Hook style"}
+                    </span>
+                    <ChevronDown size={14} className="text-gray-400" />
+                  </button>
+                  {createShowHookDrop && (
+                    <>
+                      <div className="fixed inset-0 z-20" onClick={() => setCreateShowHookDrop(false)} />
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30">
+                        {HOOK_STYLES.map(h => (
+                          <button key={h.key}
+                            onClick={() => { setCreateHookStyle(h.key); setCreateShowHookDrop(false); }}
+                            className={`w-full text-left px-3 py-2 text-sm ${createHookStyle === h.key ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                            {h.label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-500 block mb-1.5">Video length</label>
+                <div className="relative">
+                  <button onClick={() => setCreateShowLengthDrop(!createShowLengthDrop)}
+                    className="w-full text-left px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:border-gray-300 flex items-center justify-between">
+                    <span className={createVideoLength ? "text-gray-900" : "text-gray-400"}>
+                      {createVideoLength ? VIDEO_LENGTHS.find(l => l.key === createVideoLength)?.label : "Pick video length"}
+                    </span>
+                    <ChevronDown size={14} className="text-gray-400" />
+                  </button>
+                  {createShowLengthDrop && (
+                    <>
+                      <div className="fixed inset-0 z-20" onClick={() => setCreateShowLengthDrop(false)} />
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30">
+                        {VIDEO_LENGTHS.map(l => (
+                          <button key={l.key}
+                            onClick={() => { setCreateVideoLength(l.key); setCreateShowLengthDrop(false); }}
+                            className={`w-full text-left px-3 py-2 text-sm ${createVideoLength === l.key ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                            {l.label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {createFramework === "custom" && (
               <div>
                 <label className="text-xs font-medium text-gray-500 block mb-1.5">Custom framework instructions</label>
@@ -566,7 +648,7 @@ export const ScriptsPage = ({ savedVideos }) => {
             )}
 
             <button onClick={runCreate}
-              disabled={creating || !createTopic.trim() || !createFramework || (createFramework === "custom" && !createCustomPrompt.trim())}
+              disabled={creating || !createTopic.trim() || !createFramework || !createHookStyle || !createVideoLength || (createFramework === "custom" && !createCustomPrompt.trim())}
               className="w-full py-2.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm">
               {creating ? <><Loader2 size={14} className="animate-spin" /> Generating script…</> : <><Sparkles size={14} /> Generate script</>}
             </button>
@@ -581,6 +663,12 @@ export const ScriptsPage = ({ savedVideos }) => {
                   <h3 className="text-sm font-semibold text-gray-900">Your script</h3>
                   <p className="text-[11px] text-gray-500 mt-0.5">
                     {REMIX_FRAMEWORKS.find(f => f.key === createdScript.framework)?.label}
+                    {createdScript.hookStyle && (
+                      <> · {HOOK_STYLES.find(h => h.key === createdScript.hookStyle)?.label} hook</>
+                    )}
+                    {createdScript.videoLength && (
+                      <> · {VIDEO_LENGTHS.find(l => l.key === createdScript.videoLength)?.label}</>
+                    )}
                     {createdScript.wordCount?.remix && (
                       <> · {createdScript.wordCount.remix} words</>
                     )}
