@@ -165,10 +165,14 @@ export function FilmPage({ script, onExit }) {
     return "";
   };
 
-  // Draw the live video frame into the hidden portrait canvas, fitted via
-  // center-crop to fill 720x1280 regardless of the source stream's
-  // orientation. Also flips horizontally for the front camera so the
-  // saved recording matches what the user sees in the preview.
+  // Draw the live video frame into the hidden portrait canvas.
+  //
+  // Handles two orientation cases:
+  //   1. Source already portrait (vh >= vw): center-crop to 9:16 canvas.
+  //   2. Source landscape (vw > vh): rotate 90° clockwise to portrait,
+  //      then letterbox to fit — this is the iOS case where the sensor
+  //      hands back a landscape frame even when the phone is portrait.
+  // In both cases, front cam is selfie-mirrored.
   const drawFrameToCanvas = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
@@ -179,36 +183,76 @@ export function FilmPage({ script, onExit }) {
     const vh = video.videoHeight;
     if (!vw || !vh) return;
 
-    // Target canvas aspect is portrait 9:16 (720x1280). Center-crop the
-    // source so it fills the canvas without distortion.
-    const targetAspect = CANVAS_W / CANVAS_H; // 0.5625
-    const sourceAspect = vw / vh;
-    let sx, sy, sw, sh;
-    if (sourceAspect > targetAspect) {
-      // Source is wider — crop the sides.
-      sh = vh;
-      sw = Math.round(vh * targetAspect);
-      sx = Math.round((vw - sw) / 2);
-      sy = 0;
-    } else {
-      // Source is narrower — crop top/bottom.
-      sw = vw;
-      sh = Math.round(vw / targetAspect);
-      sx = 0;
-      sy = Math.round((vh - sh) / 2);
-    }
-
     ctx.save();
-    if (mirrorPreview) {
-      // Selfie-mirror so the saved recording matches what the speaker sees.
-      ctx.translate(CANVAS_W, 0);
-      ctx.scale(-1, 1);
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+    if (vw > vh) {
+      // --- Landscape source: rotate 90° clockwise into a portrait canvas ---
+      // After rotation, our drawing space is CANVAS_H wide by CANVAS_W tall.
+      // Map the full landscape frame into that rotated space with aspect-
+      // preserving center-crop (it will fill exactly since the source aspect
+      // vw/vh usually equals CANVAS_H/CANVAS_W ≈ 16/9).
+      ctx.translate(CANVAS_W / 2, CANVAS_H / 2);
+      ctx.rotate(Math.PI / 2);
+      if (mirrorPreview) ctx.scale(-1, 1);
+      // Aspect-preserving fit within the rotated target (CANVAS_H × CANVAS_W):
+      const rotatedTargetW = CANVAS_H; // 1280
+      const rotatedTargetH = CANVAS_W; // 720
+      const sourceAspect = vw / vh;
+      const targetAspect = rotatedTargetW / rotatedTargetH; // 1.78
+      let sx, sy, sw, sh;
+      if (sourceAspect > targetAspect) {
+        sh = vh; sw = Math.round(vh * targetAspect);
+        sx = Math.round((vw - sw) / 2); sy = 0;
+      } else {
+        sw = vw; sh = Math.round(vw / targetAspect);
+        sx = 0; sy = Math.round((vh - sh) / 2);
+      }
+      ctx.drawImage(
+        video,
+        sx, sy, sw, sh,
+        -rotatedTargetW / 2, -rotatedTargetH / 2, rotatedTargetW, rotatedTargetH
+      );
+    } else {
+      // --- Portrait source: center-crop to the 9:16 canvas ---
+      const targetAspect = CANVAS_W / CANVAS_H; // 0.5625
+      const sourceAspect = vw / vh;
+      let sx, sy, sw, sh;
+      if (sourceAspect > targetAspect) {
+        sh = vh; sw = Math.round(vh * targetAspect);
+        sx = Math.round((vw - sw) / 2); sy = 0;
+      } else {
+        sw = vw; sh = Math.round(vw / targetAspect);
+        sx = 0; sy = Math.round((vh - sh) / 2);
+      }
+      if (mirrorPreview) {
+        ctx.translate(CANVAS_W, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, CANVAS_W, CANVAS_H);
     }
-    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, CANVAS_W, CANVAS_H);
     ctx.restore();
   };
 
-  const startRecording = () => {
+  // Wait until the video element has received its first frame and has
+  // reliable videoWidth/videoHeight. This matters on iOS — starting
+  // MediaRecorder on an empty canvas produces a broken recording.
+  const waitForVideoReady = () => new Promise((resolve) => {
+    const video = videoRef.current;
+    if (!video) { resolve(); return; }
+    if (video.readyState >= 2 && video.videoWidth > 0) { resolve(); return; }
+    const done = () => {
+      video.removeEventListener("loadeddata", done);
+      video.removeEventListener("canplay", done);
+      resolve();
+    };
+    video.addEventListener("loadeddata", done, { once: true });
+    video.addEventListener("canplay", done, { once: true });
+    setTimeout(done, 1500); // fallback — don't block forever
+  });
+
+  const startRecording = async () => {
     if (!streamRef.current) return;
     if (typeof MediaRecorder === "undefined") {
       alert("Recording isn't supported on this device. Update iOS / your browser and try again.");
@@ -216,6 +260,9 @@ export function FilmPage({ script, onExit }) {
     }
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Make sure we have real video dimensions before anything below runs.
+    await waitForVideoReady();
 
     // Ensure the canvas has its intrinsic dimensions so captureStream is correct.
     canvas.width = CANVAS_W;
@@ -341,7 +388,11 @@ export function FilmPage({ script, onExit }) {
   // --- Post-recording preview ---
   if (recordedUrl) {
     return (
-      <div className="fixed inset-0 bg-black flex flex-col">
+      // h-[100dvh] uses the DYNAMIC viewport height so Safari's URL bar
+      // (when the PWA isn't installed to home screen) is properly
+      // excluded — without this the bottom buttons sit behind Safari's
+      // chrome and become unreachable.
+      <div className="fixed top-0 left-0 right-0 h-[100dvh] bg-black flex flex-col">
         <div className="flex items-center justify-between px-4 py-3 pt-safe text-white">
           <button onClick={discardRecording} className="flex items-center gap-1.5 text-sm">
             <X size={20} /> Discard
@@ -349,10 +400,10 @@ export function FilmPage({ script, onExit }) {
           <div className="text-sm font-medium">Preview · {mmss(recordSeconds)}</div>
           <button onClick={onExit} className="text-sm">Done</button>
         </div>
-        <div className="flex-1 flex items-center justify-center bg-black">
+        <div className="flex-1 min-h-0 flex items-center justify-center bg-black">
           <video src={recordedUrl} controls playsInline className="max-h-full max-w-full" />
         </div>
-        <div className="pb-safe px-4 pt-4 bg-black flex gap-3">
+        <div className="px-4 pt-4 bg-black flex gap-3" style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1.25rem)" }}>
           <button
             onClick={discardRecording}
             className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/10 text-white text-sm font-medium">
@@ -370,7 +421,9 @@ export function FilmPage({ script, onExit }) {
 
   // --- Live camera + teleprompter ---
   return (
-    <div className="fixed inset-0 bg-black overflow-hidden">
+    // 100dvh dynamically respects Safari's visible viewport so the record
+    // button never hides behind the browser's URL bar.
+    <div className="fixed top-0 left-0 right-0 h-[100dvh] bg-black overflow-hidden">
       {/* Camera preview — fills the screen, centre-cropped. */}
       <video
         ref={videoRef}
@@ -510,8 +563,13 @@ export function FilmPage({ script, onExit }) {
         </div>
       </div>
 
-      {/* Record button — big red circle, bottom centre. */}
-      <div className="absolute left-0 right-0 bottom-0 pb-safe z-20 flex justify-center pb-6">
+      {/* Record button — big red circle, bottom centre. The explicit
+          padding-bottom combines the home indicator safe-area inset with
+          extra breathing room so the button is always well clear of
+          both the iOS home indicator AND Safari's URL bar. */}
+      <div
+        className="absolute left-0 right-0 bottom-0 z-20 flex justify-center"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1.5rem)" }}>
         <button
           onClick={isRecording ? stopRecording : startRecording}
           disabled={permission !== "granted"}

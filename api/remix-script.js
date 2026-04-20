@@ -770,18 +770,100 @@ export default async function handler(req, res) {
     }
 
     const data = await r.json();
-    const text = data?.content?.[0]?.text || "";
+    let text = data?.content?.[0]?.text || "";
     const originalWordCount = wordCount(transcript);
-    const remixWordCount = wordCount(text);
+    const TOLERANCE = 10;
+    const floor = originalWordCount - TOLERANCE;
+    const ceiling = originalWordCount + TOLERANCE;
+
+    // --- Server-side word count enforcement ---
+    //
+    // LLMs are unreliable at counting their own output, so we enforce the
+    // ±10 rule server-side. If the first attempt lands outside the window,
+    // fire up to 2 correction calls with specific cut/expand instructions
+    // referencing the previous draft. Keep the best (closest-to-target)
+    // attempt and return it.
+    let bestText = text;
+    let bestDelta = Math.abs(wordCount(text) - originalWordCount);
+    const MAX_CORRECTION_ATTEMPTS = 2;
+    for (let attempt = 0; attempt < MAX_CORRECTION_ATTEMPTS; attempt++) {
+      const currentCount = wordCount(bestText);
+      if (currentCount >= floor && currentCount <= ceiling) break;
+      const direction = currentCount > ceiling ? "overshoot" : "undershoot";
+      const delta = Math.abs(currentCount - originalWordCount);
+      const correction = buildCorrectionMessage({
+        previousText: bestText,
+        previousCount: currentCount,
+        targetCount: originalWordCount,
+        floor,
+        ceiling,
+        direction,
+        delta,
+      });
+      try {
+        const r2 = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 2000,
+            system: systemPrompt,
+            messages: [{ role: "user", content: correction }],
+          }),
+        });
+        if (!r2.ok) break;
+        const data2 = await r2.json();
+        const correctedText = data2?.content?.[0]?.text || "";
+        const correctedCount = wordCount(correctedText);
+        const correctedDelta = Math.abs(correctedCount - originalWordCount);
+        // Only keep the correction if it's closer to the target.
+        if (correctedText && correctedDelta < bestDelta) {
+          bestText = correctedText;
+          bestDelta = correctedDelta;
+        }
+      } catch (correctionErr) {
+        console.warn("Correction attempt failed:", correctionErr);
+        break;
+      }
+    }
+
+    const finalCount = wordCount(bestText);
     return res.json({
-      text,
+      text: bestText,
       framework,
       model: data?.model || "claude-sonnet-4",
-      wordCount: { original: originalWordCount, remix: remixWordCount },
+      wordCount: { original: originalWordCount, remix: finalCount },
     });
   } catch (err) {
     return res.status(500).json({ error: err.message || "Remix failed" });
   }
+}
+
+// Build the correction-turn message shown when the first draft was
+// outside the ±10 window. Includes the previous draft and crisp numeric
+// instructions so the model has a target to hit.
+function buildCorrectionMessage({ previousText, previousCount, targetCount, floor, ceiling, direction, delta }) {
+  const action = direction === "overshoot"
+    ? `CUT approximately ${delta + 2} words to land inside ${floor}–${ceiling}`
+    : `EXPAND with concrete specifics by approximately ${delta + 2} words to land inside ${floor}–${ceiling}`;
+  return `Your previous rewrite was ${previousCount} words. The hard target is ${targetCount} ± 10 (so between ${floor} and ${ceiling} inclusive).
+
+You ${direction === "overshoot" ? "overshot" : "undershot"} the target by ${delta} words. ${action}.
+
+PREVIOUS DRAFT:
+"""
+${previousText}
+"""
+
+Rewrite the draft to fall inside ${floor}–${ceiling} words. Keep the HOOK verbatim. Keep the overall structure and section labels. ${direction === "overshoot"
+    ? "When cutting, remove filler connectives, collapse repeated beats, drop softening qualifiers, and tighten the longest section's middle — do NOT remove the spoken feel or the key insight."
+    : "When expanding, add concrete specifics, named studies (if research topic), or lived examples — do NOT pad with filler connectives or softening qualifiers."}
+
+Output ONLY the rewritten script in the REQUIRED OUTPUT FORMAT — no commentary, no word count, no notes.`;
 }
 
 function buildUserMessage(seed, transcript) {

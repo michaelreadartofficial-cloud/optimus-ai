@@ -71,6 +71,14 @@ Write a script that, at natural spoken pace, runs between 60 and 90 seconds. Tha
 Write a script that, at natural spoken pace, runs between 90 and 120 seconds. That translates to roughly 240 to 325 spoken words total (HOOK + BODY + CTA combined). Aim for around 280 words. Do NOT exceed 325. Do NOT go under 240.`,
 };
 
+// Numeric word-count ranges corresponding to each VIDEO_LENGTH key, used
+// by the server-side enforcement retry loop.
+const VIDEO_LENGTH_RANGES = {
+  "30-60":  { floor: 100, ceiling: 160, target: 130 },
+  "60-90":  { floor: 160, ceiling: 240, target: 200 },
+  "90-120": { floor: 240, ceiling: 325, target: 280 },
+};
+
 // Prefix attached to the framework prompts when CREATING (vs rewriting).
 // The HEIT/Bens prompts were built for rewriting an existing transcript,
 // so when there's no source we override the source-dependent rules.
@@ -394,16 +402,97 @@ HARD OUTPUT RULE — ABSOLUTE: The moment the last required script section ends,
       });
     }
     const data = await r.json();
-    const text = data?.content?.[0]?.text || "";
+    let text = data?.content?.[0]?.text || "";
+
+    // --- Server-side word count enforcement ---
+    //
+    // LLMs are unreliable at counting their own output, so we enforce
+    // the video-length window server-side. Fire up to 2 correction
+    // calls with specific cut/expand feedback referencing the previous
+    // draft. Keep the best (closest-to-target) attempt.
+    const range = VIDEO_LENGTH_RANGES[videoLength] || { floor: 120, ceiling: 220, target: 170 };
+    let bestText = text;
+    let bestDelta = distanceFromRange(wordCount(text), range);
+    const MAX_CORRECTION_ATTEMPTS = 2;
+    for (let attempt = 0; attempt < MAX_CORRECTION_ATTEMPTS; attempt++) {
+      const currentCount = wordCount(bestText);
+      if (currentCount >= range.floor && currentCount <= range.ceiling) break;
+      const direction = currentCount > range.ceiling ? "overshoot" : "undershoot";
+      const correction = buildCreateCorrectionMessage({
+        previousText: bestText,
+        previousCount: currentCount,
+        range,
+        direction,
+        topic,
+      });
+      try {
+        const r2 = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify({
+            model: "claude-sonnet-4-20250514",
+            max_tokens: 2000,
+            system: systemPrompt,
+            messages: [{ role: "user", content: correction }],
+          }),
+        });
+        if (!r2.ok) break;
+        const data2 = await r2.json();
+        const correctedText = data2?.content?.[0]?.text || "";
+        const correctedDelta = distanceFromRange(wordCount(correctedText), range);
+        if (correctedText && correctedDelta < bestDelta) {
+          bestText = correctedText;
+          bestDelta = correctedDelta;
+        }
+      } catch (correctionErr) {
+        console.warn("Correction attempt failed:", correctionErr);
+        break;
+      }
+    }
+
     return res.json({
-      text,
+      text: bestText,
       framework,
       model: data?.model || "claude-sonnet-4",
-      wordCount: { remix: wordCount(text) },
+      wordCount: { remix: wordCount(bestText) },
     });
   } catch (err) {
     return res.status(500).json({ error: err.message || "Create failed" });
   }
+}
+
+// How far outside the [floor, ceiling] window a count is. 0 means inside.
+function distanceFromRange(count, range) {
+  if (count >= range.floor && count <= range.ceiling) return 0;
+  if (count < range.floor) return range.floor - count;
+  return count - range.ceiling;
+}
+
+function buildCreateCorrectionMessage({ previousText, previousCount, range, direction, topic }) {
+  const delta = direction === "overshoot" ? previousCount - range.ceiling : range.floor - previousCount;
+  const action = direction === "overshoot"
+    ? `CUT approximately ${delta + 2} words to land inside ${range.floor}–${range.ceiling}`
+    : `EXPAND with concrete specifics by approximately ${delta + 2} words to land inside ${range.floor}–${range.ceiling}`;
+  return `Your previous script was ${previousCount} words. The hard target is ${range.floor}–${range.ceiling} words (aim ~${range.target}).
+
+You ${direction === "overshoot" ? "overshot" : "undershot"} the target. ${action}.
+
+TOPIC: ${topic}
+
+PREVIOUS DRAFT:
+"""
+${previousText}
+"""
+
+Rewrite the draft to fall inside ${range.floor}–${range.ceiling} words. Keep the HOOK and the section structure. ${direction === "overshoot"
+    ? "When cutting, remove filler connectives, collapse repeated beats, drop softening qualifiers ('basically', 'essentially', 'kind of'), and tighten the longest section's middle — do NOT remove the spoken feel or the key insight. Do NOT reset section openers with 'Here's what happens' / 'Here's the thing' — the script must still flow as one monologue."
+    : "When expanding, add concrete specifics, named studies (if the topic is research-backed), or lived examples — do NOT pad with filler connectives or softening qualifiers."}
+
+Output ONLY the rewritten script in the framework's required format — no commentary, no word count, no notes.`;
 }
 
 function wordCount(text) {
