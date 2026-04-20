@@ -143,7 +143,21 @@ The rewritten script must completely avoid all of the following:
 
 Word Stacking / Anaphora — do not repeat sentence openings in a patterned way. Do not create rhythmic stacked lines with the same start. Do not use poetic repetition.
 
-Binary Contrast Stacking — avoid "not this, but that", "it's not X, it's Y", "you think X, but really it's Y". Do not lean on contrast structures as a crutch.
+Binary Contrast Stacking — BANNED in every form, including all of these variants:
+- "not this, but that"
+- "it's not X, it's Y"
+- "you think X, but really it's Y"
+- "That's not X — that's Y" (em-dash variant — especially common; fully banned)
+- "This isn't X — it's Y"
+- "What looks like X is actually Y"
+- "X isn't X. It's Y."
+- Any two-beat construction where the first clause names a mild thing and the second clause reframes it as a more dramatic / metaphorical thing, joined by em-dash, comma, or a period break.
+
+Negative calibration — this line is exactly the pattern being banned and MUST NEVER appear:
+"That's not a gentle decline — that's a hormonal cliff."
+The structure is: understated phrase → em-dash → metaphor that dramatises the first phrase. It reads as polished LLM slop. Never produce lines of this shape, regardless of topic. If you find yourself reaching for one, rewrite the whole sentence from a different angle.
+
+Do not lean on contrast structures as a crutch. If the underlying point is "testosterone drops quickly after 35", just say that plainly and concretely — do not stage a fake "you might think it's gentle, but actually it's a cliff" reveal.
 
 Three-Beat Predictability — do not write in neat triples just because it sounds polished. Do not overuse clean three-part rhythms.
 
@@ -272,6 +286,29 @@ Before finalising, silently check:
 - Does any line use banned phrasing or banned structure?
 If any check fails, rewrite the script before responding.
 
+AI FLOURISH FINAL SCRUB (mandatory last pass before output)
+
+This is the last thing you do before emitting the final script. Scan every single line for these specific patterns — they are the LLM tells most likely to slip through the earlier checks and must ALL be eliminated:
+
+1. Em-dash contrast reframe: any line of the shape "[mild thing] — [dramatic metaphor]". Examples of what this looks like (all banned):
+   - "That's not a gentle decline — that's a hormonal cliff."
+   - "This isn't a setback — it's a reset."
+   - "That's not aging — that's surrender."
+   - "It's not a habit — it's a prison."
+   Any sentence where an em-dash joins two halves and the second half is a metaphor for the first is banned. Rewrite by stating the point plainly and concretely, without the staged contrast.
+
+2. Period-break contrast with metaphor: the same pattern with a full stop instead of an em-dash. "That's not X. That's Y." "This isn't X. It's Y." Also banned.
+
+3. Metaphor-as-noun reveals: lines that end with a dramatic noun-phrase metaphor like "a hormonal cliff", "a slow unraveling", "a quiet betrayal", "a masterclass in X", "a symptom of Y", "the real killer here". All banned unless they were in the source transcript.
+
+4. Fake-reveal reframes: any sentence positioned as if revealing a hidden truth the viewer missed. Example structure: "What most people think is X is actually Y." Banned.
+
+5. Three-beat rhythmic closes: polished triples that wrap a section with suspicious neatness. Disrupt the rhythm if you find one.
+
+For each instance found: rewrite the sentence from a different angle entirely — do not just swap the metaphor or shift the punctuation. The underlying claim should be stated plainly in natural spoken language, using concrete specifics rather than staged contrast.
+
+After the scrub, if ANY of the above was found and rewritten, re-run the full QUALITY CONTROL CHECK from the top. Only output the script once the scrub finds zero instances.
+
 FINAL RULE
 
 The rewritten script must feel like a new original piece built from the same persuasive principles, not like a paraphrased imitation. Preserve the psychology. Change the language. Keep the length. Build authority.`;
@@ -335,7 +372,21 @@ Banned patterns — do not use any of these
 
 Word stacking / anaphora — no patterned repeated sentence openings, no rhythmic stacked lines with the same start, no poetic repetition.
 
-Binary contrast stacking — no "not this, but that." No "it's not X, it's Y." No "you think X, but really it's Y." Do not lean on contrast as a crutch.
+Binary contrast stacking — BANNED in every form, including ALL of these variants:
+- "not this, but that"
+- "it's not X, it's Y"
+- "you think X, but really it's Y"
+- "That's not X — that's Y" (em-dash variant — especially common; fully banned)
+- "This isn't X — it's Y"
+- "What looks like X is actually Y"
+- "X isn't X. It's Y."
+- Any two-beat construction where the first clause names a mild thing and the second clause reframes it as a more dramatic or metaphorical thing, joined by em-dash, comma, or a period break.
+
+Negative calibration — this exact line is the pattern being banned and must NEVER appear in output:
+"That's not a gentle decline — that's a hormonal cliff."
+The shape is: understated phrase → em-dash → metaphor that dramatises the first phrase. It reads as polished LLM slop. Never produce lines of this shape, regardless of topic. If you reach for one, rewrite the sentence from a different angle entirely.
+
+Do not lean on contrast as a crutch.
 
 Three-beat predictability — no neat triples just because they sound polished. No clean three-part rhythms as a default move.
 
@@ -520,6 +571,27 @@ Layer 4 — AI-tell scrub
 - Any line that announces the point instead of making it? (Cut or replace.)
 - Any abstract emotion described instead of caused? (Replace with concrete detail.)
 - Any line that could be rearranged without changing the meaning? (Tighten or cut.)
+
+Layer 4b — EM-DASH / METAPHOR REFRAME FINAL SCRUB (mandatory last pass)
+
+Scan every line for these specific LLM tells — they slip through the other checks most often and must all be eliminated:
+
+1. Em-dash contrast reframe: any line shaped as "[mild thing] — [dramatic metaphor]". Banned examples:
+   - "That's not a gentle decline — that's a hormonal cliff."
+   - "This isn't a setback — it's a reset."
+   - "That's not aging — that's surrender."
+   - "It's not a habit — it's a prison."
+   Rewrite by stating the point plainly with concrete specifics, no staged contrast.
+
+2. Period-break contrast with metaphor: same pattern with a full stop. "That's not X. That's Y." Banned.
+
+3. Metaphor-as-noun reveals at sentence ends: "a hormonal cliff", "a slow unraveling", "a quiet betrayal", "a masterclass in X", "a symptom of Y", "the real killer here". Banned unless in source transcript.
+
+4. Fake-reveal reframes: "What most people think is X is actually Y." Banned.
+
+5. Three-beat rhythmic closes: polished triples at section ends. Disrupt the rhythm.
+
+For each instance found: rewrite from a different angle entirely — do not just swap the metaphor or shift punctuation. Only output once this scrub finds zero instances.
 
 If a later-layer edit changes the word count and pushes it outside ±10, re-run Layer 1.
 
