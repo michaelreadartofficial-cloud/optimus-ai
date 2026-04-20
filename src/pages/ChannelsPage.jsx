@@ -654,56 +654,58 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-        <div className="flex gap-3 items-center flex-wrap">
+        <div className="flex flex-col md:flex-row gap-2.5 md:gap-3 md:items-center md:flex-wrap">
           <input type="text" placeholder="e.g. Online Fitness Coach"
             value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={handleKeyDown}
-            className="flex-1 min-w-[200px] px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50" />
+            className="md:flex-1 md:min-w-[200px] px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50" />
           <input type="text" placeholder="Search by handle"
             value={handleSearch} onChange={(e) => setHandleSearch(e.target.value)} onKeyDown={handleKeyDown}
-            className="w-56 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50" />
+            className="md:w-56 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50" />
 
-          <div className="relative">
-            <button onClick={() => { setShowPlatformDrop(!showPlatformDrop); setShowSizeDrop(false); }}
-              className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:bg-gray-50 transition-colors">
-              {platformLabel[platformFilter]} <ChevronDown size={14} />
-            </button>
-            {showPlatformDrop && (
-              <>
-                <div className="fixed inset-0 z-20" onClick={() => setShowPlatformDrop(false)} />
-                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-40">
-                  {Object.entries(platformLabel).map(([val, label]) => (
-                    <button key={val} onClick={() => { setPlatformFilter(val); setShowPlatformDrop(false); }}
-                      className={`w-full text-left px-3 py-2 text-sm ${platformFilter === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+          <div className="grid grid-cols-2 md:grid-cols-none md:flex gap-2">
+            <div className="relative">
+              <button onClick={() => { setShowPlatformDrop(!showPlatformDrop); setShowSizeDrop(false); }}
+                className="w-full flex items-center justify-between gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:bg-gray-50 transition-colors">
+                <span className="truncate">{platformLabel[platformFilter]}</span> <ChevronDown size={14} className="flex-shrink-0" />
+              </button>
+              {showPlatformDrop && (
+                <>
+                  <div className="fixed inset-0 z-20" onClick={() => setShowPlatformDrop(false)} />
+                  <div className="absolute top-full left-0 right-0 md:right-auto mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 md:w-40">
+                    {Object.entries(platformLabel).map(([val, label]) => (
+                      <button key={val} onClick={() => { setPlatformFilter(val); setShowPlatformDrop(false); }}
+                        className={`w-full text-left px-3 py-2 text-sm ${platformFilter === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
-          <div className="relative">
-            <button onClick={() => { setShowSizeDrop(!showSizeDrop); setShowPlatformDrop(false); }}
-              className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:bg-gray-50 transition-colors">
-              {sizeLabel[accountSizeFilter]} <ChevronDown size={14} />
-            </button>
-            {showSizeDrop && (
-              <>
-                <div className="fixed inset-0 z-20" onClick={() => setShowSizeDrop(false)} />
-                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 w-48">
-                  {Object.entries(sizeLabel).map(([val, label]) => (
-                    <button key={val} onClick={() => { setAccountSizeFilter(val); setShowSizeDrop(false); }}
-                      className={`w-full text-left px-3 py-2 text-sm ${accountSizeFilter === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
+            <div className="relative">
+              <button onClick={() => { setShowSizeDrop(!showSizeDrop); setShowPlatformDrop(false); }}
+                className="w-full flex items-center justify-between gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white hover:bg-gray-50 transition-colors">
+                <span className="truncate">{sizeLabel[accountSizeFilter]}</span> <ChevronDown size={14} className="flex-shrink-0" />
+              </button>
+              {showSizeDrop && (
+                <>
+                  <div className="fixed inset-0 z-20" onClick={() => setShowSizeDrop(false)} />
+                  <div className="absolute top-full left-0 right-0 md:right-auto mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 md:w-48">
+                    {Object.entries(sizeLabel).map(([val, label]) => (
+                      <button key={val} onClick={() => { setAccountSizeFilter(val); setShowSizeDrop(false); }}
+                        className={`w-full text-left px-3 py-2 text-sm ${accountSizeFilter === val ? "bg-blue-50 text-blue-600 font-medium" : "text-gray-700 hover:bg-gray-50"}`}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
           <button onClick={doSearch} disabled={loading}
-            className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center gap-2">
+            className="w-full md:w-auto px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
             {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
             Search
           </button>
@@ -711,8 +713,8 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
       </div>
 
       {activeTab === "suggestions" ? (
-        <div className="flex gap-6">
-          <div className="flex-1">
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="flex-1 min-w-0">
             {loading && <LoadingSpinner text="Searching creators across platforms..." />}
             {error && <ErrorMessage message={error} onRetry={doSearch} />}
             {!loading && !error && (
@@ -770,7 +772,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
             )}
           </div>
 
-          <div className="w-72 flex-shrink-0">
+          <div className="hidden md:block w-72 flex-shrink-0">
             <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-0">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-bold text-gray-900">Your Watchlist</h3>

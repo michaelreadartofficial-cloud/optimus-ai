@@ -1,36 +1,46 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  X, Camera, Play, Pause, Square, RotateCcw, Share2,
+  X, Camera, Play, Pause, RotateCcw, Share2,
   Minus, Plus, ChevronDown, ChevronUp, SwitchCamera,
 } from "lucide-react";
 
 // Film Now page — the mobile-only fullscreen camera + teleprompter view.
 //
-// Flow:
-//   1. Request camera + mic permission via getUserMedia.
-//   2. Show live camera preview; overlay the script as a scrollable
-//      teleprompter (semi-transparent so the user can see themselves
-//      underneath the text).
-//   3. Tap the big record button to start MediaRecorder — teleprompter
-//      begins auto-scrolling. Tap again to stop.
-//   4. Show the recorded clip in a preview. The user can Save (opens
-//      the native share sheet → Save to Photos), Re-record, or Done.
+// Recording strategy:
+//   iOS Safari records the raw camera sensor stream, which for the iPhone
+//   front cam in portrait mode comes out in landscape orientation. The
+//   live <video> element applies the rotation metadata for preview, but
+//   MediaRecorder captures the raw (rotated) frames — so a naive
+//   `new MediaRecorder(stream)` recording ends up landscape with the
+//   subject sideways.
 //
-// Web-API caveats we handle:
-//   - iOS Safari 14.5+ is required for MediaRecorder. Older iOS versions
-//     get a friendly "unsupported" message.
-//   - We pick the best supported mime type for the platform (MP4/H.264
-//     on iOS, WebM on Android/Chrome).
-//   - Saving directly to Photos isn't possible from a browser; we use
-//     navigator.share with a File to open the native share sheet.
+//   To force portrait output, we draw the live video frame into a 720x1280
+//   canvas every RAF tick, letterboxing / cropping as needed, then record
+//   the canvas's captureStream() combined with the original audio track.
+//   The resulting file is guaranteed portrait 9:16 regardless of sensor
+//   orientation.
+//
+// Auto-scroll strategy:
+//   We use setInterval (not requestAnimationFrame). iOS Safari pauses RAF
+//   callbacks in some situations when a <video> element is actively
+//   capturing, which was preventing the teleprompter from starting until
+//   the user nudged a slider. setInterval is immune to that pause.
+
+const CANVAS_W = 720;
+const CANVAS_H = 1280;
 
 export function FilmPage({ script, onExit }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+  const canvasRef = useRef(null);
+  const drawIntervalRef = useRef(null);
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
   const teleprompterRef = useRef(null);
-  const scrollRafRef = useRef(null);
+  const scrollIntervalRef = useRef(null);
+  // Track the latest scrollSpeed without re-creating the scroll interval
+  // on every slider tick — we just read the ref inside the tick callback.
+  const scrollSpeedRef = useRef(40);
 
   const [permission, setPermission] = useState("prompt"); // prompt | granted | denied | unsupported
   const [facingMode, setFacingMode] = useState("user"); // user = front, environment = rear
@@ -46,10 +56,12 @@ export function FilmPage({ script, onExit }) {
   const [controlsOpen, setControlsOpen] = useState(true);
 
   // Mirror the text so a user reading from a front-facing camera sees it
-  // the same way they see themselves (selfie-mirrored).
+  // the same way they see themselves (selfie-mirrored preview).
   const mirrorPreview = facingMode === "user";
-
   const scriptText = (script?.body || "").trim();
+
+  // Keep the live scrollSpeed value accessible inside the interval tick.
+  useEffect(() => { scrollSpeedRef.current = scrollSpeed; }, [scrollSpeed]);
 
   // --- Camera lifecycle ---
   useEffect(() => {
@@ -61,7 +73,15 @@ export function FilmPage({ script, onExit }) {
       }
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+          video: {
+            facingMode,
+            // Requesting portrait-oriented dimensions helps on Android. iOS
+            // may still hand back a landscape sensor stream — the canvas
+            // pipeline below normalises it regardless.
+            width: { ideal: 720 },
+            height: { ideal: 1280 },
+            aspectRatio: { ideal: 9 / 16 },
+          },
           audio: true,
         });
         if (cancelled) {
@@ -71,7 +91,6 @@ export function FilmPage({ script, onExit }) {
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          // muted + playsInline is required for autoplay on iOS Safari.
           videoRef.current.muted = true;
           videoRef.current.playsInline = true;
           videoRef.current.play().catch(() => {});
@@ -85,8 +104,6 @@ export function FilmPage({ script, onExit }) {
     start();
     return () => {
       cancelled = true;
-      // Tear down the stream when we unmount OR when facingMode changes
-      // (the cleanup runs before the effect re-runs).
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
@@ -94,30 +111,34 @@ export function FilmPage({ script, onExit }) {
     };
   }, [facingMode]);
 
-  // --- Teleprompter auto-scroll ---
+  // --- Teleprompter auto-scroll via setInterval ---
+  //
+  // Runs whenever `scrolling` flips true. The tick reads the LIVE scroll
+  // speed from a ref so we don't have to reinitialise the interval when
+  // the user drags the slider mid-scroll.
   useEffect(() => {
-    if (!scrolling) {
-      if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
-      return;
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+      scrollIntervalRef.current = null;
     }
-    let last = performance.now();
-    const tick = (now) => {
-      const dt = (now - last) / 1000;
-      last = now;
+    if (!scrolling) return;
+    const TICK_MS = 33; // ~30fps scroll update, smooth enough, ~3x cheaper than RAF
+    scrollIntervalRef.current = setInterval(() => {
       const el = teleprompterRef.current;
-      if (el) {
-        el.scrollTop += scrollSpeed * dt;
-        // Auto-stop when we've scrolled to the bottom.
-        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
-          setScrolling(false);
-          return;
-        }
+      if (!el) return;
+      const speed = scrollSpeedRef.current || 0;
+      el.scrollTop += (speed * TICK_MS) / 1000;
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
+        setScrolling(false);
       }
-      scrollRafRef.current = requestAnimationFrame(tick);
+    }, TICK_MS);
+    return () => {
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current);
+        scrollIntervalRef.current = null;
+      }
     };
-    scrollRafRef.current = requestAnimationFrame(tick);
-    return () => scrollRafRef.current && cancelAnimationFrame(scrollRafRef.current);
-  }, [scrolling, scrollSpeed]);
+  }, [scrolling]);
 
   // --- Recording duration timer ---
   useEffect(() => {
@@ -127,8 +148,7 @@ export function FilmPage({ script, onExit }) {
     return () => clearInterval(id);
   }, [isRecording]);
 
-  // Pick the best mime type the browser supports. iOS Safari typically
-  // only has video/mp4; Chrome/Android prefer video/webm (VP8/VP9/Opus).
+  // Pick the best mime type the browser supports.
   const pickMimeType = () => {
     const candidates = [
       "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
@@ -145,20 +165,81 @@ export function FilmPage({ script, onExit }) {
     return "";
   };
 
+  // Draw the live video frame into the hidden portrait canvas, fitted via
+  // center-crop to fill 720x1280 regardless of the source stream's
+  // orientation. Also flips horizontally for the front camera so the
+  // saved recording matches what the user sees in the preview.
+  const drawFrameToCanvas = () => {
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    if (!canvas || !video) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    if (!vw || !vh) return;
+
+    // Target canvas aspect is portrait 9:16 (720x1280). Center-crop the
+    // source so it fills the canvas without distortion.
+    const targetAspect = CANVAS_W / CANVAS_H; // 0.5625
+    const sourceAspect = vw / vh;
+    let sx, sy, sw, sh;
+    if (sourceAspect > targetAspect) {
+      // Source is wider — crop the sides.
+      sh = vh;
+      sw = Math.round(vh * targetAspect);
+      sx = Math.round((vw - sw) / 2);
+      sy = 0;
+    } else {
+      // Source is narrower — crop top/bottom.
+      sw = vw;
+      sh = Math.round(vw / targetAspect);
+      sx = 0;
+      sy = Math.round((vh - sh) / 2);
+    }
+
+    ctx.save();
+    if (mirrorPreview) {
+      // Selfie-mirror so the saved recording matches what the speaker sees.
+      ctx.translate(CANVAS_W, 0);
+      ctx.scale(-1, 1);
+    }
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, CANVAS_W, CANVAS_H);
+    ctx.restore();
+  };
+
   const startRecording = () => {
     if (!streamRef.current) return;
     if (typeof MediaRecorder === "undefined") {
       alert("Recording isn't supported on this device. Update iOS / your browser and try again.");
       return;
     }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Ensure the canvas has its intrinsic dimensions so captureStream is correct.
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
+
+    // Start the draw loop at ~30fps. iOS needs at least one draw before
+    // captureStream() produces a valid track.
+    drawFrameToCanvas();
+    drawIntervalRef.current = setInterval(drawFrameToCanvas, 1000 / 30);
+
+    // Combine the canvas's video track with the original mic audio track.
+    const canvasStream = canvas.captureStream(30);
+    const audioTracks = streamRef.current.getAudioTracks();
+    audioTracks.forEach((t) => canvasStream.addTrack(t));
+
     chunksRef.current = [];
     const mimeType = pickMimeType();
     let rec;
     try {
-      rec = mimeType ? new MediaRecorder(streamRef.current, { mimeType }) : new MediaRecorder(streamRef.current);
+      rec = mimeType ? new MediaRecorder(canvasStream, { mimeType }) : new MediaRecorder(canvasStream);
     } catch (err) {
       console.warn("MediaRecorder construction failed:", err);
       alert("Couldn't start recording. Your browser may not support this feature.");
+      if (drawIntervalRef.current) { clearInterval(drawIntervalRef.current); drawIntervalRef.current = null; }
       return;
     }
     rec.ondataavailable = (e) => { if (e.data && e.data.size) chunksRef.current.push(e.data); };
@@ -170,15 +251,22 @@ export function FilmPage({ script, onExit }) {
         if (prev) URL.revokeObjectURL(prev);
         return URL.createObjectURL(blob);
       });
+      // Stop the draw loop now that we're done.
+      if (drawIntervalRef.current) { clearInterval(drawIntervalRef.current); drawIntervalRef.current = null; }
     };
     recorderRef.current = rec;
     rec.start();
     setIsRecording(true);
     setRecordSeconds(0);
-    // Kick off the teleprompter scroll when recording starts — classic
-    // teleprompter behaviour, no extra tap needed.
+    // Kick the teleprompter back to the top and start auto-scrolling.
     if (teleprompterRef.current) teleprompterRef.current.scrollTop = 0;
-    setScrolling(true);
+    // Collapse the controls tray so the script + red button are both
+    // comfortably visible during the take.
+    setControlsOpen(false);
+    // Toggle scrolling off-then-on so the scroll effect always re-fires
+    // even if the user was already in a "Test scroll" state.
+    setScrolling(false);
+    setTimeout(() => setScrolling(true), 0);
   };
 
   const stopRecording = () => {
@@ -209,11 +297,9 @@ export function FilmPage({ script, onExit }) {
         return;
       }
     } catch (err) {
-      // Share was dismissed or failed — fall through to download.
       if (err && err.name === "AbortError") return;
       console.warn("Share failed, falling back to download:", err);
     }
-    // Fallback: trigger a download so the user can move it to Photos manually.
     const a = document.createElement("a");
     a.href = recordedUrl;
     a.download = file.name;
@@ -228,7 +314,7 @@ export function FilmPage({ script, onExit }) {
     return `${m}:${sec}`;
   };
 
-  // --- Render states ---
+  // --- Error states ---
 
   if (permission === "unsupported") {
     return (
@@ -295,7 +381,17 @@ export function FilmPage({ script, onExit }) {
         style={{ transform: mirrorPreview ? "scaleX(-1)" : "none" }}
       />
 
-      {/* Top bar — close button, recording indicator, camera flip. */}
+      {/* Hidden recording canvas — never displayed, but its stream is what
+          MediaRecorder captures. Size is fixed portrait 720x1280 so the
+          output file is guaranteed 9:16 regardless of sensor orientation. */}
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_W}
+        height={CANVAS_H}
+        className="hidden"
+      />
+
+      {/* Top bar — close, recording indicator, camera flip. */}
       <div className="absolute top-0 left-0 right-0 pt-safe px-4 py-3 flex items-center justify-between z-20">
         <button
           onClick={onExit}
@@ -320,8 +416,8 @@ export function FilmPage({ script, onExit }) {
         </button>
       </div>
 
-      {/* Teleprompter overlay — positioned in the upper/middle portion of
-          the screen so the speaker's eyeline stays near the lens. */}
+      {/* Teleprompter overlay — upper/middle of screen so eyeline stays
+          near the lens. */}
       <div className="absolute left-3 right-3 top-20 bottom-56 z-10">
         <div
           ref={teleprompterRef}
@@ -333,8 +429,7 @@ export function FilmPage({ script, onExit }) {
         </div>
       </div>
 
-      {/* Teleprompter controls — collapsible tray just above the record
-          button. */}
+      {/* Teleprompter controls tray. */}
       <div className="absolute left-0 right-0 bottom-40 z-20 px-3">
         <div className="bg-black/55 backdrop-blur-sm rounded-2xl text-white">
           <button
@@ -415,7 +510,7 @@ export function FilmPage({ script, onExit }) {
         </div>
       </div>
 
-      {/* Record button — the big red circle, bottom centre. */}
+      {/* Record button — big red circle, bottom centre. */}
       <div className="absolute left-0 right-0 bottom-0 pb-safe z-20 flex justify-center pb-6">
         <button
           onClick={isRecording ? stopRecording : startRecording}

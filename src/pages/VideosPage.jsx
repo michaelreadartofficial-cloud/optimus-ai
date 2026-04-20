@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Users, BarChart3, Download, RefreshCw, ChevronDown, X, Video,
-  TrendingUp, Eye, Flame, Heart, MessageCircle, Check, Loader2,
+  TrendingUp, Eye, Flame, Heart, MessageCircle, Check, Loader2, SlidersHorizontal,
 } from "lucide-react";
+import { useIsMobile } from "../utils/useIsMobile";
 import { PlatformBadge } from "../components/PlatformIcon";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
@@ -23,6 +24,8 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
   const creatorCursors = useRef({});
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [hoveredVideoId, setHoveredVideoId] = useState(null);
+  const isMobile = useIsMobile();
+  const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
   const [openVideo, setOpenVideo] = useState(null);
   const [showDownloadPicker, setShowDownloadPicker] = useState(false);
   const [downloadingId, setDownloadingId] = useState(null);
@@ -330,8 +333,8 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
         </p>
       </div>
 
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
+        <div className="flex gap-1 bg-gray-100 p-1 rounded-lg self-start">
           {["feed", "vault"].map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
               className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
@@ -342,7 +345,12 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
           ))}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 flex-wrap">
+          {/* Mobile-only Filters trigger — opens the bottom sheet. */}
+          <button onClick={() => setFiltersSheetOpen(true)}
+            className="md:hidden flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+            <SlidersHorizontal size={14} /> Filters
+          </button>
           {activeTab === "feed" && (
             <button onClick={() => setCurrentPage("channels")}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
@@ -390,12 +398,30 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
         </div>
       </div>
 
-      <div className="flex gap-5">
-        <div className="w-72 flex-shrink-0">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 sticky top-4 overflow-hidden">
+      <div className="flex flex-col md:flex-row gap-5">
+        <div className={
+          isMobile
+            ? (filtersSheetOpen ? "fixed inset-0 z-50 bg-black/60 flex items-end" : "hidden")
+            : "w-72 flex-shrink-0"
+        }
+          onClick={isMobile ? () => setFiltersSheetOpen(false) : undefined}>
+          <div
+            onClick={isMobile ? (e) => e.stopPropagation() : undefined}
+            className={
+              isMobile
+                ? "bg-white w-full max-h-[85vh] overflow-y-auto rounded-t-2xl p-4 pb-safe"
+                : "bg-white rounded-xl border border-gray-200 p-4 sticky top-4 overflow-hidden"
+            }>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Filters</h3>
-              <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Clear</button>
+              <div className="flex items-center gap-2">
+                <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 transition-colors">Clear</button>
+                {isMobile && (
+                  <button onClick={() => setFiltersSheetOpen(false)} className="p-1 rounded-lg hover:bg-gray-100">
+                    <X size={14} className="text-gray-500" />
+                  </button>
+                )}
+              </div>
             </div>
             <div className="space-y-3.5">
               <div className="relative">
@@ -560,7 +586,7 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
           {error && <ErrorMessage message={error} onRetry={fetchVideos} />}
           {!loading && (
             <>
-              <div className="grid gap-4 grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 {visibleVideos.map(video => (
                   <div key={video.id} className="group cursor-pointer"
                     onClick={() => setOpenVideo(video)}
