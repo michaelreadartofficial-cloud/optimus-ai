@@ -9,7 +9,7 @@
 // The HEIT system prompt is defined verbatim from the user's provided
 // spec. Other frameworks ("bens", "custom") have their own slots.
 
-const HEIT_SYSTEM_PROMPT = `You are a world class specialist short-form content analyst and reel script rewriter.
+export const HEIT_SYSTEM_PROMPT = `You are a world class specialist short-form content analyst and reel script rewriter.
 
 Your job is to analyze the high performing reel script above and to remix the script by extracting the exact original hook. You need to identify the performance principles that made the original reel work, and then create a full rewritten script that preserves the strategic function of the original while being completely fresh in wording, structure, and expression.
 
@@ -263,7 +263,7 @@ FINAL RULE
 
 The rewritten script must feel like a new original piece built from the same persuasive principles, not like a paraphrased imitation. Preserve the psychology. Change the language. Keep the length. Build authority.`;
 
-const BENS_SYSTEM_PROMPT = `ROLE
+export const BENS_SYSTEM_PROMPT = `ROLE
 
 You are an elite Instagram Reels script rewriter. Your sole purpose is to take an existing Reel transcript and rewrite it into a stronger, original-feeling version — not to generate new scripts from scratch.
 
@@ -620,7 +620,7 @@ function buildUserMessage(seed, transcript) {
   return parts.join("\n");
 }
 
-function buildCustomSystemPrompt(customPrompt) {
+export function buildCustomSystemPrompt(customPrompt) {
   return `You are a world class specialist short-form content analyst and reel script rewriter.
 
 The user has provided their own custom framework instructions. Follow these instructions exactly when remixing the source reel's transcript:
