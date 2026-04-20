@@ -164,6 +164,34 @@ ${lengthDirective}
 
 HARD OUTPUT RULE — ABSOLUTE: Do NOT append a "NOTES" section, a "Notes" block, a "Quality check" section, a word count, a delta, a variance figure, a detected register line, a "study used" note, any bullet list of meta-commentary, any "---" separator followed by commentary, or anything else after the final script section. The moment the last required script section ends, STOP. Output must contain the script sections and nothing else — no preamble before, no postamble after. This override supersedes any conflicting instruction in the framework below.
 
+WORD COUNT IS A HARD GATE — not a goal.
+
+The length directive above specifies a floor, a ceiling, and a target. Before you emit the final script:
+1. Draft the full script.
+2. Count all spoken words across every section combined.
+3. If over the ceiling → CUT before outputting. If under the floor → expand with concrete specifics.
+4. Only emit when the count is inside the window.
+
+Overshooting the ceiling by 50+ words is a critical failure — it means the reel runs 20+ seconds longer than intended, breaking the user's chosen video-length bucket. When cutting, prioritise: filler connectives ("Here's what happens", "Now, here's the thing"), repeated beats, softening qualifiers ("basically", "essentially"), and the longest section.
+
+SECTION-TO-SECTION FLOW — the hook is not a title.
+
+The section labels (HOOK / EXPLAIN / ILLUSTRATE / TEACH, or Hook / Body / Takeaway / CTA) are structural markers for YOU, not for the speaker. When the script is read aloud as one continuous take (which is how it will be filmed), it must sound like ONE flowing monologue. The hook is the opening beat, not a title card.
+
+The most common failure mode is: the HOOK lands, and then the next section opens with a reset sentence ("Here's what happens...", "Here's the thing...", "Let me explain...", "What most people don't realise is...") that feels like starting a new topic. This kills the flow and makes the reel feel stitched-together.
+
+The first sentence of the section after HOOK must continue the HOOK's thought directly — as the natural next thing the speaker would say. Example:
+
+BAD (hook reads like a title, next section resets):
+  HOOK: Most people think fat loss is just eat less, move more, push harder.
+  EXPLAIN/BODY: Here's what happens once you hit your thirties. Your body changes the rules...
+
+GOOD (hook flows straight into the next line):
+  HOOK: Most people think fat loss is just eat less, move more, push harder.
+  EXPLAIN/BODY: And that worked when you were twenty-two. But in your thirties your body starts playing by different rules...
+
+Apply the same principle to every subsequent section transition — each one opens by continuing the thread, never by restarting it.
+
 Below is the framework:
 ---
 `;
@@ -318,6 +346,14 @@ HOOK QUALITY BAR (hard rule)
 - No intro phrasing ("In this video...", "Today we're going to talk about...", "So, [topic]...").
 - The four-second test: a stranger mid-scroll must want to pause. If they wouldn't, rewrite.
 - Keep it under ~15 words where possible.
+
+SECTION-TO-SECTION FLOW (hard rule)
+- Section labels are structural, not spoken. When read aloud, the script is ONE flowing monologue.
+- The line immediately after the hook must CONTINUE the hook's thought — never reset with "Here's what happens", "Here's the thing", "Let me explain", "Let me tell you", "What most people don't realise is", or similar bridge phrases.
+- Each subsequent section opens by continuing the previous thread, not restarting it.
+
+WORD COUNT IS A HARD GATE
+- The length directive below sets a floor, a ceiling, and a target. Draft, count, and if over-ceiling CUT before emitting. Overshooting by 50+ words is a critical failure.
 
 ${HOOK_STYLE_DIRECTIVES[hookStyle]}
 

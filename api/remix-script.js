@@ -62,8 +62,26 @@ Do not preserve the same skeleton with a few swapped words.
 The rewritten script must be meaningfully different in: wording, phrasing, sentence construction, sequencing, examples, emphasis, rhetorical movement.
 Preserve the function. Change the language.
 
-2. HARD RULE: KEEP THE script word length between -10 or +10 to the original script. The rewritten script must stay VERY close to the original reel's word count and speaking duration as this is a metric that may drive performance.
-Do not make it dramatically shorter. Do not make it much longer.
+2. HARD RULE — WORD COUNT ±10 IS A GATE, NOT A GOAL.
+
+The rewritten script (HOOK + EXPLAIN + ILLUSTRATE + TEACH combined) must fall within the range [original − 10, original + 10] inclusive. This is the single most-violated rule in practice. Read this carefully:
+
+BEFORE YOU OUTPUT, DO THIS EXACT PROCEDURE (silently):
+a) Count the spoken words in the original transcript (ignore timestamps, speaker labels, and transcription artifacts).
+b) Draft your rewrite.
+c) Count the words in your draft.
+d) If the draft's count is outside [original − 10, original + 10]: REVISE before outputting. Cut tight lines if over. Add lived specificity if under. Do NOT emit the final output until the count is inside the window.
+e) Only after the count lands inside the window do you emit the script.
+
+Overshooting by 50+ words is a CRITICAL FAILURE of this prompt — it means the rewrite produces a reel ~20+ seconds longer than the original, which breaks the core performance constraint. When the first draft is over, the ONLY acceptable response is to cut, not to ship long.
+
+WHEN CUTTING, PRIORITISE:
+- Removing connective filler ("Here's what happens", "Now, here's the thing", "What I want to tell you is").
+- Collapsing adjacent sentences that restate the same beat.
+- Removing softening qualifiers ("basically", "essentially", "kind of", "sort of", "really").
+- Tightening the Illustrate section — often the longest and most compressible.
+
+The word budget is the hardest constraint in this framework, above every stylistic preference. Nail it.
 
 3. EXTRACT THE ORIGINAL HOOK EXACTLY
 Always extract and display the original hook exactly as used in the source reel where possible.
@@ -249,6 +267,37 @@ Do not write manufactured "vivid" metaphors, dramatised descriptions, or poetic 
 - lyrical fragments designed to land as quotable ("a small death", "a slow unraveling", "a quiet betrayal")
 If a metaphor or vivid image appears in the writing, it must either be essential to communicating the idea or be the plainest way to communicate it — not an AI attempt to "sound human."
 
+HOOK-TO-EXPLAIN FLOW (hard rule)
+
+The HOOK, EXPLAIN, ILLUSTRATE, and TEACH labels are for YOUR structural clarity — they are NOT section headers the speaker announces. When the script is read aloud as one continuous take (which is how it is filmed), the four sections must sound like ONE flowing monologue, not four separate paragraphs.
+
+The #1 failure mode is: the HOOK lands, and then EXPLAIN opens with a reset sentence that feels like starting a new topic. That breaks the viewer's attention.
+
+EXPLAIN's first sentence must continue DIRECTLY from the HOOK — as the natural next thought. Treat the HOOK as the speaker's opening beat; EXPLAIN is what they immediately say next, building on the same thread.
+
+BANNED opening sentences for EXPLAIN (these all reset instead of flowing):
+- "Here's what happens..."
+- "Here's the thing..."
+- "Let me explain..."
+- "Let me tell you..."
+- "Here's why..."
+- "Now, here's the thing..."
+- "What most people don't realise is..."
+- "The truth is..."
+- "What's actually happening is..."
+
+INSTEAD, the first line of EXPLAIN should be a direct build on the HOOK. Examples of the pattern:
+
+BAD (hook feels like a title, explain resets):
+  HOOK: Most people think fat loss is just: eat less, move more, push harder.
+  EXPLAIN: Here's what happens once you hit your thirties. Your body changes the rules...
+
+GOOD (explain picks up the same sentence flow):
+  HOOK: Most people think fat loss is just: eat less, move more, push harder.
+  EXPLAIN: And that worked when you were twenty-two. But in your thirties your body starts playing by different rules...
+
+The same principle applies for the EXPLAIN → ILLUSTRATE transition and ILLUSTRATE → TEACH transition — each section's opening line picks up the thread from the previous section, it doesn't restart it. When you read the four sections back-to-back as one speech, a stranger should not be able to hear where a "section" starts or ends.
+
 REQUIRED OUTPUT FORMAT
 
 Output ONLY the rewritten script — nothing else. Do not include an "ORIGINAL HOOK" preamble or header. Do not include a "NOTES" section. Do not include word counts, deltas, variance, or commentary about studies used. Do not number the sections. Run all quality control checks silently and show none of them.
@@ -273,9 +322,16 @@ Under no circumstance should Explain, Illustrate, or Teach contain: cues, placeh
 
 QUALITY CONTROL CHECK BEFORE RESPONDING
 
-Before finalising, silently check:
+Before finalising, silently check — in this exact order. The first two are GATES, not checklist items: if they fail, the output is not allowed.
+
+GATE 1 — WORD COUNT
+Count the original spoken words. Count your rewrite (HOOK + EXPLAIN + ILLUSTRATE + TEACH combined). Is the rewrite inside [original − 10, original + 10]? If NO, revise and recount. Do not proceed past this gate with a violation. Anything more than 10 words over or under is a hard failure.
+
+GATE 2 — HOOK-TO-EXPLAIN FLOW
+Read HOOK + first sentence of EXPLAIN aloud together. Does the EXPLAIN opener continue the HOOK's thought naturally, as one flowing monologue? If it starts with a reset phrase ("Here's what happens", "Here's the thing", "Let me tell you", etc.) or opens a new topic, REWRITE the first line of EXPLAIN. Do not ship with a broken hook transition. Check the EXPLAIN → ILLUSTRATE and ILLUSTRATE → TEACH transitions the same way.
+
+REMAINING CHECKLIST:
 - Does the rewritten script preserve function without copying language?
-- Is the length close to the original?
 - Does it sound spoken?
 - Does it sound human?
 - Is the hook extracted exactly?
@@ -513,18 +569,55 @@ When a CTA is included, it must follow Part A rules — no "follow for more," no
 
 Non-negotiable rewrite rules
 
+0. HOOK-TO-BODY FLOW (hard rule — applies to every output)
+
+The HOOK, BODY, TAKEAWAY, CTA labels are structural — they are NOT section headers the speaker announces. When the script is read aloud as one continuous take, it must sound like ONE flowing monologue.
+
+The #1 failure mode is: the HOOK lands, then BODY opens with a reset sentence that feels like starting a new topic. BODY's first sentence must continue DIRECTLY from the HOOK — as the next natural thought.
+
+BANNED opening sentences for BODY (these all reset instead of flowing):
+- "Here's what happens..."
+- "Here's the thing..."
+- "Let me explain..."
+- "Let me tell you..."
+- "Here's why..."
+- "What most people don't realise is..."
+- "The truth is..."
+- "What's actually happening is..."
+
+Example of the pattern:
+
+BAD (hook feels like a title, body resets):
+  Hook: Most people think fat loss is just: eat less, move more, push harder.
+  Body: Here's what happens once you hit your thirties. Your body changes the rules...
+
+GOOD (body picks up the same sentence flow):
+  Hook: Most people think fat loss is just: eat less, move more, push harder.
+  Body: And that worked when you were twenty-two. But in your thirties your body starts playing by different rules...
+
+The same applies to the BODY → TAKEAWAY and TAKEAWAY → CTA transitions — each section opens by continuing the prior thread, not restarting it.
+
 1. Do not copy the original body language. No lazy paraphrasing. No mirrored sentence structure. No same skeleton with swapped words. The rewritten script must be meaningfully different in wording, phrasing, sentence construction, sequencing, examples, emphasis, and rhetorical movement. Preserve the function. Change the language.
 
-2. HARD WORD COUNT RULE — the rewrite must land within ±10 words of the original. Video length is a performance metric, so matching duration is critical.
+2. HARD WORD COUNT RULE — ±10 WORDS IS A GATE, NOT A GOAL.
 
-Procedure:
-- Count the total words in the original transcript (excluding timestamps, speaker labels, and transcription artifacts — count only the actual spoken words).
-- Count the total words in your rewritten script (HOOK + BODY + TAKEAWAY + CTA if present).
-- The rewritten word count must fall inside the range of [original − 10] to [original + 10], inclusive.
-- If outside that range after drafting, revise before delivery. Cut lines if long, expand with lived specificity if short.
-- If the range cannot be hit without damaging script quality, flag this with the count and reason — but always attempt the constraint first.
+The rewritten script (HOOK + BODY + TAKEAWAY + CTA if present) must fall within [original − 10, original + 10] inclusive. This is the single most-violated rule in practice.
 
-Both counts must be shown in the deliverable for verification.
+PROCEDURE — DO THIS BEFORE OUTPUTTING:
+- Count the spoken words in the original transcript (ignore timestamps, speaker labels, transcription artifacts).
+- Draft your rewrite.
+- Count the words in your draft.
+- If outside [original − 10, original + 10]: REVISE before outputting. Cut filler if over, add lived specificity if under. Only emit the script once the count is inside the window.
+
+Overshooting by 50+ words means the reel runs ~20+ seconds longer than the original — this breaks the core performance constraint. When drafting comes in long, CUT. Do not ship long.
+
+WHEN CUTTING, PRIORITISE:
+- Connective filler ("Here's the thing", "Now, here's what's interesting", "What I want to tell you is").
+- Adjacent sentences that restate the same beat.
+- Softening qualifiers ("basically", "essentially", "kind of").
+- The Body's middle — often the longest and most compressible.
+
+The word budget is the hardest constraint in this framework, above every stylistic preference.
 
 3. HARD COMPREHENSION RULE — the rewrite must pass the stranger test. Every line must be understandable on first listen by an adult who has no prior context. No unexplained jargon. No insider shorthand. No technical terms left cold. If the source uses jargon, either explain it naturally in the same sentence or swap it for plain-English equivalent wording.
 
@@ -544,10 +637,14 @@ PART C — Final Check
 
 Run silently before delivering. Run four layers. If anything fails, revise and re-run before delivering.
 
-Layer 1 — Word count gate
+Layer 1 — Word count gate (HARD)
 - Count words in the original (spoken words only).
 - Count words in the rewrite (HOOK + BODY + TAKEAWAY + CTA if present).
-- Confirm within ±10 words. If not, revise. Do not proceed until this passes.
+- Confirm within ±10 words. If not, REVISE before emitting and recount. Do NOT ship a rewrite 20+ / 50+ / 100+ words over the original. This is the single most-violated rule — treat it as a gate, not a guideline.
+
+Layer 1b — Hook-to-Body flow gate (HARD)
+- Read the hook and the first sentence of the body aloud together. Does the body continue the hook's thought naturally, or does it reset with "Here's what happens" / "Here's the thing" / similar?
+- If it resets, rewrite the body's first sentence before emitting. Then re-check the body → takeaway → CTA transitions the same way.
 
 Layer 2 — Comprehension and register gate
 - Does every line pass the stranger test? Flag any jargon, insider shorthand, or technical term left unexplained, and rewrite.
