@@ -224,12 +224,9 @@ If a metaphor or vivid image appears in the writing, it must either be essential
 
 REQUIRED OUTPUT FORMAT
 
-Use this exact structure with these exact headings (in plain text, no markdown asterisks):
+Output ONLY the rewritten script — nothing else. Do not include an "ORIGINAL HOOK" preamble or header. Do not include a "NOTES" section. Do not include word counts, deltas, variance, or commentary about studies used. Do not number the sections. Run all quality control checks silently and show none of them.
 
-1. ORIGINAL HOOK
-[Insert the exact original hook extracted from the reel]
-
-2. FULL REWRITTEN SCRIPT
+Use this exact structure with these exact headings (in plain text, no markdown asterisks), and output nothing before or after:
 
 HOOK:
 [Insert the exact original hook]
@@ -242,12 +239,6 @@ ILLUSTRATE:
 
 TEACH:
 [Write the full rewritten spoken script for this section. This must deliver real value, a takeaway, useful interpretation, or an actionable step. This must be actual script wording, not cues.]
-
-3. NOTES
-- Original word count: [N]
-- Rewritten word count: [N]
-- Delta: [+/-N]
-- Study/case study/authority/statistic used: [yes / no / brief note]
 
 IMPORTANT OUTPUT RULE
 

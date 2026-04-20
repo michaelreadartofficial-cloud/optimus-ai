@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Loader2, Wand2, Check, Sparkles, Copy, Bookmark, RefreshCw, PenTool, Trash2, ChevronDown, Video, X, Pencil } from "lucide-react";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { apiPost } from "../utils/api";
@@ -18,6 +18,10 @@ export const ScriptsPage = ({ savedVideos }) => {
   const [remixing, setRemixing] = useState(false);
   const [remixError, setRemixError] = useState(null);
   const [remixedScript, setRemixedScript] = useState(null);
+  // Cache of remix outputs keyed by framework — lets the user flip between
+  // HEIT / Bens / Custom without regenerating (which would burn credits
+  // AND lose the prior script they may still want).
+  const [remixOutputs, setRemixOutputs] = useState({});
   // Edit mode for the remix output card — swaps <pre> for a <textarea>
   // so the user can tweak the rewritten script in place.
   const [remixEditing, setRemixEditing] = useState(false);
@@ -57,11 +61,63 @@ export const ScriptsPage = ({ savedVideos }) => {
     }
   }, [activeTab]);
 
+  // Wipe the output cache and reset state when the seed (source reel)
+  // actually changes — otherwise you'd see the previous reel's remix.
+  const prevSeedIdRef = useRef(null);
+  useEffect(() => {
+    const id = remixSeed?.seededAt || null;
+    if (prevSeedIdRef.current === id) return;
+    prevSeedIdRef.current = id;
+    setRemixOutputs({});
+    setRemixedScript(null);
+    setRemixFramework("");
+    setRemixCustomPrompt("");
+    setRemixEditing(false);
+    setRemixEditDraft("");
+    setRemixJustSaved(false);
+    setRemixError(null);
+  }, [remixSeed?.seededAt]);
+
+  // When the user switches framework tabs, show the cached output for
+  // that framework (if any) — do NOT auto-regenerate. If nothing is
+  // cached yet for this framework, clear the output card so the Remix
+  // button controls regeneration.
+  useEffect(() => {
+    setRemixEditing(false);
+    setRemixEditDraft("");
+    setRemixJustSaved(false);
+    if (!remixFramework) {
+      setRemixedScript(null);
+      return;
+    }
+    const cached = remixOutputs[remixFramework];
+    setRemixedScript(cached || null);
+  }, [remixFramework]);
+
+  // If the user edits their custom-framework prompt, any cached custom
+  // output no longer matches — invalidate it so the next Remix click
+  // regenerates against the new prompt.
+  const customPromptMountedRef = useRef(false);
+  useEffect(() => {
+    if (!customPromptMountedRef.current) {
+      customPromptMountedRef.current = true;
+      return;
+    }
+    setRemixOutputs(prev => {
+      if (!prev.custom) return prev;
+      const next = { ...prev };
+      delete next.custom;
+      return next;
+    });
+    if (remixFramework === "custom") setRemixedScript(null);
+  }, [remixCustomPrompt]);
+
   const clearRemixSeed = () => {
     setRemixSeed(null);
     setRemixFramework("");
     setRemixCustomPrompt("");
     setRemixedScript(null);
+    setRemixOutputs({});
     setRemixError(null);
     setRemixEditing(false);
     setRemixEditDraft("");
@@ -76,20 +132,24 @@ export const ScriptsPage = ({ savedVideos }) => {
     }
     setRemixing(true);
     setRemixError(null);
-    setRemixedScript(null);
     setRemixEditing(false);
     setRemixEditDraft("");
+    // Note: we intentionally do NOT clear remixedScript here — keep the
+    // existing cached output visible while the new one is generating, so
+    // the card doesn't flash empty mid-request.
     try {
       const r = await apiPost("/api/remix-script", {
         seed: remixSeed,
         framework: remixFramework,
         customPrompt: remixFramework === "custom" ? remixCustomPrompt : undefined,
       });
-      setRemixedScript({
+      const out = {
         framework: remixFramework,
         text: r.text || "",
         wordCount: r.wordCount || null,
-      });
+      };
+      setRemixOutputs(prev => ({ ...prev, [remixFramework]: out }));
+      setRemixedScript(out);
     } catch (e) {
       setRemixError(e.message);
     } finally {
@@ -308,8 +368,15 @@ export const ScriptsPage = ({ savedVideos }) => {
                   {remixEditing ? (
                     <>
                       <button onClick={() => {
-                        // Commit the draft back to the remixed script
-                        setRemixedScript(prev => prev ? { ...prev, text: remixEditDraft } : prev);
+                        // Commit the draft back to the remixed script AND
+                        // the per-framework cache so it persists on switch.
+                        setRemixedScript(prev => {
+                          const next = prev ? { ...prev, text: remixEditDraft } : prev;
+                          if (next && remixFramework) {
+                            setRemixOutputs(p => ({ ...p, [remixFramework]: next }));
+                          }
+                          return next;
+                        });
                         setRemixEditing(false);
                       }}
                         className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-gray-900 text-white rounded-lg hover:bg-gray-800">
@@ -347,7 +414,21 @@ export const ScriptsPage = ({ savedVideos }) => {
                         }`}>
                         {remixJustSaved ? <><Check size={12} /> Saved!</> : <><Bookmark size={12} /> Save script</>}
                       </button>
-                      <button onClick={() => { setRemixedScript(null); setRemixEditing(false); setRemixEditDraft(""); setRemixJustSaved(false); }}
+                      <button onClick={() => {
+                        // Start over clears ONLY the current framework's
+                        // cached output, so the user can regenerate this
+                        // one without losing their scripts for the other
+                        // frameworks.
+                        setRemixOutputs(prev => {
+                          const next = { ...prev };
+                          if (remixFramework) delete next[remixFramework];
+                          return next;
+                        });
+                        setRemixedScript(null);
+                        setRemixEditing(false);
+                        setRemixEditDraft("");
+                        setRemixJustSaved(false);
+                      }}
                         className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
                         <RefreshCw size={12} /> Start over
                       </button>
