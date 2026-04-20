@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Loader2, Wand2, Check, Sparkles, Copy, Bookmark, RefreshCw, PenTool, Trash2, ChevronDown, Video, X, Pencil } from "lucide-react";
+import { Loader2, Wand2, Check, Sparkles, Copy, Bookmark, RefreshCw, PenTool, Trash2, ChevronDown, Video, X, Pencil, Camera } from "lucide-react";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { apiPost } from "../utils/api";
 import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "../utils/storage";
 
-export const ScriptsPage = ({ savedVideos }) => {
+export const ScriptsPage = ({ savedVideos, onFilmScript }) => {
   const [savedScripts, setSavedScripts] = useState(() => loadFromStorage(STORAGE_KEYS.savedScripts, []));
   const [activeTab, setActiveTab] = useState("remix");
 
@@ -893,6 +893,21 @@ export const ScriptsPage = ({ savedVideos }) => {
                 </button>
               </div>
             </div>
+            {/* Mobile-only Film Now CTA — parent passes onFilmScript only
+                when the app is running in the mobile layout. */}
+            {onFilmScript && (
+              <div className="px-5 py-3 border-b border-gray-100">
+                <button
+                  onClick={() => {
+                    const toFilm = viewingScript;
+                    setViewingScript(null);
+                    onFilmScript(toFilm);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800">
+                  <Camera size={16} /> Film Now
+                </button>
+              </div>
+            )}
             <div className="flex-1 overflow-y-auto p-5">
               {(viewingScript.tone === "Remix" || viewingScript.tone === "Create") ? (
                 <pre className="text-sm text-gray-900 leading-relaxed whitespace-pre-wrap font-sans">{viewingScript.body}</pre>

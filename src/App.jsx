@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import {
   Settings, Users, Video, Lightbulb, PenTool, FolderOpen, Archive,
-  UserCircle, HelpCircle,
+  UserCircle, HelpCircle, MoreHorizontal, X,
 } from "lucide-react";
 import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "./utils/storage";
+import { useIsMobile } from "./utils/useIsMobile";
 import { ChannelsPage } from "./pages/ChannelsPage";
 import { VideosPage } from "./pages/VideosPage";
 import { ScriptsPage } from "./pages/ScriptsPage";
@@ -12,6 +13,7 @@ import { ProjectsPage } from "./pages/ProjectsPage";
 import { ExportsPage } from "./pages/ExportsPage";
 import { PersonaPage } from "./pages/PersonaPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { FilmPage } from "./pages/FilmPage";
 
 const NAV_SECTIONS = [
   {
@@ -39,9 +41,32 @@ const NAV_SECTIONS = [
   },
 ];
 
+// Mobile bottom-tab nav — the four most-used pages, plus "More" for the
+// rest. Kept short so 44px+ tap targets fit comfortably on small phones.
+const MOBILE_PRIMARY_TABS = [
+  { id: "videos", label: "Videos", icon: Video },
+  { id: "scripts", label: "Scripts", icon: PenTool },
+  { id: "channels", label: "Channels", icon: Users },
+  { id: "ideas", label: "Ideas", icon: Lightbulb },
+];
+
+// Pages that live in the mobile "More" overflow sheet.
+const MOBILE_MORE_ITEMS = [
+  { id: "projects", label: "Projects", icon: FolderOpen },
+  { id: "exports", label: "Exports", icon: Archive },
+  { id: "persona", label: "Persona", icon: UserCircle },
+  { id: "settings", label: "Settings", icon: Settings },
+];
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState("videos");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Active filming session — when set, we render the FilmPage fullscreen
+  // and suppress the normal app chrome. Only reachable on mobile.
+  const [filmingScript, setFilmingScript] = useState(null);
+  const [moreSheetOpen, setMoreSheetOpen] = useState(false);
+  const isMobile = useIsMobile();
+
   const [watchlist, setWatchlist] = useState(() => {
     // Load watchlist from storage. If storage contains legacy SAMPLE_WATCHLIST
     // entries (fake demo creators with IDs like "yt_1"), filter them out —
@@ -56,6 +81,115 @@ export default function App() {
   useEffect(() => { saveToStorage(STORAGE_KEYS.watchlist, watchlist); }, [watchlist]);
   useEffect(() => { saveToStorage(STORAGE_KEYS.savedVideos, savedVideos); }, [savedVideos]);
 
+  // If the user rotates to desktop mid-session, close the mobile More sheet
+  // so it doesn't get stranded open.
+  useEffect(() => { if (!isMobile) setMoreSheetOpen(false); }, [isMobile]);
+
+  // --- Fullscreen Film Now route — overrides all normal app chrome. ---
+  if (filmingScript) {
+    return (
+      <FilmPage
+        script={filmingScript}
+        onExit={() => setFilmingScript(null)}
+      />
+    );
+  }
+
+  const pageContent = (
+    <>
+      {currentPage === "channels" && <ChannelsPage watchlist={watchlist} setWatchlist={setWatchlist} />}
+      {currentPage === "videos" && <VideosPage watchlist={watchlist} savedVideos={savedVideos} setSavedVideos={setSavedVideos} setCurrentPage={setCurrentPage} />}
+      {currentPage === "scripts" && <ScriptsPage savedVideos={savedVideos} onFilmScript={isMobile ? setFilmingScript : null} />}
+      {currentPage === "ideas" && <IdeasPage savedVideos={savedVideos} setCurrentPage={setCurrentPage} />}
+      {currentPage === "projects" && <ProjectsPage savedVideos={savedVideos} savedScripts={loadFromStorage(STORAGE_KEYS.savedScripts, [])} />}
+      {currentPage === "exports" && <ExportsPage />}
+      {currentPage === "persona" && <PersonaPage />}
+      {currentPage === "settings" && <SettingsPage />}
+    </>
+  );
+
+  // --- Mobile layout: bottom tab bar, no sidebar. ---
+  if (isMobile) {
+    return (
+      <div className="flex flex-col h-screen bg-gray-50">
+        {/* Scrollable page body — padded so the fixed bottom tab bar never
+            overlaps content, and topped with a slim header showing app name. */}
+        <div className="flex-1 overflow-y-auto pt-safe">
+          <div className="px-4 py-3 border-b border-gray-100 bg-white flex items-center gap-2">
+            <div className="w-7 h-7 bg-gradient-to-br from-orange-400 to-pink-500 rounded-md flex items-center justify-center text-white font-bold text-xs">O</div>
+            <span className="font-bold text-gray-900 text-sm">Optimus.AI</span>
+          </div>
+          <div className="px-4 py-4 pb-24">
+            {pageContent}
+          </div>
+        </div>
+
+        {/* Fixed bottom tab bar with safe-area padding for home indicator. */}
+        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe z-40">
+          <div className="flex items-stretch">
+            {MOBILE_PRIMARY_TABS.map((tab) => {
+              const active = currentPage === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setCurrentPage(tab.id)}
+                  className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
+                    active ? "text-gray-900" : "text-gray-400"
+                  }`}>
+                  <tab.icon size={22} strokeWidth={active ? 2.25 : 1.75} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+            <button
+              onClick={() => setMoreSheetOpen(true)}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
+                MOBILE_MORE_ITEMS.some(i => i.id === currentPage) ? "text-gray-900" : "text-gray-400"
+              }`}>
+              <MoreHorizontal size={22} strokeWidth={1.75} />
+              <span>More</span>
+            </button>
+          </div>
+        </nav>
+
+        {/* "More" overflow sheet — pages that didn't fit in the bottom bar. */}
+        {moreSheetOpen && (
+          <div
+            className="fixed inset-0 z-50 bg-black/50 flex items-end"
+            onClick={() => setMoreSheetOpen(false)}>
+            <div
+              className="bg-white w-full rounded-t-2xl pb-safe"
+              onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <h3 className="text-sm font-semibold text-gray-900">More</h3>
+                <button onClick={() => setMoreSheetOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100">
+                  <X size={16} className="text-gray-500" />
+                </button>
+              </div>
+              <div className="py-1">
+                {MOBILE_MORE_ITEMS.map((item) => {
+                  const active = currentPage === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => { setCurrentPage(item.id); setMoreSheetOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+                        active ? "bg-gray-50 text-gray-900 font-semibold" : "text-gray-700 hover:bg-gray-50"
+                      }`}>
+                      <item.icon size={18} className="text-gray-500" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // --- Desktop layout: the original sidebar design, unchanged. ---
   return (
     <div className="flex h-screen bg-gray-50">
       <div className={`${sidebarOpen ? "w-56" : "w-16"} transition-all duration-200 bg-white border-r border-gray-200 flex flex-col`}>
@@ -101,14 +235,7 @@ export default function App() {
 
       <div className="flex-1 overflow-auto">
         <div className="p-8 max-w-[1400px]">
-          {currentPage === "channels" && <ChannelsPage watchlist={watchlist} setWatchlist={setWatchlist} />}
-          {currentPage === "videos" && <VideosPage watchlist={watchlist} savedVideos={savedVideos} setSavedVideos={setSavedVideos} setCurrentPage={setCurrentPage} />}
-          {currentPage === "scripts" && <ScriptsPage savedVideos={savedVideos} />}
-          {currentPage === "ideas" && <IdeasPage savedVideos={savedVideos} setCurrentPage={setCurrentPage} />}
-          {currentPage === "projects" && <ProjectsPage savedVideos={savedVideos} savedScripts={loadFromStorage(STORAGE_KEYS.savedScripts, [])} />}
-          {currentPage === "exports" && <ExportsPage />}
-          {currentPage === "persona" && <PersonaPage />}
-          {currentPage === "settings" && <SettingsPage />}
+          {pageContent}
         </div>
       </div>
     </div>
