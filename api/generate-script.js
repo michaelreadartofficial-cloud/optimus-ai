@@ -13,14 +13,29 @@ The opening hook must flip a piece of conventional wisdom or popular advice on i
 Do NOT use the literal phrases "everyone thinks", "most people believe", or "you've been told". Invent fresher phrasing. The contrarian stance comes through the claim itself, not a formulaic intro.`,
 
   reactive: `HOOK STYLE — REACTIVE CALL OUT
-The opening hook must be a direct, almost confrontational, address to the viewer. It calls out a behaviour or belief the viewer is likely engaging in and names the uncomfortable consequence. Use the opener formula:
+The opening hook is the creator reacting — staring down the camera and giving their blunt, unfiltered opinion or calling something out, whether it is socially appropriate or not. The energy is confrontational, opinionated, and direct. It should feel like the creator has witnessed the thing being discussed one too many times and can no longer hold their tongue.
 
-"I don't know who needs to hear this, but [specific behaviour or belief the viewer has] [uncomfortable consequence or harsh reality they need to accept]."
+This style can take many shapes. Valid flavours include:
+- a direct call-out of a viewer behaviour
+- a blunt opinion most people would privately agree with but not say out loud
+- a harsh observation about how people handle the topic
+- a challenge to the viewer's current stance or excuse
+- contempt or disbelief aimed at a common piece of advice
+- naming the hypocrisy in how the topic is usually talked about
+- an accusation aimed at a group or industry
 
-Example (do NOT reuse — generate a fresh version in the topic's voice):
+Pick whichever flavour fits the topic best. The common thread across all of them is that the creator is sharing a reactive, unvarnished stance — not presenting information neutrally.
+
+Reference example (this is ONE flavour only; its exact opening phrase must not be reused):
 "I don't know who needs to hear this, but if you're working out every day but still not seeing results then you're going to have to live with the fact that you're probably always going to be fat."
 
-The hook must land as a direct call-out — specific, second-person, and blunt. It should feel like the speaker is naming something the viewer has been avoiding. Keep it to one or two sentences max.`,
+HARD RULES for this style:
+- BANNED OPENING: Do NOT open the hook with "I don't know who needs to hear this, but..." or any close variant ("I don't know who needs to hear this..." / "Someone needs to hear this..." / "Nobody's going to say this, but..." / "This is going to upset some people, but..."). Those are the generic reactive openers — they must NEVER appear in this output. Write a fresh opener instead that carries the same blunt, opinionated call-out energy.
+- The hook must feel reactive and opinionated, not informational or neutral.
+- It must land like a real person saying the thing, not a template.
+- It must be direct and specific — no hedging, no softening.
+- Keep it to one or two sentences.
+- Vary the structure every time — if the last generation opened with a second-person call-out, this one might open with an opinion statement or an accusation or contempt at a piece of advice.`,
 };
 
 // --- Video-length instructions → word count targets ---
