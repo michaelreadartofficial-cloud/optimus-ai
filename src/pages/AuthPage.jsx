@@ -67,6 +67,10 @@ export function AuthPage() {
   };
 
   // --- Step 2: verify the OTP code ---
+  //
+  // Supabase accepts multiple `type` values for email OTPs depending on
+  // whether the user is signing up for the first time or signing in.
+  // We try each in order so the user never has to think about it.
   const handleVerifyCode = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     const clean = otp.replace(/\D/g, "");
@@ -76,20 +80,33 @@ export function AuthPage() {
     }
     setVerifying(true);
     setError(null);
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email: email.trim(),
-        token: clean,
-        type: "email",
-      });
-      if (error) throw error;
-      // AuthProvider's onAuthStateChange listener will flip the app to
-      // the signed-in state automatically — no further action needed here.
-    } catch (err) {
-      setError(err.message || "That code didn't work. Double-check it and try again.");
-    } finally {
-      setVerifying(false);
+    const typesToTry = ["email", "magiclink", "signup"];
+    let lastErr = null;
+    for (const type of typesToTry) {
+      try {
+        const { error } = await supabase.auth.verifyOtp({
+          email: email.trim(),
+          token: clean,
+          type,
+        });
+        if (!error) {
+          // AuthProvider's onAuthStateChange will flip us to signed-in.
+          setVerifying(false);
+          return;
+        }
+        lastErr = error;
+        // Don't keep trying if the code is genuinely expired/used — only
+        // retry on a "type mismatch"-ish message.
+        if (/expired|used/i.test(error.message || "")) break;
+      } catch (err) {
+        lastErr = err;
+      }
     }
+    setError(
+      (lastErr && lastErr.message) ||
+      "That code didn't work. Double-check it — and if you already clicked the link in the email, request a fresh code below."
+    );
+    setVerifying(false);
   };
 
   // Cooldown for the "Resend code" button so users can't hammer Supabase.
