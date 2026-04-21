@@ -72,7 +72,7 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
   };
 
   const stats = [
-    video.outlierScore >= 1 && { icon: TrendingUp, label: "Outlier", value: `${video.outlierScore.toFixed(1)}x`, color: "text-orange-500" },
+    video.outlierScore >= 1 && { icon: TrendingUp, label: "Outlier", value: `${video.outlierScore.toFixed(1)}x`, color: "text-red-500" },
     { icon: Eye, label: "Views", value: video.viewsFormatted || formatNumber(video.views), color: "text-gray-700" },
     video.likes != null && { icon: Heart, label: "Likes", value: formatNumber(video.likes), color: "text-gray-700" },
     video.comments != null && { icon: MessageCircle, label: "Comments", value: formatNumber(video.comments), color: "text-gray-700" },

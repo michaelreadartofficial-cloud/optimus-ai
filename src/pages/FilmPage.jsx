@@ -456,13 +456,16 @@ export function FilmPage({ script, onExit }) {
         </button>
       </div>
 
-      {/* Teleprompter overlay — upper/middle of screen so eyeline stays
-          near the lens. */}
-      <div className="absolute left-3 right-3 top-20 bottom-56 z-10">
+      {/* Teleprompter overlay — compact panel in the upper portion of
+          the screen so the speaker's eyeline stays near the lens. Sized
+          to roughly the top-third so the user can still see themselves.
+          Semi-transparent background (~35% black) + light blur keeps the
+          text legible without darkening the preview. */}
+      <div className="absolute left-4 right-4 top-20 h-[38vh] z-10">
         <div
           ref={teleprompterRef}
-          className="w-full h-full rounded-2xl bg-black/55 backdrop-blur-sm text-white overflow-y-auto p-5"
-          style={{ fontSize: `${fontSize}px`, lineHeight: 1.5 }}>
+          className="w-full h-full rounded-2xl bg-black/30 backdrop-blur-[2px] text-white overflow-y-auto px-4 py-3"
+          style={{ fontSize: `${fontSize}px`, lineHeight: 1.5, textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>
           <div className="whitespace-pre-wrap" style={{ paddingBottom: "40vh" }}>
             {scriptText || "This script has no body text to display."}
           </div>

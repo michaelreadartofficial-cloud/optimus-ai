@@ -620,7 +620,7 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                       </div>
                       <div className="flex items-center gap-2.5 mt-1 text-[11px] flex-wrap">
                         {video.outlierScore >= 1.0 && (
-                          <span className="text-orange-500 font-semibold flex items-center gap-0.5" title={`${video.outlierScore.toFixed(1)}x creator's avg views`}>
+                          <span className="text-red-500 font-semibold flex items-center gap-0.5" title={`${video.outlierScore.toFixed(1)}x creator's avg views`}>
                             <TrendingUp size={10} /> {video.outlierScore.toFixed(1)}x
                           </span>
                         )}

@@ -8,12 +8,21 @@
   box-sizing: border-box;
 }
 
+/* Keep the document background black so that, when the app runs as a
+   standalone PWA on iOS, the area behind the safe-area insets (home
+   indicator strip) doesn't flash white — it picks up the html bg. */
+html {
+  background: #000;
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Prevent iOS pull-to-refresh from breaking PWA-style experiences. */
   overscroll-behavior-y: contain;
+  /* App shell background. Individual pages set their own bg on top. */
+  background: #f9fafb;
 }
 
 /* Safe-area helpers for iPhone notches / home indicators. */
