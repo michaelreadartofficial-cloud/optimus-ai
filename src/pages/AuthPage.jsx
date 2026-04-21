@@ -1,30 +1,43 @@
 import { useState } from "react";
-import { Loader2, Mail, Check, AlertCircle } from "lucide-react";
+import { Loader2, Mail, ArrowLeft, AlertCircle, KeyRound } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 // --- AuthPage ---
 //
-// First-run / logged-out entry point for the app. Offers three sign-in
-// methods, all routed through Supabase Auth:
+// Sign-in flow optimised for iOS PWAs. The problem with magic links on
+// iPhone: when the user clicks a link inside the Mail app, iOS ALWAYS
+// opens it in Safari — never in the installed PWA on the home screen.
+// That breaks the "sign in once and stay signed in" flow because the
+// session lands in a different browser storage than the home-screen app.
 //
-//   1. Magic link (passwordless email) — user enters email, we send a
-//      link they click to sign in. No password ever stored.
-//   2. Continue with Google — OAuth via Supabase's Google provider.
-//   3. Continue with Apple — OAuth via Supabase's Apple provider.
-//      (Required if we ever ship a Capacitor native iOS app.)
+// The fix: use email OTP codes instead of link clicks. Supabase sends a
+// 6-digit code alongside the magic link in the same email. The user
+// stays inside the home-screen PWA the whole time — they read the code
+// from the email and type it into our code input. Zero Safari involvement.
 //
-// OAuth providers must be enabled in the Supabase dashboard under
-// Authentication → Providers before the Google/Apple buttons do
-// anything useful. Instructions in SUPABASE_SETUP.md.
+// Flow:
+//   Step 1 (email):  user types email → we call signInWithOtp → Supabase
+//                    sends an email containing both the link AND a code.
+//   Step 2 (code):   user reads the code from their email → types it
+//                    into our OTP input → we call verifyOtp → session
+//                    established, AuthProvider picks it up, app loads.
+//
+// We also keep Google / Apple OAuth for future use (they don't have the
+// iOS-Safari-vs-PWA problem because the OAuth redirect back lands in
+// whatever browser started the flow).
 
 export function AuthPage() {
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState("email"); // "email" | "code"
   const [submitting, setSubmitting] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState(null);
+  const [resentAt, setResentAt] = useState(0);
 
-  const handleMagicLink = async (e) => {
-    e.preventDefault();
+  // --- Step 1: send the email with the OTP code ---
+  const handleSendCode = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!email.trim()) return;
     if (!isSupabaseConfigured) {
       setError("Auth isn't configured yet — add your Supabase keys in Vercel env vars.");
@@ -36,20 +49,52 @@ export function AuthPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim(),
         options: {
-          // When the user clicks the link in their email, they land back
-          // on the app at the root URL with the session in the URL hash.
-          // Supabase's detectSessionInUrl flag picks it up automatically.
+          // The link in the email will still redirect here if clicked on
+          // a device where that works (desktop, Android Chrome). On iOS
+          // PWA we ignore the link and use the OTP code.
           emailRedirectTo: window.location.origin,
+          shouldCreateUser: true,
         },
       });
       if (error) throw error;
-      setSent(true);
+      setStep("code");
+      setResentAt(Date.now());
     } catch (err) {
-      setError(err.message || "Couldn't send the magic link. Try again in a moment.");
+      setError(err.message || "Couldn't send the code. Try again in a moment.");
     } finally {
       setSubmitting(false);
     }
   };
+
+  // --- Step 2: verify the OTP code ---
+  const handleVerifyCode = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const clean = otp.replace(/\D/g, "");
+    if (clean.length !== 6) {
+      setError("Enter the 6-digit code from your email.");
+      return;
+    }
+    setVerifying(true);
+    setError(null);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: clean,
+        type: "email",
+      });
+      if (error) throw error;
+      // AuthProvider's onAuthStateChange listener will flip the app to
+      // the signed-in state automatically — no further action needed here.
+    } catch (err) {
+      setError(err.message || "That code didn't work. Double-check it and try again.");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  // Cooldown for the "Resend code" button so users can't hammer Supabase.
+  const secondsSinceResend = Math.floor((Date.now() - resentAt) / 1000);
+  const canResend = resentAt === 0 || secondsSinceResend >= 30;
 
   const handleOAuth = async (provider) => {
     if (!isSupabaseConfigured) {
@@ -63,8 +108,6 @@ export function AuthPage() {
         options: { redirectTo: window.location.origin },
       });
       if (error) throw error;
-      // supabase.auth.signInWithOAuth navigates the browser away, so we
-      // won't actually reach code past this line.
     } catch (err) {
       setError(err.message || `Couldn't start ${provider} sign-in.`);
     }
@@ -79,12 +122,22 @@ export function AuthPage() {
           <span className="font-bold text-gray-900">Optimus.AI</span>
         </div>
 
-        <h1 className="text-xl font-bold text-gray-900 text-center">Sign in to continue</h1>
-        <p className="text-sm text-gray-500 text-center mt-1">
-          {sent
-            ? "Check your inbox for the magic link."
-            : "New here? Enter your email — we'll create your account automatically."}
-        </p>
+        {step === "email" ? (
+          <>
+            <h1 className="text-xl font-bold text-gray-900 text-center">Sign in to continue</h1>
+            <p className="text-sm text-gray-500 text-center mt-1">
+              New here? Enter your email — we'll create your account automatically.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className="text-xl font-bold text-gray-900 text-center">Enter your code</h1>
+            <p className="text-sm text-gray-500 text-center mt-1 leading-relaxed">
+              We sent a 6-digit code to <span className="font-medium text-gray-700">{email}</span>.
+              Open the email and type the code below.
+            </p>
+          </>
+        )}
 
         {!isSupabaseConfigured && (
           <div className="mt-5 p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
@@ -95,70 +148,99 @@ export function AuthPage() {
           </div>
         )}
 
-        {/* OAuth buttons */}
-        {!sent && (
-          <div className="mt-6 space-y-2.5">
-            <button
-              onClick={() => handleOAuth("google")}
-              disabled={submitting}
-              className="w-full flex items-center justify-center gap-2.5 py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition text-sm font-medium text-gray-700 disabled:opacity-50">
-              <GoogleIcon /> Continue with Google
-            </button>
-            <button
-              onClick={() => handleOAuth("apple")}
-              disabled={submitting}
-              className="w-full flex items-center justify-center gap-2.5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-900 transition text-sm font-medium disabled:opacity-50">
-              <AppleIcon /> Continue with Apple
-            </button>
-          </div>
+        {/* --- Step 1: email --- */}
+        {step === "email" && (
+          <>
+            {/* OAuth buttons */}
+            <div className="mt-6 space-y-2.5">
+              <button
+                onClick={() => handleOAuth("google")}
+                disabled={submitting}
+                className="w-full flex items-center justify-center gap-2.5 py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition text-sm font-medium text-gray-700 disabled:opacity-50">
+                <GoogleIcon /> Continue with Google
+              </button>
+              <button
+                onClick={() => handleOAuth("apple")}
+                disabled={submitting}
+                className="w-full flex items-center justify-center gap-2.5 py-2.5 bg-black text-white rounded-lg hover:bg-gray-900 transition text-sm font-medium disabled:opacity-50">
+                <AppleIcon /> Continue with Apple
+              </button>
+            </div>
+
+            <div className="my-5 flex items-center gap-3 text-[11px] text-gray-400">
+              <div className="flex-1 h-px bg-gray-100" />
+              OR
+              <div className="flex-1 h-px bg-gray-100" />
+            </div>
+
+            <form onSubmit={handleSendCode} className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-gray-500 block mb-1.5">Email</label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  inputMode="email"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={submitting || !email.trim()}
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50">
+                {submitting ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+                {submitting ? "Sending…" : "Email me a code"}
+              </button>
+            </form>
+          </>
         )}
 
-        {!sent && (
-          <div className="my-5 flex items-center gap-3 text-[11px] text-gray-400">
-            <div className="flex-1 h-px bg-gray-100" />
-            OR
-            <div className="flex-1 h-px bg-gray-100" />
-          </div>
-        )}
-
-        {/* Magic link form */}
-        {!sent ? (
-          <form onSubmit={handleMagicLink} className="space-y-3">
+        {/* --- Step 2: 6-digit code --- */}
+        {step === "code" && (
+          <form onSubmit={handleVerifyCode} className="mt-6 space-y-3">
             <div>
-              <label className="text-xs font-medium text-gray-500 block mb-1.5">Email</label>
+              <label className="text-xs font-medium text-gray-500 block mb-1.5">6-digit code</label>
               <input
-                type="email"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="123456"
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                autoFocus
+                className="w-full px-3 py-3 text-center tracking-[0.4em] text-lg font-mono font-semibold border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <button
               type="submit"
-              disabled={submitting || !email.trim()}
+              disabled={verifying || otp.length !== 6}
               className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50">
-              {submitting ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
-              {submitting ? "Sending…" : "Send magic link"}
+              {verifying ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />}
+              {verifying ? "Verifying…" : "Verify & sign in"}
             </button>
-          </form>
-        ) : (
-          <div className="mt-6 p-4 rounded-lg bg-green-50 border border-green-100 flex items-start gap-2.5">
-            <Check size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <p className="font-medium text-green-900">Email sent</p>
-              <p className="text-green-700 text-xs mt-0.5">
-                We sent a link to <span className="font-medium">{email}</span>. Click it to finish signing in.
-              </p>
+
+            <div className="flex items-center justify-between pt-1 text-xs">
               <button
-                onClick={() => { setSent(false); setEmail(""); }}
-                className="text-xs text-green-800 underline mt-2">
-                Use a different email
+                type="button"
+                onClick={() => { setStep("email"); setOtp(""); setError(null); }}
+                className="flex items-center gap-1 text-gray-500 hover:text-gray-700">
+                <ArrowLeft size={12} /> Change email
+              </button>
+              <button
+                type="button"
+                onClick={() => canResend && handleSendCode()}
+                disabled={!canResend || submitting}
+                className="text-gray-500 hover:text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed">
+                {canResend ? "Resend code" : `Resend in ${30 - secondsSinceResend}s`}
               </button>
             </div>
-          </div>
+          </form>
         )}
 
         {error && (
