@@ -621,7 +621,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                 : <span className="text-gray-400">—</span>}
           </p>
         </div>
-        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 flex-shrink-0">
           {showSimilar && (
             <button onClick={() => findSimilar(creator)}
               className="p-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
@@ -794,7 +794,7 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
                       <p className="text-xs text-gray-400">{creator.subscriberCount > 0 ? formatNumber(creator.subscriberCount) : "—"}</p>
                     </div>
                     <button onClick={() => removeFromWatchlist(creator.id)}
-                      className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100">
+                      className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
                       <X size={12} />
                     </button>
                   </div>

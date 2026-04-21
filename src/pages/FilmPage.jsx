@@ -78,22 +78,31 @@ export function FilmPage({ script, onExit }) {
     const body = document.body;
     const prev = {
       htmlOverflow: html.style.overflow,
+      htmlBackground: html.style.background,
       bodyOverflow: body.style.overflow,
       bodyPosition: body.style.position,
       bodyWidth: body.style.width,
       bodyHeight: body.style.height,
+      bodyBackground: body.style.background,
     };
     html.style.overflow = "hidden";
+    // Force the root-level backgrounds to black so NO surface under the
+    // FilmPage is ever the app's default off-white — even if the fixed
+    // overlay's positioning leaves a 1px seam at safe-area edges.
+    html.style.background = "#000";
     body.style.overflow = "hidden";
     body.style.position = "fixed";
     body.style.width = "100%";
     body.style.height = "100%";
+    body.style.background = "#000";
     return () => {
       html.style.overflow = prev.htmlOverflow;
+      html.style.background = prev.htmlBackground;
       body.style.overflow = prev.bodyOverflow;
       body.style.position = prev.bodyPosition;
       body.style.width = prev.bodyWidth;
       body.style.height = prev.bodyHeight;
+      body.style.background = prev.bodyBackground;
     };
   }, []);
 
@@ -534,11 +543,12 @@ export function FilmPage({ script, onExit }) {
         </div>
       </div>
 
-      {/* Teleprompter controls tray. Anchored LOW so the collapsed
-          one-line bar sits right above the record button instead of
-          floating in the middle of the screen. Expanded state grows
-          upward from the same anchor. */}
-      <div className="absolute left-0 right-0 bottom-48 z-20 px-3">
+      {/* Teleprompter controls tray — anchored to the VERY BOTTOM of
+          the viewport (below the record button). Collapsed it's a thin
+          strip flush against the bottom edge; expanded it grows upward. */}
+      <div
+        className="absolute left-0 right-0 bottom-0 z-20 px-3"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)" }}>
         <div className="bg-black/55 backdrop-blur-sm rounded-2xl text-white">
           <button
             onClick={() => setControlsOpen((o) => !o)}
@@ -619,12 +629,12 @@ export function FilmPage({ script, onExit }) {
       </div>
 
       {/* Record button — big red circle, bottom centre. Padding combines
-          home indicator safe-area + 4rem extra so Safari's URL bar
-          (when the PWA isn't installed to home screen) doesn't obscure
-          the button. */}
+          home indicator safe-area + 3rem extra so the button sits low
+          on the screen but still comfortably above the teleprompter
+          tray that's anchored to the very bottom. */}
       <div
         className="absolute left-0 right-0 bottom-0 z-20 flex justify-center"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 4rem)" }}>
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 3rem)" }}>
         <button
           onClick={isRecording ? stopRecording : startRecording}
           disabled={permission !== "granted"}

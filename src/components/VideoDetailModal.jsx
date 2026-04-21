@@ -12,6 +12,10 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
   const [analysis, setAnalysis] = useState({ hook: null, transcript: null, whyViral: null });
   const [analyzing, setAnalyzing] = useState({ hook: false, transcript: false, whyViral: false });
   const [error, setError] = useState(null);
+  // Flips true while the "Remix this script" button is async-fetching
+  // the transcript before navigating to the Scripts page. Without this
+  // the button looked inert while a ~5–15s Whisper call ran.
+  const [remixing, setRemixing] = useState(false);
 
   // Reset analysis state whenever the modal opens with a different video.
   // Without this the stale transcript/hook/whyViral from the previous video
@@ -149,38 +153,47 @@ export const VideoDetailModal = ({ video, onClose, onSaveToggle, isSaved, setCur
               }`}>
               <Bookmark size={13} /> {isSaved ? "Saved to vault" : "Save to vault"}
             </button>
-            <button onClick={async () => {
-              // Persist the seed for the Scripts > Remix tab. If we already
-              // have a cached transcript for this video, use it; otherwise
-              // fetch one now so Remix opens with the real transcript.
-              let transcript = (analysis.transcript || "").trim();
-              if (!transcript) {
+            <button
+              disabled={remixing}
+              onClick={async () => {
+                if (remixing) return;
+                setRemixing(true);
+                // Persist the seed for the Scripts > Remix tab. If we already
+                // have a cached transcript for this video, use it; otherwise
+                // fetch one now so Remix opens with the real transcript.
+                let transcript = (analysis.transcript || "").trim();
+                if (!transcript) {
+                  try {
+                    const r = await apiPost("/api/video-analysis", { video, kind: "transcript" });
+                    transcript = (r.text || "").trim();
+                  } catch {}
+                }
                 try {
-                  const r = await apiPost("/api/video-analysis", { video, kind: "transcript" });
-                  transcript = (r.text || "").trim();
+                  localStorage.setItem("optimus_remix_seed", JSON.stringify({
+                    videoId: video.id,
+                    title: video.title || "",
+                    caption: video.caption || "",
+                    transcript,
+                    thumbnail: video.thumbnail || "",
+                    channel: video.channel || {},
+                    url: video.url || "",
+                    views: video.views || 0,
+                    outlierScore: video.outlierScore || 0,
+                    seededAt: Date.now(),
+                  }));
                 } catch {}
-              }
-              try {
-                localStorage.setItem("optimus_remix_seed", JSON.stringify({
-                  videoId: video.id,
-                  title: video.title || "",
-                  caption: video.caption || "",
-                  transcript,
-                  thumbnail: video.thumbnail || "",
-                  channel: video.channel || {},
-                  url: video.url || "",
-                  views: video.views || 0,
-                  outlierScore: video.outlierScore || 0,
-                  seededAt: Date.now(),
-                }));
-              } catch {}
-              // Also save to vault for user convenience
-              if (!isSaved) onSaveToggle(video);
-              setCurrentPage("scripts");
-              onClose();
-            }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
-              <PenTool size={13} /> Remix this script
+                // Also save to vault for user convenience
+                if (!isSaved) onSaveToggle(video);
+                setCurrentPage("scripts");
+                setRemixing(false);
+                onClose();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition disabled:opacity-70 disabled:cursor-wait">
+              {remixing ? (
+                <><Loader2 size={13} className="animate-spin" /> Transcribing…</>
+              ) : (
+                <><PenTool size={13} /> Remix this script</>
+              )}
             </button>
             <a href={platformUrl} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
