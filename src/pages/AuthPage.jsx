@@ -29,11 +29,34 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 export function AuthPage() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState("email"); // "email" | "code"
+  const [password, setPassword] = useState("");
+  const [step, setStep] = useState("email"); // "email" | "code" | "password"
   const [submitting, setSubmitting] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState(null);
   const [resentAt, setResentAt] = useState(0);
+
+  // --- Password sign-in (fallback when email OTPs are rate-limited) ---
+  const handlePasswordSignIn = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!email.trim() || !password) {
+      setError("Enter both email and password.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) throw error;
+    } catch (err) {
+      setError(err.message || "Couldn't sign in. Check your email and password.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   // --- Step 1: send the email with the OTP code ---
   const handleSendCode = async (e) => {
@@ -146,19 +169,28 @@ export function AuthPage() {
           <span className="font-bold text-gray-900">Optimus.AI</span>
         </div>
 
-        {step === "email" ? (
+        {step === "email" && (
           <>
             <h1 className="text-xl font-bold text-gray-900 text-center">Sign in to continue</h1>
             <p className="text-sm text-gray-500 text-center mt-1">
               New here? Enter your email — we'll create your account automatically.
             </p>
           </>
-        ) : (
+        )}
+        {step === "code" && (
           <>
             <h1 className="text-xl font-bold text-gray-900 text-center">Enter your code</h1>
             <p className="text-sm text-gray-500 text-center mt-1 leading-relaxed">
               We sent a sign-in code to <span className="font-medium text-gray-700">{email}</span>.
               Open the email and type the code below.
+            </p>
+          </>
+        )}
+        {step === "password" && (
+          <>
+            <h1 className="text-xl font-bold text-gray-900 text-center">Sign in with password</h1>
+            <p className="text-sm text-gray-500 text-center mt-1">
+              Enter your email and password.
             </p>
           </>
         )}
@@ -219,7 +251,62 @@ export function AuthPage() {
                 {submitting ? "Sending…" : "Email me a code"}
               </button>
             </form>
+
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={() => { setStep("password"); setError(null); }}
+                className="text-xs text-gray-500 hover:text-gray-700 underline">
+                Sign in with password instead
+              </button>
+            </div>
           </>
+        )}
+
+        {/* --- Alternate: password sign-in --- */}
+        {step === "password" && (
+          <form onSubmit={handlePasswordSignIn} className="mt-6 space-y-3">
+            <div>
+              <label className="text-xs font-medium text-gray-500 block mb-1.5">Email</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+                inputMode="email"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-500 block mb-1.5">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Your password"
+                autoComplete="current-password"
+                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={submitting || !email.trim() || !password}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50">
+              {submitting ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />}
+              {submitting ? "Signing in…" : "Sign in"}
+            </button>
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={() => { setStep("email"); setPassword(""); setError(null); }}
+                className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1 mx-auto">
+                <ArrowLeft size={12} /> Back to email code
+              </button>
+            </div>
+          </form>
         )}
 
         {/* --- Step 2: 6-digit code --- */}
