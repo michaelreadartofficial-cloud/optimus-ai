@@ -80,7 +80,15 @@ export function AuthPage() {
     }
     setVerifying(true);
     setError(null);
-    const typesToTry = ["email", "magiclink", "signup"];
+    // Supabase returns "token has expired or is invalid" for BOTH
+    // genuinely-expired tokens AND for type mismatches — you can't
+    // tell them apart from the error message. So we try every type
+    // Supabase supports for email OTPs; at most one will match.
+    //
+    // Order: `magiclink` first (what signInWithOtp creates for
+    // existing users), `signup` next (first-time email confirmations),
+    // then `email` (newer passwordless variant).
+    const typesToTry = ["magiclink", "signup", "email"];
     let lastErr = null;
     for (const type of typesToTry) {
       try {
@@ -95,16 +103,13 @@ export function AuthPage() {
           return;
         }
         lastErr = error;
-        // Don't keep trying if the code is genuinely expired/used — only
-        // retry on a "type mismatch"-ish message.
-        if (/expired|used/i.test(error.message || "")) break;
       } catch (err) {
         lastErr = err;
       }
     }
     setError(
       (lastErr && lastErr.message) ||
-      "That code didn't work. Double-check it — and if you already clicked the link in the email, request a fresh code below."
+      "That code didn't work. Request a fresh code below and try again — and don't click the link in the email, just type the 6-digit code."
     );
     setVerifying(false);
   };
