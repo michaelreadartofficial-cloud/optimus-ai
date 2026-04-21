@@ -543,12 +543,21 @@ export function FilmPage({ script, onExit }) {
         </div>
       </div>
 
-      {/* Teleprompter controls tray — anchored to the VERY BOTTOM of
-          the viewport (below the record button). Collapsed it's a thin
-          strip flush against the bottom edge; expanded it grows upward. */}
+      {/* Teleprompter controls tray — two positions depending on state:
+            - COLLAPSED: anchored to the very bottom of the viewport
+              (below the record button) so it's a thin strip at the
+              edge, out of the way.
+            - EXPANDED: lifted up to sit directly under the teleprompter
+              overlay (top region) so the sliders never fall behind the
+              record button.
+          z-30 when expanded so it renders above the record button
+          wrapper, preventing the button from covering the controls. */}
       <div
-        className="absolute left-0 right-0 bottom-0 z-20 px-3"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)" }}>
+        className={`absolute left-0 right-0 px-3 ${controlsOpen ? "z-30" : "z-20"}`}
+        style={controlsOpen
+          ? { top: "calc(5rem + 38vh + 0.5rem)" }
+          : { bottom: 0, paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)" }
+        }>
         <div className="bg-black/55 backdrop-blur-sm rounded-2xl text-white">
           <button
             onClick={() => setControlsOpen((o) => !o)}
@@ -631,14 +640,18 @@ export function FilmPage({ script, onExit }) {
       {/* Record button — big red circle, bottom centre. Padding combines
           home indicator safe-area + 3rem extra so the button sits low
           on the screen but still comfortably above the teleprompter
-          tray that's anchored to the very bottom. */}
+          tray that's anchored to the very bottom.
+          pointer-events-none on the wrapper so taps in its empty
+          transparent area fall through to the teleprompter tray
+          underneath — otherwise the wrapper absorbs the tap and the
+          tray's toggle-open button never fires. */}
       <div
-        className="absolute left-0 right-0 bottom-0 z-20 flex justify-center"
+        className="absolute left-0 right-0 bottom-0 z-20 flex justify-center pointer-events-none"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 3rem)" }}>
         <button
           onClick={isRecording ? stopRecording : startRecording}
           disabled={permission !== "granted"}
-          className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center disabled:opacity-40">
+          className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center disabled:opacity-40 pointer-events-auto">
           {isRecording ? (
             <span className="w-7 h-7 bg-red-500 rounded-md" />
           ) : (
