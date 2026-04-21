@@ -352,9 +352,9 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
             <SlidersHorizontal size={14} /> Filters
           </button>
           {activeTab === "feed" && (
-            <button onClick={() => setCurrentPage("channels")}
+            <button onClick={() => setCurrentPage("creators")}
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-              <Users size={14} /> Configure channels
+              <Users size={14} /> Configure creators
             </button>
           )}
 
@@ -686,9 +686,9 @@ export const VideosPage = ({ watchlist, savedVideos, setSavedVideos, setCurrentP
                         : "Save videos from your feed to see them here."}
                   </p>
                   {watchlist.length === 0 && (
-                    <button onClick={() => setCurrentPage("channels")}
+                    <button onClick={() => setCurrentPage("creators")}
                       className="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
-                      <Users size={14} /> Go to Channels
+                      <Users size={14} /> Go to Creators
                     </button>
                   )}
                 </div>

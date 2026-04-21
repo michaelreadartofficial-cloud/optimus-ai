@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Settings, Users, Video, Lightbulb, PenTool, FolderOpen, Archive,
+  Settings, Users, Video, Lightbulb, PenTool,
   UserCircle, HelpCircle, MoreHorizontal, X, Plus,
 } from "lucide-react";
 import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "./utils/storage";
@@ -9,8 +9,6 @@ import { ChannelsPage } from "./pages/ChannelsPage";
 import { VideosPage } from "./pages/VideosPage";
 import { ScriptsPage } from "./pages/ScriptsPage";
 import { IdeasPage } from "./pages/IdeasPage";
-import { ProjectsPage } from "./pages/ProjectsPage";
-import { ExportsPage } from "./pages/ExportsPage";
 import { PersonaPage } from "./pages/PersonaPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { FilmPage } from "./pages/FilmPage";
@@ -27,34 +25,30 @@ const NAV_SECTIONS = [
     title: "Create",
     items: [
       { id: "scripts", label: "Scripts", icon: PenTool },
-      { id: "projects", label: "Projects", icon: FolderOpen },
-      { id: "exports", label: "Exports", icon: Archive },
     ]
   },
   {
     title: "Configure",
     items: [
-      { id: "channels", label: "Channels", icon: Users },
-      { id: "persona", label: "Persona", icon: UserCircle },
+      { id: "creators", label: "Creators", icon: Users },
+      { id: "account", label: "My Account", icon: UserCircle },
       { id: "settings", label: "Settings", icon: Settings },
     ]
   },
 ];
 
-// Mobile bottom-tab nav — the four most-used pages, plus "More" for the
-// rest. Kept short so 44px+ tap targets fit comfortably on small phones.
+// Mobile bottom-tab nav. Five slots, including an overflow "More" sheet
+// that currently holds Account + Settings.
 const MOBILE_PRIMARY_TABS = [
   { id: "videos", label: "Videos", icon: Video },
   { id: "scripts", label: "Scripts", icon: PenTool },
-  { id: "channels", label: "Channels", icon: Users },
+  { id: "creators", label: "Creators", icon: Users },
   { id: "ideas", label: "Ideas", icon: Lightbulb },
 ];
 
 // Pages that live in the mobile "More" overflow sheet.
 const MOBILE_MORE_ITEMS = [
-  { id: "projects", label: "Projects", icon: FolderOpen },
-  { id: "exports", label: "Exports", icon: Archive },
-  { id: "persona", label: "Persona", icon: UserCircle },
+  { id: "account", label: "My Account", icon: UserCircle },
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
@@ -117,13 +111,11 @@ export default function App() {
 
   const pageContent = (
     <>
-      {currentPage === "channels" && <ChannelsPage watchlist={watchlist} setWatchlist={setWatchlist} />}
+      {currentPage === "creators" && <ChannelsPage watchlist={watchlist} setWatchlist={setWatchlist} />}
       {currentPage === "videos" && <VideosPage watchlist={watchlist} savedVideos={savedVideos} setSavedVideos={setSavedVideos} setCurrentPage={setCurrentPage} />}
       {currentPage === "scripts" && <ScriptsPage savedVideos={savedVideos} onFilmScript={isMobile ? setFilmingScript : null} />}
       {currentPage === "ideas" && <IdeasPage savedVideos={savedVideos} setCurrentPage={setCurrentPage} />}
-      {currentPage === "projects" && <ProjectsPage savedVideos={savedVideos} savedScripts={loadFromStorage(STORAGE_KEYS.savedScripts, [])} />}
-      {currentPage === "exports" && <ExportsPage />}
-      {currentPage === "persona" && <PersonaPage />}
+      {currentPage === "account" && <PersonaPage />}
       {currentPage === "settings" && <SettingsPage />}
     </>
   );

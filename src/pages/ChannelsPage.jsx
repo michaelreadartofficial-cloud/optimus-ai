@@ -638,8 +638,8 @@ export const ChannelsPage = ({ watchlist, setWatchlist }) => {
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-gray-900">Channels</h2>
-        <p className="text-sm text-gray-500 mt-1">Pick which channels to include in your videos feed</p>
+        <h2 className="text-xl font-bold text-gray-900">Creators</h2>
+        <p className="text-sm text-gray-500 mt-1">Pick which creators to include in your videos feed</p>
       </div>
 
       <div className="flex gap-2 mb-5">

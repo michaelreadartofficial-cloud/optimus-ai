@@ -12,7 +12,7 @@ export const PersonaPage = () => {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Persona</h1>
+        <h1 className="text-xl font-bold text-gray-900">My Account</h1>
         <p className="text-sm text-gray-500 mt-1">Tell us about the content you make so we can tailor ideas and scripts</p>
       </div>
       <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
