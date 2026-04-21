@@ -66,27 +66,89 @@ export function FilmPage({ script, onExit }) {
   // Keep the live scrollSpeed value accessible inside the interval tick.
   useEffect(() => { scrollSpeedRef.current = scrollSpeed; }, [scrollSpeed]);
 
+  // --- Body scroll lock while the FilmPage is mounted ---
+  //
+  // On iOS Safari the body can rubber-band even when the FilmPage's
+  // outer wrapper is `position: fixed`. That rubber-band is what lets
+  // the user "drag the camera down" and briefly expose a white bar. We
+  // hard-lock html+body overflow and pin the body in place for the
+  // duration of the filming session.
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prev = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      bodyPosition: body.style.position,
+      bodyWidth: body.style.width,
+      bodyHeight: body.style.height,
+    };
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.width = "100%";
+    body.style.height = "100%";
+    return () => {
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overflow = prev.bodyOverflow;
+      body.style.position = prev.bodyPosition;
+      body.style.width = prev.bodyWidth;
+      body.style.height = prev.bodyHeight;
+    };
+  }, []);
+
   // --- Camera lifecycle ---
   useEffect(() => {
     let cancelled = false;
+
+    // When selecting the rear camera, try to find an ultra-wide lens via
+    // enumerateDevices (iPhone labels them "Back Ultra Wide Camera").
+    // This gives a much wider framing than the main 26mm-equivalent
+    // rear lens that iOS picks by default for facingMode:"environment".
+    // Note: device labels are empty until camera permission has been
+    // granted at least once, so on first run we fall back to facingMode
+    // and try enumerating again on subsequent camera switches.
+    async function pickRearDeviceId() {
+      if (facingMode !== "environment") return null;
+      try {
+        if (!navigator.mediaDevices.enumerateDevices) return null;
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videos = devices.filter((d) => d.kind === "videoinput" && d.label);
+        if (videos.length === 0) return null;
+        const ultra = videos.find((d) => /ultra\s*wide/i.test(d.label));
+        if (ultra) return ultra.deviceId;
+        // Otherwise prefer an explicit "back" camera (some iPhones
+        // expose multiple rear lenses; fall back to the default).
+        return null;
+      } catch { return null; }
+    }
+
     async function start() {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         setPermission("unsupported");
         return;
       }
       try {
+        const deviceId = await pickRearDeviceId();
+        const videoConstraints = {
+          // Explicit deviceId takes precedence over facingMode when both
+          // are set. If we found an ultra-wide, target it directly.
+          ...(deviceId ? { deviceId: { exact: deviceId } } : { facingMode }),
+          // Request the native landscape sensor capture. iPhone front
+          // cam is 4:3 landscape-native. Asking for 9:16 directly
+          // invokes a tighter sensor crop on iOS that feels like a
+          // digital zoom; the raw 4:3/16:9 landscape + canvas crop to
+          // 9:16 gives a wider FOV matching the native camera app.
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          // Advanced: attempt zoom=1 (no zoom). On rear cams that
+          // support `zoom` (iPhone 11+ Safari partially), this clamps
+          // any default digital zoom. Ignored on devices that don't
+          // support the constraint.
+          advanced: [{ zoom: 1.0 }],
+        };
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode,
-            // Request the native landscape sensor capture (iPhone front
-            // cam is 4:3 landscape-native). Asking for 9:16 directly
-            // invokes a tighter sensor crop on iOS that feels like a
-            // digital zoom; asking for the raw 4:3 / 16:9 landscape and
-            // letting our canvas crop to 9:16 gives a wider field of
-            // view that matches the iPhone's native camera framing.
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-          },
+          video: videoConstraints,
           audio: true,
         });
         if (cancelled) {
@@ -472,9 +534,11 @@ export function FilmPage({ script, onExit }) {
         </div>
       </div>
 
-      {/* Teleprompter controls tray. Positioned above the record button
-          with enough clearance for the button's larger bottom padding. */}
-      <div className="absolute left-0 right-0 bottom-56 z-20 px-3">
+      {/* Teleprompter controls tray. Anchored LOW so the collapsed
+          one-line bar sits right above the record button instead of
+          floating in the middle of the screen. Expanded state grows
+          upward from the same anchor. */}
+      <div className="absolute left-0 right-0 bottom-48 z-20 px-3">
         <div className="bg-black/55 backdrop-blur-sm rounded-2xl text-white">
           <button
             onClick={() => setControlsOpen((o) => !o)}
