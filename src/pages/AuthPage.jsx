@@ -73,9 +73,11 @@ export function AuthPage() {
   // We try each in order so the user never has to think about it.
   const handleVerifyCode = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    // Supabase's email OTPs can be either 6 or 8 digits depending on
+    // project settings — we accept either length rather than hard-coding 6.
     const clean = otp.replace(/\D/g, "");
-    if (clean.length !== 6) {
-      setError("Enter the 6-digit code from your email.");
+    if (clean.length < 6 || clean.length > 10) {
+      setError("Enter the code from your email.");
       return;
     }
     setVerifying(true);
@@ -109,7 +111,7 @@ export function AuthPage() {
     }
     setError(
       (lastErr && lastErr.message) ||
-      "That code didn't work. Request a fresh code below and try again — and don't click the link in the email, just type the 6-digit code."
+      "That code didn't work. Request a fresh code below and try again — and don't click the link in the email, just type the code."
     );
     setVerifying(false);
   };
@@ -155,7 +157,7 @@ export function AuthPage() {
           <>
             <h1 className="text-xl font-bold text-gray-900 text-center">Enter your code</h1>
             <p className="text-sm text-gray-500 text-center mt-1 leading-relaxed">
-              We sent a 6-digit code to <span className="font-medium text-gray-700">{email}</span>.
+              We sent a sign-in code to <span className="font-medium text-gray-700">{email}</span>.
               Open the email and type the code below.
             </p>
           </>
@@ -224,24 +226,24 @@ export function AuthPage() {
         {step === "code" && (
           <form onSubmit={handleVerifyCode} className="mt-6 space-y-3">
             <div>
-              <label className="text-xs font-medium text-gray-500 block mb-1.5">6-digit code</label>
+              <label className="text-xs font-medium text-gray-500 block mb-1.5">Sign-in code</label>
               <input
                 type="text"
                 required
                 value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                placeholder="123456"
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                placeholder="Enter the code from your email"
                 autoComplete="one-time-code"
                 inputMode="numeric"
-                pattern="[0-9]{6}"
-                maxLength={6}
+                pattern="[0-9]{6,10}"
+                maxLength={10}
                 autoFocus
-                className="w-full px-3 py-3 text-center tracking-[0.4em] text-lg font-mono font-semibold border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-3 text-center tracking-[0.3em] text-lg font-mono font-semibold border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <button
               type="submit"
-              disabled={verifying || otp.length !== 6}
+              disabled={verifying || otp.length < 6}
               className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-800 transition disabled:opacity-50">
               {verifying ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />}
               {verifying ? "Verifying…" : "Verify & sign in"}
