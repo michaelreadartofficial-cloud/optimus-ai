@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { loadFromStorage, saveToStorage, STORAGE_KEYS } from "./utils/storage";
 import { useIsMobile } from "./utils/useIsMobile";
+import { useAuth } from "./contexts/AuthContext";
 import { ChannelsPage } from "./pages/ChannelsPage";
 import { VideosPage } from "./pages/VideosPage";
 import { ScriptsPage } from "./pages/ScriptsPage";
@@ -12,6 +13,7 @@ import { IdeasPage } from "./pages/IdeasPage";
 import { PersonaPage } from "./pages/PersonaPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { FilmPage } from "./pages/FilmPage";
+import { AuthPage } from "./pages/AuthPage";
 
 const NAV_SECTIONS = [
   {
@@ -53,6 +55,7 @@ const MOBILE_MORE_ITEMS = [
 ];
 
 export default function App() {
+  const { user, loading: authLoading } = useAuth();
   const [currentPage, setCurrentPage] = useState("videos");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   // Active filming session — when set, we render the FilmPage fullscreen
@@ -98,6 +101,18 @@ export default function App() {
   // If the user rotates to desktop mid-session, close the mobile More sheet
   // so it doesn't get stranded open.
   useEffect(() => { if (!isMobile) setMoreSheetOpen(false); }, [isMobile]);
+
+  // --- Auth gate — everything below requires a signed-in user ---
+  if (authLoading) {
+    return (
+      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full border-2 border-gray-200 border-t-gray-900 animate-spin" />
+      </div>
+    );
+  }
+  if (!user) {
+    return <AuthPage />;
+  }
 
   // --- Fullscreen Film Now route — overrides all normal app chrome. ---
   if (filmingScript) {

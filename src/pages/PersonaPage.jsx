@@ -1,13 +1,22 @@
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, LogOut, Mail } from "lucide-react";
 import { loadFromStorage, saveToStorage } from "../utils/storage";
+import { useAuth } from "../contexts/AuthContext";
 
 export const PersonaPage = () => {
+  const { user, signOut } = useAuth();
   const [persona, setPersona] = useState(() => loadFromStorage("optimus_persona", { niche: "", audience: "", voice: "", topics: "" }));
   const [saved, setSaved] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   const update = (k, v) => { setPersona(p => ({ ...p, [k]: v })); setSaved(false); };
   const save = () => { saveToStorage("optimus_persona", persona); setSaved(true); setTimeout(() => setSaved(false), 2000); };
+
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    try { await signOut(); } catch {}
+    setSigningOut(false);
+  };
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -15,6 +24,30 @@ export const PersonaPage = () => {
         <h1 className="text-xl font-bold text-gray-900">My Account</h1>
         <p className="text-sm text-gray-500 mt-1">Tell us about the content you make so we can tailor ideas and scripts</p>
       </div>
+
+      {/* Account summary card — email + sign out. Subscription/credits
+          UI slot in here in Phase 2. */}
+      {user && (
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold">
+              {(user.email || "?").charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                <Mail size={12} /> Signed in as
+              </div>
+              <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleSignOut}
+            disabled={signingOut}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50">
+            <LogOut size={14} /> {signingOut ? "Signing out…" : "Sign out"}
+          </button>
+        </div>
+      )}
       <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Niche</label>
